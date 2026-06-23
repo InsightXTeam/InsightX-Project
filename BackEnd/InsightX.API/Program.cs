@@ -1,14 +1,13 @@
 
 using System.Text;
 using InsightX.Domain.Entities;
-using InsightX.Application.Interfaces;
+using InsightX.Infrastructure;
 using InsightX.Infrastructure.Persistence;
-using InsightX.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using InsightX.Application.Common;
+
 
 namespace InsightX.API
 {
@@ -32,12 +31,7 @@ namespace InsightX.API
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
-            builder.Services.AddScoped<ITokenService, TokenService>();
-            builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
-            builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<ICompanyService, CompanyService>();
-            builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+            builder.Services.AddInfrastructureServices(builder.Configuration);
 
             builder.Services.AddAuthentication(options =>
             {
