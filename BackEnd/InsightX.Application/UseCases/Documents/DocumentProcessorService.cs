@@ -1,0 +1,76 @@
+using InsightX.Application.DTOs.Reports;
+using InsightX.Application.Interfaces;
+using InsightX.Domain.Entities.Reports;
+using System.Text.Json;
+
+namespace InsightX.Application.UseCases.Documents
+{
+    public class DocumentProcessorService : IDocumentProcessor
+    {
+        private readonly IReportRepository _repository;
+        private readonly IEnumerable<IDocumentReader> _readers;
+        private readonly IAIExtractionService _ai;
+
+        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai)
+        {
+            _repository = repository;
+            _readers = readers;
+            _ai = ai;
+        }
+
+        public async Task ProcessAsync(int reportId)
+        {
+            var report = await _repository.GetByIdAsync(reportId);
+
+            if (report == null)
+                throw new Exception("Report not found");
+
+            report.Status = "Processing";
+            await _repository.UpdateAsync(report);
+
+            var extension = Path.GetExtension(report.FilePath);
+
+            var reader = _readers.FirstOrDefault(x => x.CanRead(extension));
+
+            if (reader == null)
+            {
+                report.Status = "Failed";
+                await _repository.UpdateAsync(report);
+                throw new Exception("No reader found");
+            }
+
+            var text = await reader.ExtractTextAsync(report.FilePath);
+
+            var metricsJson = await _ai.ExtractMetricsAsync(text);
+
+            Console.WriteLine(metricsJson);
+
+            metricsJson = metricsJson.Replace("```json", "").Replace("```", "").Trim();
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+            };
+
+            var extractedDtos = JsonSerializer.Deserialize<List<ExtractedMetricDto>>(metricsJson, options);
+
+            report.ExtractedText = text;
+            report.Status = "Pending Confirmation";
+
+            if (extractedDtos != null && extractedDtos.Any())
+            {
+                report.ExtractedMetrics = extractedDtos.Select(x => new ExtractedMetric
+                {
+                    KPIName = x.KPIName,
+                    Value = x.Value,
+                    Month = x.Month,
+                    Year = x.Year,
+                    ConfirmedByManager = false
+                }).ToList();
+            }
+
+            await _repository.UpdateAsync(report);
+        }
+    }
+}
