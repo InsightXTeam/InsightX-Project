@@ -25,6 +25,8 @@ namespace InsightX.Infrastructure.Services
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim("name", user.Name),
                 new Claim("CompanyId", user.CompanyId.ToString()),
                 new Claim("DepartmentId", user.DepartmentId?.ToString() ?? ""),
                 new Claim(ClaimTypes.Role, role)

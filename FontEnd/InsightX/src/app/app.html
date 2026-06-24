@@ -14,7 +14,7 @@
         <!-- Clickable Profile Info -->
         <div class="navbar-right" routerLink="/profile" title="View Profile">
           <div class="nav-profile-details">
-            <span class="nav-user-email">{{ userEmail() }}</span>
+            <span class="nav-user-name" [title]="userEmail()">{{ userName() }}</span>
             <span class="nav-user-role">{{ roleDisplay() }}</span>
           </div>
           <div class="nav-avatar">{{ userInitials() }}</div>

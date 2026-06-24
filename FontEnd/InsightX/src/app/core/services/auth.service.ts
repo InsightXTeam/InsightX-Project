@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 export interface User {
   id: string;
   email: string;
+  name: string;
   
   role: 'sadmin' | 'Owner' | 'Manager' | string;
   companyId: number;
@@ -135,6 +136,7 @@ export class AuthService {
       const id = claims['sub'] || claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
       const role = claims['role'] || claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       const companyId = parseInt(claims['CompanyId'], 10);
+      const name = claims['name'] || claims['unique_name'] || claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || email.split('@')[0] || '';
       
       let departmentId: number | null = null;
       if (claims['DepartmentId']) {
@@ -155,6 +157,7 @@ export class AuthService {
       return {
         id,
         email,
+        name,
         role,
         companyId,
         departmentId

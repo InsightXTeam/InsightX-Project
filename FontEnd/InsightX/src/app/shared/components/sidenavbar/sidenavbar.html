@@ -99,7 +99,7 @@
     <div class="user-profile" routerLink="/profile" style="cursor: pointer;" title="View Profile">
       <div class="avatar">{{ userInitials() }}</div>
       <div class="user-details">
-        <span class="user-name" [title]="user()?.email">{{ user()?.email }}</span>
+        <span class="user-name" [title]="user()?.email">{{ user()?.name || user()?.email }}</span>
         <span class="user-role">{{ roleDisplay() }}</span>
       </div>
     </div>

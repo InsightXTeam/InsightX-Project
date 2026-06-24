@@ -35,14 +35,21 @@ export class ProfileComponent {
   readonly user = this.authService.currentUser;
   readonly userId = computed(() => this.user()?.id || 'Unknown');
   readonly email = computed(() => this.user()?.email || 'No email associated');
+  readonly userName = computed(() => this.user()?.name || 'No name associated');
   readonly role = computed(() => this.user()?.role || 'Guest');
   readonly companyId = computed(() => this.user()?.companyId || 0);
   readonly departmentId = computed(() => this.user()?.departmentId || null);
 
   readonly userInitials = computed(() => {
-    const mail = this.email();
-    if (mail === 'No email associated') return 'U';
-    return mail.split('@')[0].substring(0, 2).toUpperCase();
+    const name = this.userName();
+    if (name && name !== 'No name associated') {
+      const parts = name.trim().split(/[\s._-]+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return 'U';
   });
 
   readonly roleDisplay = computed(() => {

@@ -18,6 +18,7 @@ export class App {
   readonly user = this.authService.currentUser;
 
   readonly userEmail = computed(() => this.user()?.email || 'Guest');
+  readonly userName = computed(() => this.user()?.name || 'Guest');
 
   readonly roleDisplay = computed(() => {
     const role = this.user()?.role;
@@ -27,8 +28,12 @@ export class App {
   });
 
   readonly userInitials = computed(() => {
-    const email = this.userEmail();
-    if (email === 'Guest') return 'G';
-    return email.split('@')[0].substring(0, 2).toUpperCase();
+    const name = this.userName();
+    if (name === 'Guest') return 'G';
+    const parts = name.trim().split(/[\s._-]+/);
+    if (parts.length >= 2 && parts[0] && parts[1]) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   });
 }

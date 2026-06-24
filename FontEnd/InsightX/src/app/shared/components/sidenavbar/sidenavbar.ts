@@ -22,9 +22,15 @@ export class SidenavbarComponent {
   readonly role = computed(() => this.user()?.role || '');
   
   readonly userInitials = computed(() => {
-    const email = this.user()?.email || '';
-    if (!email) return 'U';
-    return email.split('@')[0].substring(0, 2).toUpperCase();
+    const name = this.user()?.name || '';
+    if (name) {
+      const parts = name.trim().split(/[\s._-]+/);
+      if (parts.length >= 2 && parts[0] && parts[1]) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    }
+    return 'U';
   });
 
   readonly roleDisplay = computed(() => {
