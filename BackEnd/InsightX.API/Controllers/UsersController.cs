@@ -63,5 +63,23 @@ namespace InsightX.API.Controllers
             var result = await _userService.SetActivationStatusAsync(id, false);
             return result.IsSuccess ? Ok(new { Message = "User deactivated successfully." }) : StatusCode(result.StatusCode, result.Error);
         }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var companyId = User.GetCompanyId();
+            var result = await _userService.DeleteManagerAsync(id, companyId);
+            return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, result.Error);
+        }
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto)
+        {
+            var userId = User.GetUserId();
+            var result = await _userService.ChangePasswordAsync(userId, dto);
+            return result.IsSuccess ? Ok() : StatusCode(result.StatusCode, result.Error);
+        }
     }
 }

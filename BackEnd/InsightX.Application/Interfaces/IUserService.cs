@@ -11,5 +11,7 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult<List<UserResponseDto>>> GetUsersAsync(int companyId, string role, string? departmentIdClaim);
         Task<ServiceResult<List<OwnerManagementDto>>> GetOwnersForManagementAsync();
         Task<ServiceResult> SetActivationStatusAsync(string id, bool isActivated);
+        Task<ServiceResult> DeleteManagerAsync(string id, int companyId);
+        Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto);
     }
 }

@@ -31,6 +31,7 @@ namespace InsightX.API
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+
             builder.Services.AddInfrastructureServices(builder.Configuration);
 
             builder.Services.AddAuthentication(options =>
@@ -55,6 +56,17 @@ namespace InsightX.API
             });
 
             builder.Services.AddAuthorization();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.SetIsOriginAllowed(origin => true)
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -103,6 +115,8 @@ namespace InsightX.API
             }
 
             app.UseHttpsRedirection();
+
+            app.UseCors("AllowAll");
 
             app.UseAuthentication();
             app.UseAuthorization();

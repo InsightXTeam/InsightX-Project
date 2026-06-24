@@ -12,3 +12,4 @@ namespace InsightX.Domain.Entities
         public ApplicationUser User { get; set; } = null!;
     }
 }
+ 

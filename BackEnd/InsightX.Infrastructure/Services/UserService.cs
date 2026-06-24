@@ -57,7 +57,8 @@ namespace InsightX.Infrastructure.Services
                 Email = dto.Email,
                 Name = dto.Name,
                 CompanyId = companyId,
-                DepartmentId = dto.DepartmentId
+                DepartmentId = dto.DepartmentId,
+                IsActivated = true
             };
 
             // Attempt user creation
@@ -160,6 +161,65 @@ namespace InsightX.Infrastructure.Services
 
             user.IsActivated = isActivated;
             var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                return ServiceResult.Fail(400, errors);
+            }
+
+            return ServiceResult.Success();
+        }
+
+        public async Task<ServiceResult> DeleteManagerAsync(string id, int companyId)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return ServiceResult.Fail(400, "Invalid user ID.");
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return ServiceResult.Fail(404, "User not found.");
+            }
+
+            // Verify they belong to the caller's company
+            if (user.CompanyId != companyId)
+            {
+                return ServiceResult.Fail(403, "You do not have permission to delete this user.");
+            }
+
+            // Ensure the user being deleted is a Manager (Owners cannot delete other Owners or admins)
+            var isManager = await _userManager.IsInRoleAsync(user, "Manager");
+            if (!isManager)
+            {
+                return ServiceResult.Fail(400, "Only users with the Manager role can be deleted.");
+            }
+
+            var deleteResult = await _userManager.DeleteAsync(user);
+            if (!deleteResult.Succeeded)
+            {
+                var errors = string.Join(", ", deleteResult.Errors.Select(e => e.Description));
+                return ServiceResult.Fail(400, errors);
+            }
+
+            return ServiceResult.Success();
+        }
+
+        public async Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+        {
+            if (string.IsNullOrEmpty(userId) || dto == null || string.IsNullOrWhiteSpace(dto.CurrentPassword) || string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                return ServiceResult.Fail(400, "Invalid change password request.");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return ServiceResult.Fail(404, "User not found.");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
             if (!result.Succeeded)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
