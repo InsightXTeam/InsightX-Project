@@ -6,8 +6,8 @@ namespace InsightX.Application.DTOs.Reports
 
         public double? Value { get; set; }
 
-        public int Month { get; set; }
+        public int? Month { get; set; }
 
-        public int Year { get; set; }
+        public int? Year { get; set; }
     }
 }

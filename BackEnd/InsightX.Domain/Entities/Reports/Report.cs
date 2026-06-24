@@ -8,6 +8,8 @@ namespace InsightX.Domain.Entities.Reports
 
         public string FilePath { get; set; } = string.Empty;
 
+        public int CompanyId { get; set; }
+
         public int DepartmentId { get; set; }
 
         public string UploadedBy { get; set; } = string.Empty;

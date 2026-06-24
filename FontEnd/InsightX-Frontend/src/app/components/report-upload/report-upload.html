@@ -1,0 +1,26 @@
+<div class="container mt-4">
+
+  <h2 class="mb-4 text-center">Upload Report</h2>
+
+  <div class="card shadow upload-card">
+
+    <div class="card-body">
+
+      <input
+        type="file"
+        class="form-control mb-3"
+        (change)="onFileSelected($event)"
+      />
+
+      <button
+        class="btn btn-primary w-100 upload-btn"
+        (click)="upload()"
+      >
+        Upload
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

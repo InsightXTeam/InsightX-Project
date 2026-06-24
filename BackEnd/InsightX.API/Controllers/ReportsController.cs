@@ -1,9 +1,12 @@
+using System.Security.Claims;
 using InsightX.Application.DTOs.Reports;
 using InsightX.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsightX.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ReportsController : ControllerBase
@@ -31,7 +34,18 @@ namespace InsightX.API.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload([FromForm] UploadReportDto dto)
         {
-            var result = await _service.UploadAsync(dto);
+            var companyIdClaim = User.FindFirstValue("CompanyId");
+            var departmentIdClaim = User.FindFirstValue("DepartmentId");
+            var userName = User.Identity?.Name ?? "Unknown";
+
+            if (!int.TryParse(companyIdClaim, out int companyId))
+                return Unauthorized("Company ID is missing from token.");
+
+            int? departmentId = null;
+            if (int.TryParse(departmentIdClaim, out int parsedDeptId))
+                departmentId = parsedDeptId;
+
+            var result = await _service.UploadAsync(dto, companyId, departmentId, userName);
             return Ok(result);
         }
 

@@ -10,12 +10,14 @@ namespace InsightX.Application.UseCases.Documents
         private readonly IReportRepository _repository;
         private readonly IEnumerable<IDocumentReader> _readers;
         private readonly IAIExtractionService _ai;
+        private readonly IKPIRepository _kpiRepository;
 
-        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai)
+        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai, IKPIRepository kpiRepository)
         {
             _repository = repository;
             _readers = readers;
             _ai = ai;
+            _kpiRepository = kpiRepository;
         }
 
         public async Task ProcessAsync(int reportId)
@@ -41,7 +43,13 @@ namespace InsightX.Application.UseCases.Documents
 
             var text = await reader.ExtractTextAsync(report.FilePath);
 
-            var metricsJson = await _ai.ExtractMetricsAsync(text);
+            var kpis = await _kpiRepository.GetKpiNamesByCompanyIdAsync(report.CompanyId);
+            if (kpis == null || !kpis.Any())
+            {
+                kpis = new List<string> { "Revenue" }; // fallback just in case
+            }
+
+            var metricsJson = await _ai.ExtractMetricsAsync(text, kpis);
 
             Console.WriteLine(metricsJson);
 
@@ -64,8 +72,9 @@ namespace InsightX.Application.UseCases.Documents
                 {
                     KPIName = x.KPIName,
                     Value = x.Value,
-                    Month = x.Month,
-                    Year = x.Year,
+                    Month = (x.Month == null || x.Month == 0) ? DateTime.Now.Month : x.Month.Value,
+                    Year = (x.Year == null || x.Year == 0) ? DateTime.Now.Year : x.Year.Value,
+                    CompanyId = report.CompanyId,
                     ConfirmedByManager = false
                 }).ToList();
             }

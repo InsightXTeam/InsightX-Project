@@ -1,7 +1,7 @@
-﻿namespace InsightX.Application.Interfaces
+namespace InsightX.Application.Interfaces
 {
     public interface IAIExtractionService
     {
-        Task<string> ExtractMetricsAsync(string text);
+        Task<string> ExtractMetricsAsync(string text, IEnumerable<string> predefinedKPIs);
     }
 }

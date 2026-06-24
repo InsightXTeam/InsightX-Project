@@ -1,0 +1,124 @@
+<div class="container mt-4">
+
+  <h2 class="mb-4 text-center">Reports</h2>
+
+  <!-- Reports Grid -->
+  <div class="row g-3">
+
+    <div class="col-md-4" *ngFor="let r of reports()">
+
+      <div class="card shadow-sm h-100 report-card">
+
+        <div class="card-body">
+
+          <h5 class="card-title">
+            {{ r.fileName }}
+          </h5>
+
+          <p class="mb-1">
+            Status:
+            <span class="badge bg-primary">
+              {{ r.status }}
+            </span>
+          </p>
+
+          <p class="text-muted small">
+            {{ r.uploadedAt }}
+          </p>
+
+          <!-- Buttons -->
+          <div class="d-grid gap-2 mt-3">
+
+            <button class="btn btn-outline-info btn-sm action-btn"
+              (click)="preview(r.id)">
+              Preview
+            </button>
+
+            <button class="btn btn-outline-dark btn-sm action-btn"
+              (click)="getText(r.id)">
+              Text
+            </button>
+
+            <button class="btn btn-outline-warning btn-sm action-btn"
+              (click)="process(r.id)">
+              Process
+            </button>
+
+            <button class="btn btn-outline-success btn-sm action-btn"
+              (click)="confirm(r.id)">
+              Confirm
+            </button>
+
+            <button class="btn btn-outline-danger btn-sm action-btn"
+              (click)="delete(r.id)">
+              Delete
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Preview Section -->
+<div class="container mt-4" *ngIf="previewData()">
+
+  <div class="card shadow">
+
+    <div class="card-header bg-info text-white">
+      Preview Data
+    </div>
+
+    <div class="card-body">
+      <pre class="mb-0">{{ previewData() | json }}</pre>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 🚀 TEXT MODAL (PRO) -->
+<div class="modal fade show d-block"
+     *ngIf="textData()"
+     style="background: rgba(0,0,0,0.5);">
+
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+
+    <div class="modal-content shadow">
+
+      <div class="modal-header bg-dark text-white">
+
+        <h5 class="modal-title">Report Text</h5>
+
+        <button class="btn-close btn-close-white"
+                (click)="closeText()">
+        </button>
+
+      </div>
+
+      <div class="modal-body">
+
+        <pre class="mb-0">{{ textData() | json }}</pre>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <button class="btn btn-secondary"
+                (click)="closeText()">
+          Close
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

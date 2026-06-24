@@ -4,7 +4,7 @@ namespace InsightX.Application.Interfaces
 {
     public interface IReportService
     {
-        Task<ReportResponseDto> UploadAsync(UploadReportDto dto);
+        Task<ReportResponseDto> UploadAsync(UploadReportDto dto, int companyId, int? departmentId, string uploadedBy);
 
         Task<List<ReportResponseDto>> GetReportsAsync();
 

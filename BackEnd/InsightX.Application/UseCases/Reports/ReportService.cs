@@ -15,7 +15,7 @@ namespace InsightX.Application.UseCases.Reports
             _storage = storage;
         }
 
-        public async Task<ReportResponseDto> UploadAsync(UploadReportDto dto)
+        public async Task<ReportResponseDto> UploadAsync(UploadReportDto dto, int companyId, int? departmentId, string uploadedBy)
         {
             var path = await _storage.SaveFileAsync(dto.File);
             var report = new Report
@@ -23,7 +23,10 @@ namespace InsightX.Application.UseCases.Reports
                 FileName = dto.File.FileName,
                 FilePath = path,
                 UploadedAt = DateTime.Now,
-                Status = "Pending"
+                Status = "Pending",
+                CompanyId = companyId,
+                DepartmentId = departmentId ?? 0,
+                UploadedBy = uploadedBy
             };
             await _repository.AddAsync(report);
             return new ReportResponseDto

@@ -102,6 +102,7 @@ namespace InsightX.API
 
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
+            builder.Services.AddScoped<IKPIRepository, KPIRepository>();
             builder.Services.AddScoped<IFileStorageService, FileStorageService>();
             builder.Services.AddScoped<IDocumentReader, PdfDocumentReader>();
             builder.Services.AddScoped<IDocumentReader, ExcelReader>();
