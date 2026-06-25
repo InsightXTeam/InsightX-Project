@@ -1,4 +1,4 @@
-﻿namespace InsightX.Application.DTOs.Reports
+namespace InsightX.Application.DTOs.Reports
 {
     public class ReportResponseDto
     {
@@ -9,5 +9,7 @@
         public string Status { get; set; } = string.Empty;
 
         public DateTime UploadedAt { get; set; }
+
+        public string UploadedBy { get; set; } = string.Empty;
     }
 }

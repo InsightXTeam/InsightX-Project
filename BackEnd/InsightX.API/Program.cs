@@ -26,6 +26,18 @@ namespace InsightX.API
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
             
             // Add services to the container.
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 104857600; // 100MB
+            });
+
+            builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+            {
+                options.ValueLengthLimit = int.MaxValue;
+                options.MultipartBodyLengthLimit = 104857600; // 100MB
+                options.MemoryBufferThreshold = int.MaxValue;
+            });
+
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(connection);

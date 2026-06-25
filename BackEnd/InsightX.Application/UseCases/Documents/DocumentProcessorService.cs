@@ -41,47 +41,74 @@ namespace InsightX.Application.UseCases.Documents
                 throw new Exception("No reader found");
             }
 
+            // ONLY extract text here
             var text = await reader.ExtractTextAsync(report.FilePath);
 
-            var kpis = await _kpiRepository.GetKpiNamesByCompanyIdAsync(report.CompanyId);
-            if (kpis == null || !kpis.Any())
-            {
-                kpis = new List<string> { "Revenue" }; // fallback just in case
-            }
-
-            var metricsJson = await _ai.ExtractMetricsAsync(text, kpis);
-
-            Console.WriteLine(metricsJson);
-
-            metricsJson = metricsJson.Replace("```json", "").Replace("```", "").Trim();
-
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
-            };
-
-            var extractedDtos = JsonSerializer.Deserialize<List<ExtractedMetricDto>>(metricsJson, options);
-
             report.ExtractedText = text;
-            report.Status = "Pending Confirmation";
-
-            if (extractedDtos != null && extractedDtos.Any())
-            {
-                report.ExtractedMetrics = extractedDtos.Select(x => new ExtractedMetric
-                {
-                    KPIName = x.KPIName,
-                    Value = x.Value,
-                    //Month = (x.Month == null || x.Month == 0) ? DateTime.Now.Month : x.Month.Value,
-                    Month = DateTime.Now.Month,
-                    //Year = (x.Year == null || x.Year == 0) ? DateTime.Now.Year : x.Year.Value,
-                    Year = DateTime.Now.Year,
-                    CompanyId = report.CompanyId,
-                    ConfirmedByManager = false
-                }).ToList();
-            }
+            report.Status = "Pending Confirmation"; // Waiting for user to review the text
 
             await _repository.UpdateAsync(report);
+        }
+
+        public async Task ExtractKpisAsync(int reportId)
+        {
+            var report = await _repository.GetByIdAsync(reportId);
+
+            if (report == null)
+                throw new Exception("Report not found");
+
+            if (string.IsNullOrEmpty(report.ExtractedText))
+                throw new Exception("No text available to extract KPIs from");
+
+            report.Status = "Processing AI";
+            await _repository.UpdateAsync(report);
+
+            try
+            {
+                var kpis = await _kpiRepository.GetKpiNamesByCompanyIdAsync(report.CompanyId);
+                if (kpis == null || !kpis.Any())
+                {
+                    kpis = new List<string> { "Revenue" }; // fallback just in case
+                }
+
+                // AI runs on the MANAGER CONFIRMED text
+                var metricsJson = await _ai.ExtractMetricsAsync(report.ExtractedText, kpis);
+
+                Console.WriteLine(metricsJson);
+
+                metricsJson = metricsJson.Replace("```json", "").Replace("```", "").Trim();
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+                };
+
+                var extractedDtos = JsonSerializer.Deserialize<List<ExtractedMetricDto>>(metricsJson, options);
+
+                if (extractedDtos != null && extractedDtos.Any())
+                {
+                    report.ExtractedMetrics = extractedDtos.Select(x => new ExtractedMetric
+                    {
+                        KPIName = x.KPIName,
+                        Value = x.Value,
+                        Month = DateTime.Now.Month,
+                        Year = DateTime.Now.Year,
+                        CompanyId = report.CompanyId,
+                        ConfirmedByManager = true // Implicitly confirmed since manager verified the text
+                    }).ToList();
+                }
+
+                report.Status = "Done";
+                await _repository.UpdateAsync(report);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error extracting KPIs: {ex.Message}");
+                report.Status = "Failed AI";
+                await _repository.UpdateAsync(report);
+                throw;
+            }
         }
     }
 }

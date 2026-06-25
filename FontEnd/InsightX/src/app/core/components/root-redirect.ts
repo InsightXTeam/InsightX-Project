@@ -37,7 +37,7 @@ export class RootRedirectComponent implements OnInit {
       });
     } else {
       // Manager redirect
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/reports']);
     }
   }
 }

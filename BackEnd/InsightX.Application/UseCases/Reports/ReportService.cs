@@ -34,19 +34,31 @@ namespace InsightX.Application.UseCases.Reports
                 Id = report.Id,
                 FileName = report.FileName,
                 Status = report.Status,
-                UploadedAt = report.UploadedAt
+                UploadedAt = report.UploadedAt,
+                UploadedBy = report.UploadedBy
             };
         }
 
-        public async Task<List<ReportResponseDto>> GetReportsAsync()
+        public async Task<List<ReportResponseDto>> GetReportsAsync(int companyId, string role, string userName)
         {
-            var reports = await _repository.GetAllAsync();
-            return reports.Select(x => new ReportResponseDto
+            var allReports = await _repository.GetAllAsync();
+            
+            // Filter by company
+            var filtered = allReports.Where(r => r.CompanyId == companyId);
+            
+            // If the user is a Manager (or anything other than Owner), they only see their own uploads
+            if (role != "Owner")
+            {
+                filtered = filtered.Where(r => r.UploadedBy == userName);
+            }
+
+            return filtered.Select(x => new ReportResponseDto
             {
                 Id = x.Id,
                 FileName = x.FileName,
                 Status = x.Status,
-                UploadedAt = x.UploadedAt
+                UploadedAt = x.UploadedAt,
+                UploadedBy = x.UploadedBy
             }).ToList();
         }
 
@@ -75,7 +87,7 @@ namespace InsightX.Application.UseCases.Reports
             return report?.ExtractedText ?? "Not Found";
         }
 
-        public async Task ConfirmAsync(int id)
+        public async Task ConfirmTextAsync(int id, ConfirmReportDto dto)
         {
             var report = await _repository.GetByIdAsync(id);
             if (report == null) throw new Exception("Report not found");
@@ -83,12 +95,9 @@ namespace InsightX.Application.UseCases.Reports
             if (report.Status != "Pending Confirmation")
                 throw new Exception("Report is not pending confirmation");
 
-            foreach (var metric in report.ExtractedMetrics)
-            {
-                metric.ConfirmedByManager = true;
-            }
-
-            report.Status = "Done";
+            report.ExtractedText = dto.ExtractedText;
+            
+            // We do NOT set it to "Done" here. The controller will call ExtractKpisAsync next.
             await _repository.UpdateAsync(report);
         }
 
@@ -97,6 +106,10 @@ namespace InsightX.Application.UseCases.Reports
             var report = await _repository.GetByIdAsync(id);
             if (report != null)
             {
+                // Delete physical file
+                _storage.DeleteFile(report.FilePath);
+                
+                // Delete from DB
                 await _repository.DeleteAsync(report);
             }
         }

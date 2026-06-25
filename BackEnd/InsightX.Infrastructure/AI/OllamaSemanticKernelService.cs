@@ -1,5 +1,6 @@
 using InsightX.Application.Interfaces;
 using Microsoft.SemanticKernel;
+using System;
 
 namespace InsightX.Infrastructure.AI
 {

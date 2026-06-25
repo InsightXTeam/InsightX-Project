@@ -90,7 +90,7 @@ export class LoginComponent {
         } else {
           // Manager or other roles
           this.isLoading.set(false);
-          this.router.navigate(['/profile']);
+          this.router.navigate(['/reports']);
         }
       },
       error: (error) => {

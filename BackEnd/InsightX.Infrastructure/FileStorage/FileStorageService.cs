@@ -1,4 +1,4 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 
 namespace InsightX.Infrastructure.FileStorage
@@ -20,6 +20,14 @@ namespace InsightX.Infrastructure.FileStorage
                 await file.CopyToAsync(stream);
             }
             return path;
+        }
+
+        public void DeleteFile(string filePath)
+        {
+            if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
         }
     }
 }

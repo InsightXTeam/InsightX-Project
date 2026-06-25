@@ -32,6 +32,8 @@ namespace InsightX.API.Controllers
         }
 
         [HttpPost("upload")]
+        [DisableRequestSizeLimit]
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)] // 100MB
         public async Task<IActionResult> Upload([FromForm] UploadReportDto dto)
         {
             var companyIdClaim = User.FindFirstValue("CompanyId");
@@ -52,7 +54,14 @@ namespace InsightX.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _service.GetReportsAsync();
+            var companyIdClaim = User.FindFirstValue("CompanyId");
+            var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+            var userName = User.Identity?.Name ?? "Unknown";
+
+            if (!int.TryParse(companyIdClaim, out int companyId))
+                return Unauthorized("Company ID is missing from token.");
+
+            var result = await _service.GetReportsAsync(companyId, roleClaim ?? "", userName);
             return Ok(result);
         }
 
@@ -78,10 +87,11 @@ namespace InsightX.API.Controllers
         }
 
         [HttpPost("{id}/confirm")]
-        public async Task<IActionResult> Confirm(int id)
+        public async Task<IActionResult> Confirm(int id, [FromBody] ConfirmReportDto dto)
         {
-            await _service.ConfirmAsync(id);
-            return Ok(new { message = "Data confirmed successfully" });
+            await _service.ConfirmTextAsync(id, dto);
+            await _processor.ExtractKpisAsync(id);
+            return Ok(new { message = "Text confirmed and KPIs extracted successfully" });
         }
 
         [HttpDelete("{id}")]
@@ -96,7 +106,7 @@ namespace InsightX.API.Controllers
         {
             await _processor.ProcessAsync(id);
 
-            return Ok("Processing finished");
+            return Ok(new { message = "Processing finished" });
         }
     }
 }
