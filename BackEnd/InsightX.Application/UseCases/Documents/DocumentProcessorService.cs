@@ -72,8 +72,10 @@ namespace InsightX.Application.UseCases.Documents
                 {
                     KPIName = x.KPIName,
                     Value = x.Value,
-                    Month = (x.Month == null || x.Month == 0) ? DateTime.Now.Month : x.Month.Value,
-                    Year = (x.Year == null || x.Year == 0) ? DateTime.Now.Year : x.Year.Value,
+                    //Month = (x.Month == null || x.Month == 0) ? DateTime.Now.Month : x.Month.Value,
+                    Month = DateTime.Now.Month,
+                    //Year = (x.Year == null || x.Year == 0) ? DateTime.Now.Year : x.Year.Value,
+                    Year = DateTime.Now.Year,
                     CompanyId = report.CompanyId,
                     ConfirmedByManager = false
                 }).ToList();
