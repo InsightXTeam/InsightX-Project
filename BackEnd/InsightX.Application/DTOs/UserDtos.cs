@@ -11,4 +11,6 @@ namespace InsightX.Application.DTOs
         string CompanyName,
         System.DateTime CompanyCreatedAt
     );
+
+    public record ChangePasswordDto(string CurrentPassword, string NewPassword);
 }

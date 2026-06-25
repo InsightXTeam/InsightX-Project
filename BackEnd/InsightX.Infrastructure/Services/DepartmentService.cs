@@ -72,5 +72,53 @@ namespace InsightX.Infrastructure.Services
 
             return ServiceResult<List<DepartmentResponseDto>>.Success(departments);
         }
+
+        public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, CreateDepartmentDto dto, int companyId)
+        {
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
+            {
+                return ServiceResult<DepartmentResponseDto>.Fail(400, "Invalid department name.");
+            }
+
+            var dept = await _context.Departments
+                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
+
+            if (dept == null)
+            {
+                return ServiceResult<DepartmentResponseDto>.Fail(404, "Department not found.");
+            }
+
+            // Duplicate check within same company (excluding this department itself)
+            var exists = await _context.Departments
+                .AnyAsync(d => d.CompanyId == companyId && d.Id != id && d.Name.ToLower() == dto.Name.ToLower());
+
+            if (exists)
+            {
+                return ServiceResult<DepartmentResponseDto>.Fail(400, "A department with this name already exists in your company.");
+            }
+
+            dept.Name = dto.Name;
+            _context.Departments.Update(dept);
+            await _context.SaveChangesAsync();
+
+            var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId);
+            return ServiceResult<DepartmentResponseDto>.Success(responseDto);
+        }
+
+        public async Task<ServiceResult> DeleteAsync(int id, int companyId)
+        {
+            var dept = await _context.Departments
+                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
+
+            if (dept == null)
+            {
+                return ServiceResult.Fail(404, "Department not found.");
+            }
+
+            _context.Departments.Remove(dept);
+            await _context.SaveChangesAsync();
+
+            return ServiceResult.Success();
+        }
     }
 }

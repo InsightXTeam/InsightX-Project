@@ -39,6 +39,7 @@ namespace InsightX.API
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
 
+
             builder.Services.AddInfrastructureServices(builder.Configuration);
 
             builder.Services.AddAuthentication(options =>
@@ -63,6 +64,18 @@ namespace InsightX.API
             });
 
             builder.Services.AddAuthorization();
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.SetIsOriginAllowed(origin => true)
+                          .AllowAnyMethod()
+                          .AllowAnyHeader()
+                          .AllowCredentials();
+                });
+            });
+
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
@@ -112,18 +125,6 @@ namespace InsightX.API
             builder.Services.AddScoped<IDocumentReader, WordReader>();
             builder.Services.AddScoped<IDocumentReader, ImageReader>();
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("angular",
-                    policy =>
-                    {
-                        policy
-                        .AllowAnyOrigin()
-                        .AllowAnyHeader()
-                        .AllowAnyMethod();
-                    });
-            });
-
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -134,7 +135,7 @@ namespace InsightX.API
             }
 
             app.UseHttpsRedirection();
-            app.UseCors("angular");
+            app.UseCors("AllowAll");
 
             app.UseAuthentication();
             app.UseAuthorization();

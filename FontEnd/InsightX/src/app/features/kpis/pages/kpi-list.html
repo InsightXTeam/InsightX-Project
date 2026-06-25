@@ -1,0 +1,157 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Company KPIs</h1>
+      <p class="page-subtitle">Configure, view, and track target thresholds for business intelligence metrics.</p>
+    </div>
+    @if (isOwner()) {
+      <button class="add-kpi-btn" (click)="toggleForm()" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Add KPI Metric
+      </button>
+    }
+  </div>
+
+  <!-- Error Alerts -->
+  @if (error()) {
+    <div class="alert-error" role="alert">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Setup KPI Form Panel (Owner Only) -->
+  @if (showForm() && isOwner()) {
+    <div class="add-form-panel">
+      <h3 class="form-title">New KPI Metric</h3>
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label class="form-label">KPI Name</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newKpiName" 
+            placeholder="e.g. Server Uptime" 
+            class="input-field"
+            [disabled]="isLoading()"
+          />
+        </div>
+        <div class="form-group flex-1">
+          <label class="form-label">Threshold Value</label>
+          <input 
+            type="number" 
+            [(ngModel)]="newKpiThreshold" 
+            placeholder="e.g. 99.9" 
+            class="input-field"
+            [disabled]="isLoading()"
+            step="any"
+          />
+        </div>
+        <div class="form-group flex-1">
+          <label class="form-label">Unit</label>
+          <input 
+            type="text" 
+            [(ngModel)]="newKpiUnit" 
+            placeholder="e.g. %" 
+            class="input-field"
+            [disabled]="isLoading()"
+          />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="cancel-btn" (click)="toggleForm()" [disabled]="isLoading()" type="button">Cancel</button>
+        <button class="save-btn" (click)="saveKpi()" [disabled]="!newKpiName.trim() || newKpiThreshold === null || !newKpiUnit.trim() || isLoading()" type="button">
+          {{ isLoading() ? 'Adding...' : 'Add KPI' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- KPI Cards Grid -->
+  @if (kpis().length > 0) {
+    <div class="kpi-grid">
+      @for (kpi of kpis(); track kpi.id) {
+        <div class="kpi-card">
+          <!-- Card Action Buttons (Owner Only) -->
+          @if (isOwner()) {
+            <div class="card-actions">
+              <button class="action-btn edit" (click)="startEdit(kpi)" type="button" title="Edit KPI">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 14px; height: 14px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.83 20.013a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685 9.5-9.5z" />
+                </svg>
+              </button>
+              <button class="action-btn delete" (click)="deleteKpi(kpi.id)" type="button" title="Delete KPI">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 14px; height: 14px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              </button>
+            </div>
+          }
+
+          <div class="kpi-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 22px; height: 22px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+            </svg>
+          </div>
+
+          @if (editingId() === kpi.id) {
+            <div class="edit-mode-container">
+              <div class="edit-form-row">
+                <input 
+                  type="text" 
+                  [(ngModel)]="editKpiName" 
+                  class="edit-input-field" 
+                  placeholder="Metric Name"
+                  [disabled]="isLoading()"
+                />
+              </div>
+              <div class="edit-form-grid">
+                <input 
+                  type="number" 
+                  [(ngModel)]="editKpiThreshold" 
+                  class="edit-input-field" 
+                  placeholder="Threshold"
+                  [disabled]="isLoading()"
+                  step="any"
+                />
+                <input 
+                  type="text" 
+                  [(ngModel)]="editKpiUnit" 
+                  class="edit-input-field" 
+                  placeholder="Unit (e.g. %)"
+                  [disabled]="isLoading()"
+                />
+              </div>
+              <div class="edit-actions">
+                <button class="edit-btn-save" (click)="updateKpi(kpi.id)" [disabled]="!editKpiName.trim() || editKpiThreshold === null || !editKpiUnit.trim() || isLoading()">Save</button>
+                <button class="edit-btn-cancel" (click)="cancelEdit()" [disabled]="isLoading()">Cancel</button>
+              </div>
+            </div>
+          } @else {
+            <h2 class="kpi-name">{{ kpi.name }}</h2>
+            <div class="kpi-metric">
+              <span class="metric-val">{{ kpi.threshold }}</span>
+              <span class="metric-unit">{{ kpi.unit }}</span>
+            </div>
+            <span class="kpi-company">Target Threshold</span>
+          }
+          
+          <div class="card-footer">
+            <span class="status-indicator">
+              <span class="status-dot"></span>
+              Active Monitoring
+            </span>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 48px; height: 48px; color: #94a3b8; display: inline-block;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v18m9-9H3" />
+      </svg>
+      <h3 class="empty-title">No KPIs Found</h3>
+      <p class="empty-desc">Define tracking parameters and target thresholds for your company's key operations.</p>
+    </div>
+  }
+</div>

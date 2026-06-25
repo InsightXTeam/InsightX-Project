@@ -8,22 +8,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsightX.API.Controllers
 {
     [ApiController]
-    [Route("departments")]
-    public class DepartmentsController : ControllerBase
+    [Route("kpis")]
+    public class KpisController : ControllerBase
     {
-        private readonly IDepartmentService _departmentService;
+        private readonly IKpiService _kpiService;
 
-        public DepartmentsController(IDepartmentService departmentService)
+        public KpisController(IKpiService kpiService)
         {
-            _departmentService = departmentService;
+            _kpiService = kpiService;
         }
 
         [HttpPost]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Create([FromBody] CreateDepartmentDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateKpiDto dto)
         {
             var companyId = User.GetCompanyId();
-            var result = await _departmentService.CreateAsync(dto, companyId);
+            var result = await _kpiService.CreateAsync(dto, companyId);
             if (result.IsSuccess && result.Data != null)
             {
                 return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
@@ -36,7 +36,7 @@ namespace InsightX.API.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             var companyId = User.GetCompanyId();
-            var result = await _departmentService.GetByIdAsync(id, companyId);
+            var result = await _kpiService.GetByIdAsync(id, companyId);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
@@ -45,16 +45,16 @@ namespace InsightX.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var companyId = User.GetCompanyId();
-            var result = await _departmentService.GetAllAsync(companyId);
+            var result = await _kpiService.GetAllAsync(companyId);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateDepartmentDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] CreateKpiDto dto)
         {
             var companyId = User.GetCompanyId();
-            var result = await _departmentService.UpdateAsync(id, dto, companyId);
+            var result = await _kpiService.UpdateAsync(id, dto, companyId);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
@@ -63,7 +63,7 @@ namespace InsightX.API.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var companyId = User.GetCompanyId();
-            var result = await _departmentService.DeleteAsync(id, companyId);
+            var result = await _kpiService.DeleteAsync(id, companyId);
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, result.Error);
         }
     }

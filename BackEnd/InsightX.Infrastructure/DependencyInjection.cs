@@ -16,6 +16,7 @@ namespace InsightX.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<IDepartmentService, DepartmentService>();
+            services.AddScoped<IKpiService, KpiService>();
 
             return services;
         }
