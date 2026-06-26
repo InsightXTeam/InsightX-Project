@@ -1,5 +1,6 @@
 
 using System.Text;
+using InsightX.API.Middleware;
 using InsightX.Domain.Entities;
 using InsightX.Infrastructure;
 using InsightX.Infrastructure.Persistence;
@@ -107,6 +108,9 @@ namespace InsightX.API
 
             var app = builder.Build();
 
+            // Global exception handling
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -121,59 +125,18 @@ namespace InsightX.API
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.MapControllers();
+
             // Seed Roles & Super Admin
             using (var scope = app.Services.CreateScope())
             {
-                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-                foreach (var role in new[] { "Owner", "Manager", "sadmin" })
-                {
-                    if (!await roleManager.RoleExistsAsync(role))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(role));
-                    }
-                }
-
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-                // Ensure System Company exists for the Super Admin
-                var adminCompany = await context.Companies.FirstOrDefaultAsync(c => c.Name == "InsightX System");
-                if (adminCompany == null)
-                {
-                    adminCompany = new Company
-                    {
-                        Name = "InsightX System",
-                        CreatedAt = DateTime.UtcNow
-                    };
-                    context.Companies.Add(adminCompany);
-                    await context.SaveChangesAsync();
-                }
-
-                // Seed Super Admin user
-                var adminEmail = "admin@InsightX.com";
-                var adminUser = await userManager.FindByEmailAsync(adminEmail);
-                if (adminUser == null)
-                {
-                    adminUser = new ApplicationUser
-                    {
-                        UserName = adminEmail,
-                        Email = adminEmail,
-                        Name = "Super Admin",
-                        CompanyId = adminCompany.Id,
-                        IsActivated = true
-                    };
-
-                    var createResult = await userManager.CreateAsync(adminUser, "InsightX@123");
-                    if (createResult.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(adminUser, "sadmin");
-                    }
-                }
+                await DbInitializer.SeedAsync(
+                    scope.ServiceProvider,
+                    builder.Configuration);
             }
-
-            app.MapControllers();
 
             await app.RunAsync();
         }
     }
 }
+
