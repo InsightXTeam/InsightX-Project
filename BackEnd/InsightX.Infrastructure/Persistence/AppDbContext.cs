@@ -54,12 +54,6 @@ namespace InsightX.Infrastructure.Persistence
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // Seed Roles
-            builder.Entity<Microsoft.AspNetCore.Identity.IdentityRole>().HasData(
-                new Microsoft.AspNetCore.Identity.IdentityRole { Id = "1", Name = "Owner", NormalizedName = "OWNER" },
-                new Microsoft.AspNetCore.Identity.IdentityRole { Id = "2", Name = "Manager", NormalizedName = "MANAGER" }
-            );
         }
     }
 }
