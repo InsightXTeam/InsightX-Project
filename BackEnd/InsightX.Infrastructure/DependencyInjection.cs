@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using InsightX.Application.Interfaces;
 using InsightX.Application.Common;
 using InsightX.Infrastructure.Services;
+using InsightX.Application.Interfaces.Auth;
 
 namespace InsightX.Infrastructure
 {

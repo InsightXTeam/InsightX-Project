@@ -1,7 +1,7 @@
 using InsightX.Domain.Entities.Reports;
-using InsightX.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using InsightX.Domain.Entities.Auth;
 
 namespace InsightX.Infrastructure.Persistence
 {

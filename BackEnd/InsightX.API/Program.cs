@@ -1,7 +1,6 @@
 using InsightX.Application.Interfaces;
 using InsightX.Application.UseCases.Documents;
 using InsightX.Application.UseCases.Reports;
-using InsightX.Infrastructure.AI;
 using InsightX.Infrastructure.DocumentReaders;
 using InsightX.Infrastructure.DocumentReaders.Image;
 using InsightX.Infrastructure.DocumentReaders.WordReader;
@@ -10,12 +9,13 @@ using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Repositories;
 using System.Text;
 using InsightX.API.Middleware;
-using InsightX.Domain.Entities;
 using InsightX.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using InsightX.Domain.Entities.Auth;
+using InsightX.Infrastructure.AI.Report;
 
 namespace InsightX.API
 {

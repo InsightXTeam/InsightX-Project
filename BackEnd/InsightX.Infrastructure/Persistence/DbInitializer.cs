@@ -1,4 +1,5 @@
 using InsightX.Domain.Entities;
+using InsightX.Domain.Entities.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

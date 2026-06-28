@@ -2,9 +2,10 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using InsightX.Application.Common;
-using InsightX.Application.DTOs;
-using InsightX.Application.Interfaces;
+using InsightX.Application.DTOs.Auth;
+using InsightX.Application.Interfaces.Auth;
 using InsightX.Domain.Entities;
+using InsightX.Domain.Entities.Auth;
 using InsightX.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
