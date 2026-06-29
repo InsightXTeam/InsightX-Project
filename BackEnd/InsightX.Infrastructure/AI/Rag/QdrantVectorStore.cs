@@ -78,12 +78,15 @@ namespace Insight_test.All.Services
             }).ToList();
         }
 
-        public async Task DeleteByReportIdAsync(int reportId, CancellationToken cancellationToken = default)
+        public async Task DeleteByReportIdAsync(int companyId, int reportId, CancellationToken cancellationToken = default)
         {
-            // Delete every point whose "report_id" payload field matches.
+            // Delete every point whose "company_id & report_id" payload field matches.
             var reportFilter = new Filter
             {
-                Must = { Conditions.Match("report_id", reportId) }
+                Must = {
+                    Conditions.Match("company_id", companyId),
+                    Conditions.Match("report_id", reportId)
+                }
             };
 
             await _client.DeleteAsync(CollectionName, reportFilter, cancellationToken: cancellationToken);

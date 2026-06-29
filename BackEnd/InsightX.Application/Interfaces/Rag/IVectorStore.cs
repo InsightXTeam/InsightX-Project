@@ -16,6 +16,6 @@ namespace InsightXAI.Application.Interfaces
         Task<List<RetrievedChunkDto>> SearchAsync(float[] queryVector, int companyId, int topK, CancellationToken cancellationToken = default);
 
         // Deletes all records associated with a report.
-        Task DeleteByReportIdAsync(int reportId, CancellationToken cancellationToken = default);
+        Task DeleteByReportIdAsync(int companyId, int reportId, CancellationToken cancellationToken = default);
     }
 }

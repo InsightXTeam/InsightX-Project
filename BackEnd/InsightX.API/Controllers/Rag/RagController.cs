@@ -46,10 +46,10 @@ namespace InsightXAI.API.Controllers
         }
 
         // Deletes all indexed chunks for a report.
-        [HttpDelete("{reportId}")]
-        public async Task<IActionResult> DeleteReportChunks(int reportId, CancellationToken cancellationToken)
+        [HttpDelete("{companyId:int}/{reportId:int}")]
+        public async Task<IActionResult> DeleteReportChunks(int companyId, int reportId, CancellationToken cancellationToken)
         {
-            await _deleteReportChunksUseCase.ExecuteAsync(reportId, cancellationToken);
+            await _deleteReportChunksUseCase.ExecuteAsync(companyId, reportId, cancellationToken);
             return NoContent();
         }
     }

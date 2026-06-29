@@ -14,10 +14,10 @@ namespace InsightXAI.Application.UseCases.Rag
             _vectorStore = vectorStore;
         }
 
-        public async Task ExecuteAsync(int reportId, CancellationToken cancellationToken = default)
+        public async Task ExecuteAsync(int companyId, int reportId, CancellationToken cancellationToken = default)
         {
             // Delete report vectors from the vector store.
-            await _vectorStore.DeleteByReportIdAsync(reportId, cancellationToken);
+            await _vectorStore.DeleteByReportIdAsync(companyId, reportId, cancellationToken);
         }
     }
 }
