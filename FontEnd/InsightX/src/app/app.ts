@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidenavbarComponent } from './shared/components/sidenavbar/sidenavbar';
 import { AuthService } from './core/services/auth.service';
@@ -7,7 +7,7 @@ import { AuthService } from './core/services/auth.service';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, SidenavbarComponent],
+  imports: [RouterOutlet, CommonModule, SidenavbarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
