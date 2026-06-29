@@ -32,11 +32,11 @@
   </ul>
 
   <!-- User Footer Section -->
-  <div class="user-footer" *ngIf="user()">
+  <div class="user-footer">
     <div class="user-profile" style="cursor: pointer;" title="View Profile">
       <div class="avatar">{{ userInitials() }}</div>
       <div class="user-details">
-        <span class="user-name" [title]="user()?.email">{{ user()?.name || user()?.email }}</span>
+        <span class="user-name" title="manager@insightx.com">Manager User</span>
         <span class="user-role">{{ roleDisplay() }}</span>
       </div>
     </div>

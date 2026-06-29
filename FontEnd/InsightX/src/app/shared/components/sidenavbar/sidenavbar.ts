@@ -1,7 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-sidenavbar',
@@ -11,40 +10,21 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './sidenavbar.css'
 })
 export class SidenavbarComponent {
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-
   // States
   readonly isCollapsed = signal(false);
 
-  // Computed User Details
-  readonly user = this.authService.currentUser;
-  readonly role = computed(() => this.user()?.role || '');
+  // Hardcoded details for isolated testing
+  readonly role = computed(() => 'Manager');
   
-  readonly userInitials = computed(() => {
-    const name = this.user()?.name || '';
-    if (name) {
-      const parts = name.trim().split(/[\s._-]+/);
-      if (parts.length >= 2 && parts[0] && parts[1]) {
-        return (parts[0][0] + parts[1][0]).toUpperCase();
-      }
-      return name.substring(0, 2).toUpperCase();
-    }
-    return 'U';
-  });
+  readonly userInitials = computed(() => 'MU');
 
-  readonly roleDisplay = computed(() => {
-    const r = this.role();
-    if (r === 'sadmin') return 'Super Admin';
-    return r;
-  });
+  readonly roleDisplay = computed(() => 'Manager');
 
   toggleCollapse(): void {
     this.isCollapsed.update(c => !c);
   }
 
   onLogout(): void {
-    this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    console.log('Logout clicked - functionality removed in isolated mode');
   }
 }

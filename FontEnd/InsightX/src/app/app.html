@@ -1,33 +1,28 @@
-@if (authService.isAuthenticated()) {
-  <div class="app-shell">
-    <!-- Left Sidebar -->
-    <app-sidenavbar></app-sidenavbar>
-    
-    <!-- Main Right Content Area -->
-    <div class="app-main-layout">
-      <!-- Top Header Navbar -->
-      <header class="top-navbar">
-        <div class="navbar-left">
-          <!-- Can expand with search boxes, notifications, or breadcrumbs later -->
+<div class="app-shell">
+  <!-- Left Sidebar -->
+  <app-sidenavbar></app-sidenavbar>
+  
+  <!-- Main Right Content Area -->
+  <div class="app-main-layout">
+    <!-- Top Header Navbar -->
+    <header class="top-navbar">
+      <div class="navbar-left">
+        <!-- Can expand with search boxes, notifications, or breadcrumbs later -->
+      </div>
+      
+      <!-- Clickable Profile Info -->
+      <div class="navbar-right" title="View Profile">
+        <div class="nav-profile-details">
+          <span class="nav-user-name" [title]="userEmail()">{{ userName() }}</span>
+          <span class="nav-user-role">{{ roleDisplay() }}</span>
         </div>
-        
-        <!-- Clickable Profile Info -->
-        <div class="navbar-right" title="View Profile">
-          <div class="nav-profile-details">
-            <span class="nav-user-name" [title]="userEmail()">{{ userName() }}</span>
-            <span class="nav-user-role">{{ roleDisplay() }}</span>
-          </div>
-          <div class="nav-avatar">{{ userInitials() }}</div>
-        </div>
-      </header>
+        <div class="nav-avatar">{{ userInitials() }}</div>
+      </div>
+    </header>
 
-      <!-- Scrollable Main Page Canvas -->
-      <main class="app-canvas">
-        <router-outlet></router-outlet>
-      </main>
-    </div>
+    <!-- Scrollable Main Page Canvas -->
+    <main class="app-canvas">
+      <router-outlet></router-outlet>
+    </main>
   </div>
-} @else {
-  <!-- Plain router outlet for login/registration/public views -->
-  <router-outlet></router-outlet>
-}
+</div>
