@@ -1,10 +1,9 @@
-using Insight_test.All.Dto;
 using InsightXAI.Application.DTOs;
 using InsightXAI.Application.Interfaces;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
-namespace Insight_test.All.Services
+namespace InsightX.Infrastructure.AI.Rag
 {
     /// <summary>
     /// Qdrant implementation of vector storage and retrieval operations.

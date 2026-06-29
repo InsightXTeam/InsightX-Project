@@ -3,7 +3,7 @@ using InsightXAI.Application.Interfaces;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Insight_test.All.Services
+namespace InsightX.Infrastructure.AI.Rag
 {
     /// <summary>
     /// Default implementation of report text chunking.

@@ -1,7 +1,7 @@
 using InsightXAI.Application.Interfaces;
 using Microsoft.SemanticKernel.Embeddings;
 
-namespace Insight_test.All.Services
+namespace InsightX.Infrastructure.AI.Rag
 {
     /// <summary>
     /// Generates embeddings using Semantic Kernel.

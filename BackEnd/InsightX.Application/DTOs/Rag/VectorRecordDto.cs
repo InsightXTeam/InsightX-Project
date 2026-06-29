@@ -1,4 +1,4 @@
-namespace Insight_test.All.Dto
+namespace InsightXAI.Application.DTOs
 {
     /// <summary>
     /// Vector record stored in the vector database.

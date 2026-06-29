@@ -1,7 +1,7 @@
 ﻿using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
-namespace Insight_test.All.Initialization;
+namespace InsightX.Infrastructure.AI.Rag;
 
 public static class QdrantInitializer
 {
