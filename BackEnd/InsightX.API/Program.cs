@@ -2,15 +2,13 @@ using InsightX.Application.Interfaces;
 using InsightX.Application.UseCases.Documents;
 using InsightX.Application.UseCases.Reports;
 using InsightX.Infrastructure.DocumentReaders;
-
-using Microsoft.EntityFrameworkCore;
 using InsightX.Infrastructure.DocumentReaders.Image;
 using InsightX.Infrastructure.DocumentReaders.WordReader;
 using InsightX.Infrastructure.FileStorage;
 using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Repositories;
-using System.Text;
 using InsightX.Infrastructure.AI.Report;
+using Microsoft.EntityFrameworkCore;
 
 namespace InsightX.API
 {
@@ -20,7 +18,7 @@ namespace InsightX.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
-            
+
             // Add services to the container.
             builder.WebHost.ConfigureKestrel(options =>
             {
@@ -38,10 +36,6 @@ namespace InsightX.API
             {
                 options.UseSqlServer(connection);
             });
-
-
-
-            builder.Services.AddAuthorization();
 
             builder.Services.AddCors(options =>
             {
@@ -64,36 +58,11 @@ namespace InsightX.API
                     Title = "InsightX API",
                     Version = "v1"
                 });
-
-                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Enter your JWT token only."
-                });
-
-                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-                {
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                });
             });
 
+            // Report Upload Services (Person 2)
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
-
             builder.Services.AddScoped<IFileStorageService, FileStorageService>();
             builder.Services.AddScoped<IDocumentReader, PdfDocumentReader>();
             builder.Services.AddScoped<IDocumentReader, ExcelReader>();
@@ -105,9 +74,6 @@ namespace InsightX.API
 
             var app = builder.Build();
 
-            // Global exception handling
-            // app.UseMiddleware<ExceptionHandlingMiddleware>();
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -118,18 +84,9 @@ namespace InsightX.API
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
 
-            // app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
-
-            // Seed Roles & Super Admin
-            // using (var scope = app.Services.CreateScope())
-            // {
-            //     await DbInitializer.SeedAsync(
-            //         scope.ServiceProvider,
-            //         builder.Configuration);
-            // }
 
             await app.RunAsync();
         }
