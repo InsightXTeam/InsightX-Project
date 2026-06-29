@@ -2,19 +2,14 @@ using InsightX.Application.Interfaces;
 using InsightX.Application.UseCases.Documents;
 using InsightX.Application.UseCases.Reports;
 using InsightX.Infrastructure.DocumentReaders;
+
+using Microsoft.EntityFrameworkCore;
 using InsightX.Infrastructure.DocumentReaders.Image;
 using InsightX.Infrastructure.DocumentReaders.WordReader;
 using InsightX.Infrastructure.FileStorage;
 using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Repositories;
 using System.Text;
-using InsightX.API.Middleware;
-using InsightX.Infrastructure;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using InsightX.Domain.Entities.Auth;
 using InsightX.Infrastructure.AI.Report;
 
 namespace InsightX.API
@@ -44,37 +39,7 @@ namespace InsightX.API
                 options.UseSqlServer(connection);
             });
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
-            {
-                options.Password.RequireDigit = true;
-                options.Password.RequiredLength = 8;
-            })
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
 
-
-            builder.Services.AddInfrastructureServices(builder.Configuration);
-
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
 
             builder.Services.AddAuthorization();
 
@@ -128,7 +93,7 @@ namespace InsightX.API
 
             builder.Services.AddScoped<IReportService, ReportService>();
             builder.Services.AddScoped<IReportRepository, ReportRepository>();
-            builder.Services.AddScoped<IKPIRepository, KPIRepository>();
+
             builder.Services.AddScoped<IFileStorageService, FileStorageService>();
             builder.Services.AddScoped<IDocumentReader, PdfDocumentReader>();
             builder.Services.AddScoped<IDocumentReader, ExcelReader>();
@@ -141,7 +106,7 @@ namespace InsightX.API
             var app = builder.Build();
 
             // Global exception handling
-            app.UseMiddleware<ExceptionHandlingMiddleware>();
+            // app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -153,18 +118,18 @@ namespace InsightX.API
             app.UseHttpsRedirection();
             app.UseCors("AllowAll");
 
-            app.UseAuthentication();
+            // app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
             // Seed Roles & Super Admin
-            using (var scope = app.Services.CreateScope())
-            {
-                await DbInitializer.SeedAsync(
-                    scope.ServiceProvider,
-                    builder.Configuration);
-            }
+            // using (var scope = app.Services.CreateScope())
+            // {
+            //     await DbInitializer.SeedAsync(
+            //         scope.ServiceProvider,
+            //         builder.Configuration);
+            // }
 
             await app.RunAsync();
         }

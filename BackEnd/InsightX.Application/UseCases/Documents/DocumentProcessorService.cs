@@ -10,14 +10,11 @@ namespace InsightX.Application.UseCases.Documents
         private readonly IReportRepository _repository;
         private readonly IEnumerable<IDocumentReader> _readers;
         private readonly IAIExtractionService _ai;
-        private readonly IKPIRepository _kpiRepository;
-
-        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai, IKPIRepository kpiRepository)
+        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai)
         {
             _repository = repository;
             _readers = readers;
             _ai = ai;
-            _kpiRepository = kpiRepository;
         }
 
         public async Task ProcessAsync(int reportId)
@@ -65,11 +62,7 @@ namespace InsightX.Application.UseCases.Documents
 
             try
             {
-                var kpis = await _kpiRepository.GetKpiNamesByCompanyIdAsync(report.CompanyId);
-                if (kpis == null || !kpis.Any())
-                {
-                    kpis = new List<string> { "Revenue" }; // fallback just in case
-                }
+                var kpis = new List<string> { "Revenue" }; // fallback since KPI entity is deleted
 
                 // AI runs on the MANAGER CONFIRMED text
                 var metricsJson = await _ai.ExtractMetricsAsync(report.ExtractedText, kpis);
