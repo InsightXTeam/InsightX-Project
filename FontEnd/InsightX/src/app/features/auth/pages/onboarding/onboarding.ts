@@ -41,6 +41,7 @@ export class OnboardingComponent {
   // Stepper state
   readonly currentStep = signal(1);
   readonly isSubmitting = signal(false);
+  readonly errorMessage = signal<string | null>(null);
 
   // Data signals
   readonly kpis = signal<KpiItem[]>([]);
@@ -143,7 +144,7 @@ export class OnboardingComponent {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        alert(err.error || 'Failed to invite manager. Make sure the email is unique.');
+        this.errorMessage.set(this.extractErrorMessage(err, 'Failed to invite manager. Make sure the email is unique.'));
       }
     });
   }
@@ -156,6 +157,7 @@ export class OnboardingComponent {
   }
 
   nextStep(): void {
+    this.errorMessage.set(null); // Clear previous errors on step transition
     const step = this.currentStep();
     if (step === 1) {
       this.submitKpis();
@@ -167,7 +169,7 @@ export class OnboardingComponent {
   }
 
   skipOnboarding(): void {
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/departments']);
   }
 
   private submitKpis(): void {
@@ -194,19 +196,19 @@ export class OnboardingComponent {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        alert('Failed to configure company KPIs. Please try again.');
+        this.errorMessage.set(this.extractErrorMessage(err, 'Failed to configure company KPIs. Please try again.'));
       }
     });
   }
 
   private submitDepartments(): void {
     const pendingDepts = this.departments().filter(d => !d.id);
-    
+        
     if (pendingDepts.length === 0) {
       if (this.createdDepartments().length > 0) {
         this.currentStep.set(3);
       } else {
-        alert('Please create at least one department to proceed.');
+        this.errorMessage.set('Please create at least one department to proceed.');
       }
       return;
     }
@@ -237,18 +239,28 @@ export class OnboardingComponent {
           this.newManager.departmentId = this.createdDepartments()[0].id!;
           this.currentStep.set(3);
         } else {
-          alert('Failed to create departments. Please verify connection and try again.');
+          this.errorMessage.set('Failed to create departments. Please verify connection and try again.');
         }
       },
       error: () => {
         this.isSubmitting.set(false);
-        alert('An error occurred while creating departments.');
+        this.errorMessage.set('An error occurred while creating departments. Please try again.');
       }
     });
   }
 
   private finishOnboarding(): void {
-    // Navigate directly to Dashboard
-    this.router.navigate(['/dashboard']);
+    // Navigate to departments — the Owner's primary landing page
+    this.router.navigate(['/departments']);
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const body = err?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (body && typeof body === 'object') {
+      return body.error || body.Error || body.message || body.title || fallback;
+    }
+    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
+    return fallback;
   }
 }

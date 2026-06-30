@@ -27,7 +27,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<DepartmentResponseDto>.Fail(400, "Invalid department name.");
             }
 
-            // Duplicate check within the same company (case-insensitive)
             var exists = await _context.Departments
                 .AnyAsync(d => d.CompanyId == companyId && d.Name.ToLower() == dto.Name.ToLower());
 
@@ -88,7 +87,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<DepartmentResponseDto>.Fail(404, "Department not found.");
             }
 
-            // Duplicate check within same company (excluding this department itself)
             var exists = await _context.Departments
                 .AnyAsync(d => d.CompanyId == companyId && d.Id != id && d.Name.ToLower() == dto.Name.ToLower());
 

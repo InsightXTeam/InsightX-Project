@@ -298,7 +298,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to fetch team members.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to fetch team members.'));
       }
     });
   }
@@ -340,7 +340,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to invite manager. Make sure email is not in use.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to invite manager. Make sure the email is not already in use.'));
       }
     });
   }
@@ -358,8 +358,18 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to delete manager.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to delete manager.'));
       }
     });
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const body = err?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (body && typeof body === 'object') {
+      return body.error || body.Error || body.message || body.title || fallback;
+    }
+    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
+    return fallback;
   }
 }

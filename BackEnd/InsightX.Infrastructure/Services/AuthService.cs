@@ -45,14 +45,14 @@ namespace InsightX.Infrastructure.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Verify if email already registered
+                
                 var existingUser = await _userManager.FindByEmailAsync(dto.Email);
                 if (existingUser != null)
                 {
                     return ServiceResult<object>.Fail(400, "Email already registered.");
                 }
 
-                // 1. Create Company
+                
                 var company = new Company
                 {
                     Name = dto.CompanyName,
@@ -61,7 +61,6 @@ namespace InsightX.Infrastructure.Services
                 _context.Companies.Add(company);
                 await _context.SaveChangesAsync();
 
-                // 2. Create ApplicationUser
                 var user = new ApplicationUser
                 {
                     UserName = dto.Email,
@@ -70,7 +69,6 @@ namespace InsightX.Infrastructure.Services
                     CompanyId = company.Id
                 };
 
-                // 3. Hash password via UserManager
                 var result = await _userManager.CreateAsync(user, dto.Password);
                 if (!result.Succeeded)
                 {
@@ -78,7 +76,6 @@ namespace InsightX.Infrastructure.Services
                     return ServiceResult<object>.Fail(400, errors);
                 }
 
-                // Ensure "Owner" role exists and add user to it
                 if (!await _roleManager.RoleExistsAsync("Owner"))
                 {
                     await _roleManager.CreateAsync(new IdentityRole("Owner"));

@@ -60,7 +60,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to load company KPIs. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to load company KPIs. Please try again.'));
       }
     });
   }
@@ -93,7 +93,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to create KPI. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to create KPI. Please try again.'));
       }
     });
   }
@@ -133,7 +133,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to update KPI. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to update KPI. Please try again.'));
       }
     });
   }
@@ -151,8 +151,18 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to delete KPI. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to delete KPI. Please try again.'));
       }
     });
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const body = err?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (body && typeof body === 'object') {
+      return body.error || body.Error || body.message || body.title || fallback;
+    }
+    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
+    return fallback;
   }
 }

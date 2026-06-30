@@ -34,7 +34,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, "Invalid invitation data.");
             }
 
-            // Verify department belongs to the caller's company (cross-company assignment check)
             var dept = await _context.Departments
                 .FirstOrDefaultAsync(d => d.Id == dto.DepartmentId && d.CompanyId == companyId);
 
@@ -43,14 +42,12 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, "Invalid department for your company.");
             }
 
-            // Check if email already exists
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
             {
                 return ServiceResult.Fail(400, "A user with this email already exists.");
             }
 
-            // Create ApplicationUser under same company and department
             var user = new ApplicationUser
             {
                 UserName = dto.Email,
@@ -61,7 +58,6 @@ namespace InsightX.Infrastructure.Services
                 IsActivated = true
             };
 
-            // Attempt user creation
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
             {
@@ -69,7 +65,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, errors);
             }
 
-            // Assign Manager role
             if (!await _roleManager.RoleExistsAsync("Manager"))
             {
                 await _roleManager.CreateAsync(new IdentityRole("Manager"));
@@ -85,7 +80,6 @@ namespace InsightX.Infrastructure.Services
                 .Where(u => u.CompanyId == companyId)
                 .Include(u => u.Department);
 
-            // Filter users based on Caller Role
             if (role == "Manager")
             {
                 if (string.IsNullOrEmpty(departmentIdClaim))
@@ -100,7 +94,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<List<UserResponseDto>>.Fail(403, "Forbidden");
             }
 
-            // Map strictly to UserResponseDto by loading users first then joining role details
             var rawUsers = await query.ToListAsync();
             var userIds = rawUsers.Select(u => u.Id).ToList();
 
@@ -183,13 +176,11 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(404, "User not found.");
             }
 
-            // Verify they belong to the caller's company
             if (user.CompanyId != companyId)
             {
                 return ServiceResult.Fail(403, "You do not have permission to delete this user.");
             }
 
-            // Ensure the user being deleted is a Manager (Owners cannot delete other Owners or admins)
             var isManager = await _userManager.IsInRoleAsync(user, "Manager");
             if (!isManager)
             {

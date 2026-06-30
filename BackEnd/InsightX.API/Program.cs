@@ -18,7 +18,6 @@ namespace InsightX.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
-            // Add services to the container.
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(connection);
@@ -70,7 +69,6 @@ namespace InsightX.API
             });
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
@@ -108,10 +106,23 @@ namespace InsightX.API
 
             var app = builder.Build();
 
-            // Global exception handling
+            // Fail-fast guard: prevent production startup with placeholder secrets
+            if (!app.Environment.IsDevelopment())
+            {
+                var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
+                var adminEmail = builder.Configuration["SuperAdmin:Email"] ?? "";
+                if (jwtKey.Contains("CHANGE_ME") || adminEmail.Contains("CHANGE_ME"))
+                {
+                    throw new InvalidOperationException(
+                        "SECURITY: Production startup blocked. Jwt:Key and SuperAdmin credentials " +
+                        "must be overridden via environment variables or user-secrets. " +
+                        "See appsettings.json for details.");
+                }
+            }
+
+
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -127,7 +138,6 @@ namespace InsightX.API
 
             app.MapControllers();
 
-            // Seed Roles & Super Admin
             using (var scope = app.Services.CreateScope())
             {
                 await DbInitializer.SeedAsync(

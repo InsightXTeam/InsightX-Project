@@ -27,7 +27,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<KpiResponseDto>.Fail(400, "Invalid KPI name or unit.");
             }
 
-            // Duplicate check within the same company (case-insensitive)
             var exists = await _context.KPIs
                 .AnyAsync(k => k.CompanyId == companyId && k.Name.ToLower() == dto.Name.ToLower());
 
@@ -90,7 +89,6 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<KpiResponseDto>.Fail(404, "KPI not found.");
             }
 
-            // Duplicate check within same company (excluding this KPI itself)
             var exists = await _context.KPIs
                 .AnyAsync(k => k.CompanyId == companyId && k.Id != id && k.Name.ToLower() == dto.Name.ToLower());
 

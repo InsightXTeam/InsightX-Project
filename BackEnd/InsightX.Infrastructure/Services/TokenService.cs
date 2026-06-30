@@ -4,19 +4,20 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using InsightX.Application.Interfaces;
+using InsightX.Application.Common;
 using InsightX.Domain.Entities;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace InsightX.Infrastructure.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _config;
+        private readonly JwtOptions _jwtOptions;
 
-        public TokenService(IConfiguration config)
+        public TokenService(IOptions<JwtOptions> jwtOptions)
         {
-            _config = config;
+            _jwtOptions = jwtOptions.Value;
         }
 
         public string GenerateAccessToken(ApplicationUser user, System.Collections.Generic.IList<string> roles)
@@ -32,14 +33,13 @@ namespace InsightX.Infrastructure.Services
                 new Claim(ClaimTypes.Role, role)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiry = DateTime.UtcNow.AddMinutes(
-                _config.GetValue<int>("Jwt:AccessTokenExpiryMinutes"));
+            var expiry = DateTime.UtcNow.AddMinutes(_jwtOptions.AccessTokenExpiryMinutes);
 
             var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
+                issuer: _jwtOptions.Issuer,
+                audience: _jwtOptions.Audience,
                 claims: claims,
                 expires: expiry,
                 signingCredentials: creds
@@ -53,17 +53,16 @@ namespace InsightX.Infrastructure.Services
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-            // Validate token ignoring expiry — used for refresh flow
             var tokenParams = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateIssuerSigningKey = true,
-                ValidateLifetime = false, // <- Key: allow expired tokens here
-                ValidIssuer = _config["Jwt:Issuer"],
-                ValidAudience = _config["Jwt:Audience"],
+                ValidateLifetime = false, 
+                ValidIssuer = _jwtOptions.Issuer,
+                ValidAudience = _jwtOptions.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_config["Jwt:Key"]!))
+                    Encoding.UTF8.GetBytes(_jwtOptions.Key))
             };
 
             return new JwtSecurityTokenHandler()

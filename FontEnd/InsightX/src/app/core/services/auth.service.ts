@@ -154,6 +154,15 @@ export class AuthService {
         }
       }
 
+      // Validate issued-at claim to reject tokens issued in the future (clock skew protection)
+      if (claims.iat) {
+        const issuedAt = claims.iat * 1000;
+        const maxFutureTolerance = 60_000; // Allow 60 seconds of clock skew
+        if (issuedAt > Date.now() + maxFutureTolerance) {
+          return null; // Token issued in the future — possible forgery
+        }
+      }
+
       return {
         id,
         email,

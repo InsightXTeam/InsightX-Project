@@ -49,15 +49,12 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, "Invalid KPIs request.");
             }
 
-            // Retrieve existing KPIs
             var existing = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
                 .ToListAsync();
 
-            // Clear old KPIs
             _context.KPIs.RemoveRange(existing);
 
-            // Add new KPIs
             var newKpis = dto.KPIs.Select(k => new KPI
             {
                 Name = k.Name,
@@ -68,7 +65,6 @@ namespace InsightX.Infrastructure.Services
 
             await _context.KPIs.AddRangeAsync(newKpis);
 
-            // Execute changes atomically in a single SaveChanges call
             await _context.SaveChangesAsync();
 
             return ServiceResult.Success();

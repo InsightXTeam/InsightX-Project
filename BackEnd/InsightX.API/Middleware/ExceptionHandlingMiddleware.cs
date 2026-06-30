@@ -22,22 +22,44 @@ namespace InsightX.API.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unhandled exception occurred while processing {Method} {Path}",
-                    context.Request.Method, context.Request.Path);
+                var correlationId = Guid.NewGuid().ToString("N")[..12];
 
-                await HandleExceptionAsync(context, ex);
+                _logger.LogError(ex,
+                    "Unhandled exception [CorrelationId={CorrelationId}] while processing {Method} {Path}{Query}",
+                    correlationId,
+                    context.Request.Method,
+                    context.Request.Path,
+                    context.Request.QueryString);
+
+                await HandleExceptionAsync(context, ex, correlationId);
             }
         }
 
-        private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private static async Task HandleExceptionAsync(HttpContext context, Exception exception, string correlationId)
         {
             context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            var (statusCode, message) = exception switch
+            {
+                ArgumentException or ArgumentNullException
+                    => ((int)HttpStatusCode.BadRequest, "Invalid request data. Please check your input and try again."),
+                UnauthorizedAccessException
+                    => ((int)HttpStatusCode.Unauthorized, "You are not authorized to perform this action."),
+                KeyNotFoundException
+                    => ((int)HttpStatusCode.NotFound, "The requested resource was not found."),
+                InvalidOperationException
+                    => ((int)HttpStatusCode.Conflict, "The operation could not be completed due to a conflict."),
+                _
+                    => ((int)HttpStatusCode.InternalServerError, "An unexpected error occurred. Please try again later.")
+            };
+
+            context.Response.StatusCode = statusCode;
 
             var response = new
             {
-                StatusCode = context.Response.StatusCode,
-                Error = "An unexpected error occurred. Please try again later."
+                StatusCode = statusCode,
+                Error = message,
+                CorrelationId = correlationId
             };
 
             var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
@@ -45,3 +67,4 @@ namespace InsightX.API.Middleware
         }
     }
 }
+

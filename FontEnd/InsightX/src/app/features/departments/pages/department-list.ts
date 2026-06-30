@@ -52,7 +52,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to load company departments. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to load company departments. Please try again.'));
       }
     });
   }
@@ -80,7 +80,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to create department. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to create department. Please try again.'));
       }
     });
   }
@@ -111,7 +111,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to update department. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to update department. Please try again.'));
       }
     });
   }
@@ -129,8 +129,18 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(err.error || 'Failed to delete department. Please try again.');
+        this.error.set(this.extractErrorMessage(err, 'Failed to delete department. Please try again.'));
       }
     });
+  }
+
+  private extractErrorMessage(err: any, fallback: string): string {
+    const body = err?.error;
+    if (typeof body === 'string' && body.trim()) return body;
+    if (body && typeof body === 'object') {
+      return body.error || body.Error || body.message || body.title || fallback;
+    }
+    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
+    return fallback;
   }
 }
