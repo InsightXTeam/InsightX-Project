@@ -2,13 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
-
-export interface ExtractedMetric {
-  KPIName: string;
-  Value: number;
-  Month: string;
-  Year: number;
-}
+import { ExtractedMetric } from '../../../../core/models/extracted-metric';
 
 @Component({
   selector: 'app-report-results',
