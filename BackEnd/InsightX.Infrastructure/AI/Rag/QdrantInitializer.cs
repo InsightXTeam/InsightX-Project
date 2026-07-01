@@ -17,6 +17,7 @@ public static class QdrantInitializer
                 collectionName: CollectionName,
                 vectorsConfig: new VectorParams
                 {
+                    // this sizw in nvidia/llama model case
                     Size = 1536,
                     Distance = Distance.Cosine
                 });

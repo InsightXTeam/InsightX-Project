@@ -22,15 +22,18 @@ namespace InsightX.Infrastructure
 
                 return new OpenAICompatibleEmbeddingService(
                     sp.GetRequiredService<IHttpClientFactory>().CreateClient(),
-                    config["RagModel:ApiKey"]!,
-                    config["RagModel:Endpoint"]!,
-                    config["RagModel:EmbeddingModel"]!);
+
+                    config["RagModel:ApiKey"] ?? throw new InvalidOperationException("Missing configuration: RagModel:ApiKey"),
+                    config["RagModel:Endpoint"] ?? throw new InvalidOperationException("Missing configuration: RagModel:Endpoint"),
+                    config["RagModel:EmbeddingModel"] ?? throw new InvalidOperationException("Missing configuration: RagModel:EmbeddingModel"));
             });
 
 
-            services.AddSingleton(new QdrantClient(
-                host: configuration["Qdrant:Host"]!,
-                port: int.Parse(configuration["Qdrant:Port"]!)));
+            var qdrantHost = configuration["Qdrant:Host"] ?? throw new InvalidOperationException("Missing configuration: Qdrant:Host");
+            var qdrantPortStr = configuration["Qdrant:Port"] ?? throw new InvalidOperationException("Missing configuration: Qdrant:Port");
+            if (!int.TryParse(qdrantPortStr, out var qdrantPort)) throw new InvalidOperationException("Configuration value Qdrant:Port must be an integer.");
+
+            services.AddSingleton(new QdrantClient(host: qdrantHost, port: qdrantPort));
 
             services.AddScoped<IChunkingService, ChunkingService>();
             services.AddScoped<IEmbeddingService, EmbeddingService>();

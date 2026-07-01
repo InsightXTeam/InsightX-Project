@@ -2,7 +2,7 @@ using InsightXAI.Application.DTOs;
 using InsightXAI.Application.UseCases.Rag;
 using Microsoft.AspNetCore.Mvc;
 
-namespace InsightXAI.API.Controllers
+namespace InsightXAI.API.Controllers.Rag
 {
     /// <summary>
     /// Endpoints for report indexing and vector retrieval operations.

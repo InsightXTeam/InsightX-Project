@@ -58,6 +58,9 @@ namespace InsightX.Infrastructure.AI.Rag
                 Must = { Conditions.Match("company_id", companyId) }
             };
 
+            if (topK <= 0)
+                throw new ArgumentOutOfRangeException(nameof(topK), "topK must be a positive integer.");
+
             var results = await _client.SearchAsync(
                 collectionName: CollectionName,
                 vector: queryVector,

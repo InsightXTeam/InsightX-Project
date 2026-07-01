@@ -44,6 +44,9 @@ namespace InsightXAI.Application.UseCases.Rag
             // Generate embeddings for all chunks.
             var vectors = await _embeddingService.GetEmbeddingsAsync(chunkTexts, cancellationToken);
 
+            if (vectors.Count != chunks.Count)
+                throw new InvalidOperationException($"Embedding service returned {vectors.Count} vectors for {chunks.Count} chunks.");
+
             // Build vector records with report metadata.
             var records = new List<VectorRecordDto>();
             for (int i = 0; i < chunks.Count; i++)

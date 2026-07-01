@@ -24,10 +24,12 @@ namespace InsightXAI.Application.UseCases.Rag
             var questionVector = await _embeddingService.GetEmbeddingAsync(request.Question, cancellationToken);
 
             // Search for the most relevant chunks within the company scope.
+            var topK = request.TopK <= 0 ? 5 : Math.Min(request.TopK, 50);
+
             var chunks = await _vectorStore.SearchAsync(
                 questionVector,
                 request.CompanyId,
-                request.TopK,
+                topK,
                 cancellationToken);
 
             return new RetrieveResponseDto

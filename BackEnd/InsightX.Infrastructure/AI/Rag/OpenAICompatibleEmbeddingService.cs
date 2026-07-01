@@ -6,6 +6,7 @@ using System.Text.Json;
 
 // Custom Semantic Kernel embedding service that works with
 // any OpenAI-compatible Embeddings API (OpenRouter, Together AI, etc.).
+namespace InsightX.Infrastructure.AI.Rag;
 public sealed class OpenAICompatibleEmbeddingService : ITextEmbeddingGenerationService
 {
     private readonly HttpClient _httpClient;
@@ -24,7 +25,7 @@ public sealed class OpenAICompatibleEmbeddingService : ITextEmbeddingGenerationS
         _httpClient = httpClient;
 
         // Configure provider endpoint and authentication.
-        _httpClient.BaseAddress = new Uri(endpoint);
+        _httpClient.BaseAddress = new Uri(endpoint.TrimEnd('/') + "/");
 
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("Bearer", apiKey);
