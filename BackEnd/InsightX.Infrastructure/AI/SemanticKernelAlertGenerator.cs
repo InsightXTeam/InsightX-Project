@@ -1,6 +1,7 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using Microsoft.SemanticKernel;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace InsightX.Infrastructure.AI
 {
@@ -26,10 +27,20 @@ namespace InsightX.Infrastructure.AI
 
             var result = await _kernel.InvokePromptAsync(prompt);
 
-            var json = result.ToString();
-            var parsed = JsonSerializer.Deserialize<(string message, string recommendation)>(json);
+            // Strip markdown code fences that LLMs sometimes add (```json ... ```)
+            var json = result.ToString().Trim();
+            json = Regex.Replace(json, @"^```[a-zA-Z]*\s*", "").TrimStart();
+            json = Regex.Replace(json, @"```\s*$", "").TrimEnd();
 
-            return parsed;
+            // System.Text.Json cannot deserialize into C# value tuples — use a record instead
+            var parsed = JsonSerializer.Deserialize<AlertJsonResult>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return (parsed?.message ?? "Anomaly detected.", parsed?.recommendation ?? "Please review the KPI.");
         }
+
+        // Private record for safe JSON deserialization
+        private record AlertJsonResult(string message, string recommendation);
     }
 }
+
