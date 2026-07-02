@@ -1,4 +1,5 @@
-﻿using InsightX.Application.UseCases.Alerts;
+using InsightX.Application.DTOs;
+using InsightX.Application.UseCases.Alerts;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,16 @@ namespace InsightX.API.Controllers
     {
         private readonly GetAlertsUseCase _getAlerts;
         private readonly MarkAlertSeenUseCase _markSeen;
+        private readonly GenerateAlertUseCase _generateAlert;
 
-        public AlertsController(GetAlertsUseCase getAlerts, MarkAlertSeenUseCase markSeen)
+        public AlertsController(
+            GetAlertsUseCase getAlerts,
+            MarkAlertSeenUseCase markSeen,
+            GenerateAlertUseCase generateAlert)
         {
             _getAlerts = getAlerts;
             _markSeen = markSeen;
+            _generateAlert = generateAlert;
         }
 
         [HttpGet]
@@ -32,5 +38,22 @@ namespace InsightX.API.Controllers
             await _markSeen.ExecuteAsync(id);
             return NoContent();
         }
+
+        /// <summary>
+        /// Manually triggers anomaly detection for a specific report value.
+        /// Called by Person 2 after a report is confirmed by the Manager.
+        /// </summary>
+        [HttpPost("run")]
+        public async Task<IActionResult> RunDetection([FromBody] RunAlertRequest request)
+        {
+            await _generateAlert.ExecuteAsync(
+                request.CompanyId,
+                request.DepartmentId,
+                request.KpiName,
+                request.CurrentValue);
+
+            return Ok(new { message = "Anomaly detection triggered successfully." });
+        }
     }
 }
+
