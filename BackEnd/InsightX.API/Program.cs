@@ -3,6 +3,9 @@ using InsightX.Application.Interfaces;
 using InsightX.Application.UseCases.Alerts;
 using InsightX.Infrastructure.AI;
 using InsightX.Infrastructure.Anomaly;
+using InsightX.Infrastructure.Anomaly.Rules;
+using InsightX.Infrastructure.BackgroundServices;
+using InsightX.Infrastructure.Handlers;
 using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +18,7 @@ namespace InsightX.API
         {
             var builder = WebApplication.CreateBuilder(args);
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+
             // Add services to the container.
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
@@ -30,12 +34,24 @@ namespace InsightX.API
              * */
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
-            builder.Services.AddScoped<IAnomalyDetector, ThreeLevelAnomalyDetector>();
             builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
 
+            // Register all 3 anomaly rules — order matters (Threshold → ZScore → Trend)
+            builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
+            builder.Services.AddScoped<IAnomalyRule, ZScoreRule>();
+            builder.Services.AddScoped<IAnomalyRule, TrendRule>();
+
+            builder.Services.AddScoped<IAnomalyDetector, ThreeLevelAnomalyDetector>();
+            builder.Services.AddScoped<IReportConfirmedHandler, ReportConfirmedHandler>();
+
+            // Use cases
             builder.Services.AddScoped<GenerateAlertUseCase>();
             builder.Services.AddScoped<GetAlertsUseCase>();
             builder.Services.AddScoped<MarkAlertSeenUseCase>();
+            builder.Services.AddScoped<CreateMonthlyReminderUseCase>();
+
+            // Monthly reminder: notifies company owners to upload their report on the 25th of each month
+            builder.Services.AddHostedService<MonthlyReminderBackgroundService>();
 
             var app = builder.Build();
 
@@ -48,8 +64,9 @@ namespace InsightX.API
 
             app.UseHttpsRedirection();
 
+            // UseAuthentication MUST come before UseAuthorization
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
@@ -57,3 +74,4 @@ namespace InsightX.API
         }
     }
 }
+
