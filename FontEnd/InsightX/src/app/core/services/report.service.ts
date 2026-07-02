@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Report } from '../models/report.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ export class ReportService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = 'https://localhost:7131/api/Reports';
+  private apiUrl = `${environment.apiBaseUrl}/api/Reports`;
 
   // POST /api/Reports/upload
   upload(file: File): Observable<any> {

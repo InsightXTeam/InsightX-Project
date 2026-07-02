@@ -1,4 +1,4 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities.Reports;
 using InsightX.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +19,18 @@ namespace InsightX.Infrastructure.Repositories
             return await _context.Reports
                 .Include(x => x.ExtractedMetrics)
                 .ToListAsync();
+        }
+
+        public async Task<List<Report>> GetByCompanyAndUserAsync(int companyId, string role, string userName)
+        {
+            var query = _context.Reports.Where(r => r.CompanyId == companyId);
+
+            if (role != "Owner")
+            {
+                query = query.Where(r => r.UploadedBy == userName);
+            }
+
+            return await query.Include(x => x.ExtractedMetrics).ToListAsync();
         }
 
         public async Task<Report?> GetByIdAsync(int id)

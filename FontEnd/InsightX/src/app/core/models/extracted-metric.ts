@@ -1,6 +1,6 @@
 export interface ExtractedMetric {
   KPIName: string;
   Value: number;
-  Month: string;
+  Month: number;
   Year: number;
 }

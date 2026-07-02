@@ -1,4 +1,4 @@
-﻿using InsightX.Domain.Entities.Reports;
+using InsightX.Domain.Entities.Reports;
 
 namespace InsightX.Application.Interfaces
 {
@@ -7,6 +7,8 @@ namespace InsightX.Application.Interfaces
         Task<List<Report>> GetAllAsync();
 
         Task<Report?> GetByIdAsync(int id);
+
+        Task<List<Report>> GetByCompanyAndUserAsync(int companyId, string role, string userName);
 
         Task AddAsync(Report report);
 

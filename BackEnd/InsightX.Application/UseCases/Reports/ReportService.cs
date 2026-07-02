@@ -41,18 +41,9 @@ namespace InsightX.Application.UseCases.Reports
 
         public async Task<List<ReportResponseDto>> GetReportsAsync(int companyId, string role, string userName)
         {
-            var allReports = await _repository.GetAllAsync();
-            
-            // Filter by company
-            var filtered = allReports.Where(r => r.CompanyId == companyId);
-            
-            // If the user is a Manager (or anything other than Owner), they only see their own uploads
-            if (role != "Owner")
-            {
-                filtered = filtered.Where(r => r.UploadedBy == userName);
-            }
+            var reports = await _repository.GetByCompanyAndUserAsync(companyId, role, userName);
 
-            return filtered.Select(x => new ReportResponseDto
+            return reports.Select(x => new ReportResponseDto
             {
                 Id = x.Id,
                 FileName = x.FileName,

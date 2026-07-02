@@ -27,24 +27,32 @@ namespace InsightX.Application.UseCases.Documents
             report.Status = "Processing";
             await _repository.UpdateAsync(report);
 
-            var extension = Path.GetExtension(report.FilePath);
-
-            var reader = _readers.FirstOrDefault(x => x.CanRead(extension));
-
-            if (reader == null)
+            try
             {
+                var extension = Path.GetExtension(report.FilePath);
+
+                var reader = _readers.FirstOrDefault(x => x.CanRead(extension));
+
+                if (reader == null)
+                {
+                    throw new Exception("No reader found");
+                }
+
+                // ONLY extract text here
+                var text = await reader.ExtractTextAsync(report.FilePath);
+
+                report.ExtractedText = text;
+                report.Status = "Pending Confirmation"; // Waiting for user to review the text
+
+                await _repository.UpdateAsync(report);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error processing document: {ex.Message}");
                 report.Status = "Failed";
                 await _repository.UpdateAsync(report);
-                throw new Exception("No reader found");
+                throw;
             }
-
-            // ONLY extract text here
-            var text = await reader.ExtractTextAsync(report.FilePath);
-
-            report.ExtractedText = text;
-            report.Status = "Pending Confirmation"; // Waiting for user to review the text
-
-            await _repository.UpdateAsync(report);
         }
 
         public async Task ExtractKpisAsync(int reportId)
@@ -85,8 +93,8 @@ namespace InsightX.Application.UseCases.Documents
                     {
                         KPIName = x.KPIName,
                         Value = x.Value,
-                        Month = DateTime.Now.Month,
-                        Year = DateTime.Now.Year,
+                        Month = x.Month ?? report.UploadedAt.Month,
+                        Year = x.Year ?? report.UploadedAt.Year,
                         CompanyId = report.CompanyId,
                         ConfirmedByManager = true // Implicitly confirmed since manager verified the text
                     }).ToList();
