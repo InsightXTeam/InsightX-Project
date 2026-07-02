@@ -2,7 +2,6 @@ using InsightX.Domain.Enums;
 
 namespace InsightX.Domain.Entities
 {
-    // Note: rename this file to Alert.cs (double-dot is a typo)
     public class Alert
     {
         public int Id { get; set; }
