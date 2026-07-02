@@ -10,6 +10,11 @@ export const authGuard: CanActivateFn = () => {
   const auth   = inject(AuthService);
   const router = inject(Router);
 
+  // Temporary bypass so feature pages can be reviewed
+  // while auth UI/backend integration is still owned by Person 1.
+  const bypassAuthForNow = true;
+  if (bypassAuthForNow) return true;
+
   if (auth.isAuth()) return true;
 
   router.navigate(['/auth/login']);

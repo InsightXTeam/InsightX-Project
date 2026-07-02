@@ -89,7 +89,8 @@
               "buildTarget": "insightx-frontend:build:production"
             },
             "development": {
-              "buildTarget": "insightx-frontend:build:development"
+              "buildTarget": "insightx-frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
