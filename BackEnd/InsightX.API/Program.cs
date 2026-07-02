@@ -31,8 +31,9 @@ namespace InsightX.API
             using (var scope = app.Services.CreateScope())
             {
                 var qdrant = scope.ServiceProvider.GetRequiredService<QdrantClient>();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-                await QdrantInitializer.InitializeAsync(qdrant);
+                await QdrantInitializer.InitializeAsync(qdrant, configuration);
             }
 
             // Configure the HTTP request pipeline.

@@ -28,12 +28,17 @@ namespace InsightX.Infrastructure
                     config["RagModel:EmbeddingModel"] ?? throw new InvalidOperationException("Missing configuration: RagModel:EmbeddingModel"));
             });
 
-
             var qdrantHost = configuration["Qdrant:Host"] ?? throw new InvalidOperationException("Missing configuration: Qdrant:Host");
-            var qdrantPortStr = configuration["Qdrant:Port"] ?? throw new InvalidOperationException("Missing configuration: Qdrant:Port");
-            if (!int.TryParse(qdrantPortStr, out var qdrantPort)) throw new InvalidOperationException("Configuration value Qdrant:Port must be an integer.");
 
-            services.AddSingleton(new QdrantClient(host: qdrantHost, port: qdrantPort));
+            var qdrantPort = configuration.GetValue<int>("Qdrant:Port");
+
+            var qdrantApiKey = configuration["Qdrant:ApiKey"] ?? throw new InvalidOperationException("Missing configuration: Qdrant:ApiKey");
+
+            services.AddSingleton(new QdrantClient(
+                host: qdrantHost,
+                port: qdrantPort,
+                https: true,
+                apiKey: qdrantApiKey));
 
             services.AddScoped<IChunkingService, ChunkingService>();
             services.AddScoped<IEmbeddingService, EmbeddingService>();
