@@ -9,6 +9,8 @@ using InsightX.Infrastructure.Handlers;
 using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace InsightX.API
 {
@@ -35,6 +37,26 @@ namespace InsightX.API
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
             builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
+            builder.Services.AddSingleton(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var modelId = configuration["AI:ModelId"];
+                var apiKey = configuration["AI:ApiKey"];
+
+                var kernelBuilder = Kernel.CreateBuilder();
+
+                // Configure OpenAI chat completion when credentials are provided.
+                if (!string.IsNullOrWhiteSpace(modelId) && !string.IsNullOrWhiteSpace(apiKey))
+                {
+                    kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+                }
+                else
+                {
+                    Console.WriteLine("Warning: AI model config missing (AI:ModelId / AI:ApiKey). Kernel started without chat completion service.");
+                }
+
+                return kernelBuilder.Build();
+            });
 
             // Register all 3 anomaly rules — order matters (Threshold → ZScore → Trend)
             builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
