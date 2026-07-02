@@ -46,8 +46,10 @@ namespace InsightX.API.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunDetection([FromBody] RunAlertRequest request)
         {
+            var companyId = int.Parse(User.FindFirst("companyId")!.Value);
+
             await _generateAlert.ExecuteAsync(
-                request.CompanyId,
+                companyId,
                 request.DepartmentId,
                 request.KpiName,
                 request.CurrentValue);
