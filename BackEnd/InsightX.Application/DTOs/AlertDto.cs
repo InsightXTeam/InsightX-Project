@@ -1,4 +1,6 @@
-﻿namespace InsightX.Application.DTOs
+using InsightX.Domain.Enums;
+
+namespace InsightX.Application.DTOs
 {
     public class AlertDto
     {
@@ -10,5 +12,6 @@
         public string Recommendation { get; set; }
         public bool SeenByOwner { get; set; }
         public DateTime CreatedAt { get; set; }
+        public AlertType AlertType { get; set; }
     }
 }

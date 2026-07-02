@@ -1,4 +1,4 @@
-﻿using InsightX.Application.DTOs;
+using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
 
 namespace InsightX.Application.UseCases.Alerts
@@ -25,7 +25,8 @@ namespace InsightX.Application.UseCases.Alerts
                 Message = a.Message,
                 Recommendation = a.Recommendation,
                 CreatedAt = a.CreatedAt,
-                SeenByOwner = a.SeenByOwner
+                SeenByOwner = a.SeenByOwner,
+                AlertType = a.AlertType
             }).ToList();
         }
     }

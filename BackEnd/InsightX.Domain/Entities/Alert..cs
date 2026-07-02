@@ -1,5 +1,8 @@
-﻿namespace InsightX.Domain.Entities
+using InsightX.Domain.Enums;
+
+namespace InsightX.Domain.Entities
 {
+    // Note: rename this file to Alert.cs (double-dot is a typo)
     public class Alert
     {
         public int Id { get; set; }
@@ -12,5 +15,6 @@
         public string Recommendation { get; set; }
         public bool SeenByOwner { get; set; }
         public DateTime CreatedAt { get; set; }
+        public AlertType AlertType { get; set; } = AlertType.Anomaly;
     }
 }
