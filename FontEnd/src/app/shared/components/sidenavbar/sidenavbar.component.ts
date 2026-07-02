@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { AlertsApiService } from '../../../features/alerts/services/alerts-api.service';
+import { Alert } from '../../../features/alerts/models/alert.model';
 
 interface NavItem { label: string; route: string; icon: string; }
 
@@ -14,7 +16,10 @@ interface NavItem { label: string; route: string; icon: string; }
 })
 export class SidenavbarComponent {
   private auth = inject(AuthService);
+  private alertsApi = inject(AlertsApiService);
   readonly user = this.auth.user;
+  readonly isAlertsDrawerOpen = signal(false);
+  readonly unseenAlerts = signal<Alert[]>([]);
 
   readonly navItems: NavItem[] = [
     { label: 'Dashboard', route: '/dashboard', icon: 'grid'            },
@@ -25,6 +30,41 @@ export class SidenavbarComponent {
   ];
 
   logout() { this.auth.logout(); }
+
+  ngOnInit(): void {
+    this.loadUnseenAlerts();
+  }
+
+  get unseenCount(): number {
+    return this.unseenAlerts().length;
+  }
+
+  toggleAlertsDrawer(): void {
+    this.isAlertsDrawerOpen.update(v => !v);
+  }
+
+  closeAlertsDrawer(): void {
+    this.isAlertsDrawerOpen.set(false);
+  }
+
+  markAlertSeen(alertId: number): void {
+    this.alertsApi.markAsSeen(alertId).subscribe({
+      next: () => {
+        this.unseenAlerts.update(alerts => alerts.filter(a => a.id !== alertId));
+      }
+    });
+  }
+
+  private loadUnseenAlerts(): void {
+    this.alertsApi.getAlerts(false).subscribe({
+      next: alerts => {
+        this.unseenAlerts.set(alerts);
+      },
+      error: () => {
+        this.unseenAlerts.set([]);
+      }
+    });
+  }
 
   /** Returns inline SVG string for a given icon name */
   getIcon(name: string): string {

@@ -12,6 +12,17 @@
       <span class="brand-name">InsightX AI</span>
       <span class="brand-sub">Enterprise BI</span>
     </div>
+    <button
+      class="alerts-bell-btn"
+      type="button"
+      (click)="toggleAlertsDrawer()"
+      [attr.aria-label]="'Notifications (' + unseenCount + ' unseen alerts)'"
+    >
+      <span [innerHTML]="getIcon('bell')"></span>
+      @if (unseenCount > 0) {
+        <span class="alerts-bell-badge">{{ unseenCount > 99 ? '99+' : unseenCount }}</span>
+      }
+    </button>
   </div>
 
   <!-- New Analysis CTA -->
@@ -59,4 +70,31 @@
       Sign Out
     </button>
   </div>
+
+  @if (isAlertsDrawerOpen()) {
+    <div class="alerts-drawer-overlay" (click)="closeAlertsDrawer()"></div>
+  }
+
+  <aside class="alerts-drawer" [class.open]="isAlertsDrawerOpen()">
+    <div class="alerts-drawer__header">
+      <h4>Unseen Alerts</h4>
+      <button type="button" class="alerts-drawer__close" (click)="closeAlertsDrawer()">Close</button>
+    </div>
+
+    @if (unseenCount === 0) {
+      <p class="alerts-drawer__empty">No unseen alerts.</p>
+    } @else {
+      <ul class="alerts-drawer__list">
+        @for (alert of unseenAlerts(); track alert.id) {
+          <li class="alerts-drawer__item">
+            <p class="alerts-item__kpi">{{ alert.kpiName }}</p>
+            <p class="alerts-item__message">{{ alert.message }}</p>
+            <button type="button" class="alerts-item__seen-btn" (click)="markAlertSeen(alert.id)">
+              Mark as seen
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  </aside>
 </nav>
