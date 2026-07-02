@@ -20,6 +20,7 @@ namespace InsightX.Infrastructure.Persistence.Repositories
                 .Select(k => new KPIConfig
                 {
                     Threshold = k.Threshold,
+                    ThresholdDirection = k.ThresholdDirection,
                     AlertPercentageDiff = k.AlertPercentageDiff,
                     TrendMonthsCount = k.TrendMonthsCount
                 })
@@ -47,14 +48,6 @@ namespace InsightX.Infrastructure.Persistence.Repositories
                 && m.Month == month
                 && m.Year == lastYear)
                 .Select(m => (decimal?)m.Value)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<decimal?> GetThresholdAsync(int companyId, string kpiName)
-        {
-            return await _context.KPIs
-                .Where(k => k.CompanyId == companyId && k.Name == kpiName)
-                .Select(k => (decimal?)k.Threshold)
                 .FirstOrDefaultAsync();
         }
 

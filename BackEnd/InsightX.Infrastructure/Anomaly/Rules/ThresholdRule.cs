@@ -1,4 +1,4 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using InsightX.Domain.Enums;
 using InsightX.Domain.ValueObjects;
 
@@ -18,7 +18,11 @@ namespace InsightX.Infrastructure.Anomaly.Rules
             var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
             if (config == null) return AnomalyResult.None();
 
-            if (currentValue < config.Threshold)
+            var breached = config.ThresholdDirection == ThresholdDirection.Below
+                ? currentValue < config.Threshold
+                : currentValue > config.Threshold;
+
+            if (breached)
                 return new AnomalyResult
                 {
                     IsAnomaly = true,
