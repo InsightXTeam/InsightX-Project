@@ -1,4 +1,4 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using InsightX.Domain.Enums;
 using InsightX.Domain.ValueObjects;
 
@@ -26,11 +26,16 @@ namespace InsightX.Infrastructure.Anomaly.Rules
             if (lastMonths.Count < config.TrendMonthsCount)
                 return AnomalyResult.None();
 
+            // GetLastNMonthsAsync returns data DESC (most-recent first),
+            // reverse to get chronological order (oldest → newest) before trend check.
+            lastMonths.Reverse();
+
             var isDownwardTrend = true;
 
             for (int i = 0; i < lastMonths.Count - 1; i++)
             {
-                if (lastMonths[i] >= lastMonths[i + 1])
+                // Each month must be strictly greater than the next for a downward trend
+                if (lastMonths[i] <= lastMonths[i + 1])
                 {
                     isDownwardTrend = false;
                     break;
