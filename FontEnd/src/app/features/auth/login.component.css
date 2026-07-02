@@ -1,0 +1,36 @@
+.login-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(circle at 10% 20%, rgb(18, 24, 43) 0%, rgb(10, 13, 22) 90%);
+}
+
+.login-container {
+  width: 480px;
+  max-width: 100%;
+}
+
+.logo-circle {
+  width: 70px;
+  height: 70px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.text-indigo {
+  color: var(--color-primary);
+}
+
+.btn-outline-light {
+  border-color: var(--border-glass);
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  transition: var(--transition-smooth);
+}
+
+.btn-outline-light:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: #fff;
+  transform: scale(1.02);
+}

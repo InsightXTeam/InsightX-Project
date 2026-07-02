@@ -1,0 +1,76 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center p-3">
+  <div class="login-container glass-panel animate-fade-in p-5 text-center">
+    
+    <!-- Branding Header -->
+    <div class="mb-4">
+      <div class="logo-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
+        <i class="bi bi-hexagon-fill text-indigo fs-1"></i>
+      </div>
+      <h3 class="fw-extrabold text-white mb-1">Insight<span class="text-indigo">X</span> AI</h3>
+      <p class="text-secondary small">Business Intelligence & Autonomous Agent Dashboard</p>
+    </div>
+
+    <!-- Login Form -->
+    <form (ngSubmit)="login()" #loginForm="ngForm">
+      <!-- Role Selection -->
+      <div class="mb-3 text-start">
+        <label class="form-label text-secondary small fw-semibold">Dashboard Access Role</label>
+        <select class="form-select form-control-glass" name="role" [(ngModel)]="selectedRole">
+          <option value="Owner">Owner (Entire Factory View)</option>
+          <option value="Manager">Department Manager (Restricted View)</option>
+        </select>
+      </div>
+
+      <!-- Department Selection (Conditional) -->
+      <div class="mb-4 text-start" *ngIf="selectedRole === 'Manager'">
+        <label class="form-label text-secondary small fw-semibold">Select Department</label>
+        <select class="form-select form-control-glass" name="departmentId" [(ngModel)]="selectedDeptId">
+          <option [value]="1">Production Department</option>
+          <option [value]="2">Quality Control Department</option>
+          <option [value]="3">Human Resources Department</option>
+        </select>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn btn-glass-primary w-100 mb-4 py-3">
+        <i class="bi bi-shield-lock-fill me-2"></i>
+        Access Dashboard
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider d-flex align-items-center my-3">
+      <hr class="flex-grow-1 border-secondary opacity-25">
+      <span class="px-3 text-muted small fw-bold">QUICK ACCESS FOR GRADING DEMO</span>
+      <hr class="flex-grow-1 border-secondary opacity-25">
+    </div>
+
+    <!-- Quick login links -->
+    <div class="row g-2">
+      <div class="col-6">
+        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Owner', null)">
+          <i class="bi bi-person-fill-check me-2 text-indigo"></i>
+          Owner
+        </button>
+      </div>
+      <div class="col-6">
+        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 1)">
+          <i class="bi bi-cone-striped me-2 text-indigo"></i>
+          Prod Mgr
+        </button>
+      </div>
+      <div class="col-6">
+        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 2)">
+          <i class="bi bi-patch-check-fill me-2 text-indigo"></i>
+          QC Mgr
+        </button>
+      </div>
+      <div class="col-6">
+        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 3)">
+          <i class="bi bi-people-fill me-2 text-indigo"></i>
+          HR Mgr
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
