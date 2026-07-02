@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, DecimalPipe } from '@angular/common';
 import { Alert } from '../../models/alert.model';
 
 @Component({
   selector: 'app-alert-card',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, DecimalPipe],
   templateUrl: './alert-card.component.html',
   styleUrls: ['./alert-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
