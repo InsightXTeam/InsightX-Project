@@ -27,20 +27,17 @@ namespace InsightX.Infrastructure.AI
 
             var result = await _kernel.InvokePromptAsync(prompt);
 
-            // Strip markdown code fences that LLMs sometimes add (```json ... ```)
+            // Strip markdown code fences that LLMs sometimes wrap around JSON output
             var json = result.ToString().Trim();
             json = Regex.Replace(json, @"^```[a-zA-Z]*\s*", "").TrimStart();
             json = Regex.Replace(json, @"```\s*$", "").TrimEnd();
 
-            // System.Text.Json cannot deserialize into C# value tuples — use a record instead
             var parsed = JsonSerializer.Deserialize<AlertJsonResult>(json,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return (parsed?.message ?? "Anomaly detected.", parsed?.recommendation ?? "Please review the KPI.");
         }
 
-        // Private record for safe JSON deserialization
         private record AlertJsonResult(string message, string recommendation);
     }
 }
-

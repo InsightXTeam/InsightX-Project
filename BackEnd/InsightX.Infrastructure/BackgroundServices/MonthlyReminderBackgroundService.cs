@@ -5,16 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace InsightX.Infrastructure.BackgroundServices
 {
-    /// <summary>
-    /// A background service that fires on the 25th of every month to remind
-    /// company owners to upload their monthly report before month-end.
-    /// </summary>
     public class MonthlyReminderBackgroundService : BackgroundService
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<MonthlyReminderBackgroundService> _logger;
 
-        // Day of month to send the reminder (25th gives users ~5 days to upload)
         private const int ReminderDay = 25;
 
         public MonthlyReminderBackgroundService(
@@ -44,18 +39,11 @@ namespace InsightX.Infrastructure.BackgroundServices
             }
         }
 
-        /// <summary>
-        /// Calculates how long until the next 25th of the month at 8:00 AM UTC.
-        /// If the 25th has already passed this month, schedules for next month's 25th.
-        /// </summary>
         private static TimeSpan GetDelayUntilNextReminder()
         {
             var now = DateTime.UtcNow;
-
-            // Target: 25th of current month at 8 AM UTC
             var nextRun = new DateTime(now.Year, now.Month, ReminderDay, 8, 0, 0, DateTimeKind.Utc);
 
-            // If today is past the 25th, move to next month
             if (now >= nextRun)
                 nextRun = nextRun.AddMonths(1);
 

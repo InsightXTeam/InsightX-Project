@@ -4,10 +4,6 @@ using InsightX.Domain.Enums;
 
 namespace InsightX.Application.UseCases.Alerts
 {
-    /// <summary>
-    /// Creates a monthly reminder alert for every company, prompting them to upload their report.
-    /// Called by MonthlyReminderBackgroundService on the 25th of each month.
-    /// </summary>
     public class CreateMonthlyReminderUseCase
     {
         private readonly IAlertRepository _alertRepository;
@@ -25,7 +21,6 @@ namespace InsightX.Application.UseCases.Alerts
         {
             var companyIds = await _metricsRepository.GetAllCompanyIdsAsync();
 
-            // The reminder is for NEXT month's report (upload before month ends)
             var nextMonth = DateTime.UtcNow.AddMonths(1);
             var monthName = nextMonth.ToString("MMMM yyyy");
 
@@ -34,7 +29,7 @@ namespace InsightX.Application.UseCases.Alerts
                 var reminder = new Alert
                 {
                     CompanyId = companyId,
-                    DepartmentId = 0,                 // 0 = system-level, not department-specific
+                    DepartmentId = 0,
                     KPIName = "Monthly Report Upload",
                     CurrentValue = 0,
                     Threshold = 0,

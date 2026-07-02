@@ -39,10 +39,6 @@ namespace InsightX.API.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Manually triggers anomaly detection for a specific report value.
-        /// Called by Person 2 after a report is confirmed by the Manager.
-        /// </summary>
         [HttpPost("run")]
         public async Task<IActionResult> RunDetection([FromBody] RunAlertRequest request)
         {
@@ -58,4 +54,3 @@ namespace InsightX.API.Controllers
         }
     }
 }
-

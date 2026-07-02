@@ -15,26 +15,18 @@ namespace InsightX.Infrastructure.Anomaly.Rules
 
         public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue)
         {
-            var config = await _metricsRepository
-                .GetKPIConfigAsync(companyId, kpiName);
-
-            if (config == null)
-                return AnomalyResult.None();
+            var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
+            if (config == null) return AnomalyResult.None();
 
             var lastMonths = await _metricsRepository.GetLastNMonthsAsync(companyId, kpiName, config.TrendMonthsCount);
+            if (lastMonths.Count < config.TrendMonthsCount) return AnomalyResult.None();
 
-            if (lastMonths.Count < config.TrendMonthsCount)
-                return AnomalyResult.None();
-
-            // GetLastNMonthsAsync returns data DESC (most-recent first),
-            // reverse to get chronological order (oldest → newest) before trend check.
+            // GetLastNMonthsAsync returns DESC; reverse to chronological order for trend check.
             lastMonths.Reverse();
 
             var isDownwardTrend = true;
-
             for (int i = 0; i < lastMonths.Count - 1; i++)
             {
-                // Each month must be strictly greater than the next for a downward trend
                 if (lastMonths[i] <= lastMonths[i + 1])
                 {
                     isDownwardTrend = false;

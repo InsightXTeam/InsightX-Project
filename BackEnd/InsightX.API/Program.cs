@@ -10,7 +10,6 @@ using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Persistence.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 namespace InsightX.API
 {
@@ -21,22 +20,15 @@ namespace InsightX.API
             var builder = WebApplication.CreateBuilder(args);
             var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 
-            // Add services to the container.
-            builder.Services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseSqlServer(connection);
-            });
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection));
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            /*
-             * Anomaly Alert services
-             * */
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
             builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
+
             builder.Services.AddSingleton(sp =>
             {
                 var configuration = sp.GetRequiredService<IConfiguration>();
@@ -45,7 +37,6 @@ namespace InsightX.API
 
                 var kernelBuilder = Kernel.CreateBuilder();
 
-                // Configure OpenAI chat completion when credentials are provided.
                 if (!string.IsNullOrWhiteSpace(modelId) && !string.IsNullOrWhiteSpace(apiKey))
                 {
                     kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
@@ -58,7 +49,7 @@ namespace InsightX.API
                 return kernelBuilder.Build();
             });
 
-            // Register all 3 anomaly rules — order matters (Threshold → ZScore → Trend)
+            // Register anomaly rules in priority order: Threshold → ZScore → Trend
             builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
             builder.Services.AddScoped<IAnomalyRule, ZScoreRule>();
             builder.Services.AddScoped<IAnomalyRule, TrendRule>();
@@ -66,18 +57,15 @@ namespace InsightX.API
             builder.Services.AddScoped<IAnomalyDetector, ThreeLevelAnomalyDetector>();
             builder.Services.AddScoped<IReportConfirmedHandler, ReportConfirmedHandler>();
 
-            // Use cases
             builder.Services.AddScoped<GenerateAlertUseCase>();
             builder.Services.AddScoped<GetAlertsUseCase>();
             builder.Services.AddScoped<MarkAlertSeenUseCase>();
             builder.Services.AddScoped<CreateMonthlyReminderUseCase>();
 
-            // Monthly reminder: notifies company owners to upload their report on the 25th of each month
             builder.Services.AddHostedService<MonthlyReminderBackgroundService>();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
