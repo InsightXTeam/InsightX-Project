@@ -1,4 +1,5 @@
-﻿using InsightX.Application.Interfaces;
+﻿using InsightX.Application.DTOs;
+using InsightX.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsightX.Infrastructure.Persistence.Repositories
@@ -10,6 +11,19 @@ namespace InsightX.Infrastructure.Persistence.Repositories
         public MetricsRepository(AppDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<KPIConfig?> GetKPIConfigAsync(int companyId, string kpiName)
+        {
+            return await _context.KPIs
+                .Where(k => k.CompanyId == companyId && k.Name == kpiName)
+                .Select(k => new KPIConfig
+                {
+                    Threshold = k.Threshold,
+                    AlertPercentageDiff = k.AlertPercentageDiff,
+                    TrendMonthsCount = k.TrendMonthsCount
+                })
+                .FirstOrDefaultAsync();
         }
 
         public async Task<List<decimal>> GetLastNMonthsAsync(int companyId, string kpiName, int n)
