@@ -1,4 +1,4 @@
-﻿using InsightX.Domain.Entities;
+using InsightX.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsightX.Infrastructure.Persistence
@@ -31,6 +31,7 @@ namespace InsightX.Infrastructure.Persistence
                 entity.Property(a => a.Recommendation).HasMaxLength(500);
                 entity.Property(a => a.CurrentValue).HasPrecision(18, 2);
                 entity.Property(a => a.Threshold).HasPrecision(18, 2);
+                entity.Property(a => a.AlertType).HasConversion<int>();
             });
 
 
