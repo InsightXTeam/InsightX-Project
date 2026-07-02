@@ -1,4 +1,4 @@
-﻿using InsightX.Application.DTOs;
+using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,6 +56,14 @@ namespace InsightX.Infrastructure.Persistence.Repositories
                 .Where(k => k.CompanyId == companyId && k.Name == kpiName)
                 .Select(k => (decimal?)k.Threshold)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<List<int>> GetAllCompanyIdsAsync()
+        {
+            return await _context.KPIs
+                .Select(k => k.CompanyId)
+                .Distinct()
+                .ToListAsync();
         }
     }
 }
