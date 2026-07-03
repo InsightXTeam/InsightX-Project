@@ -31,6 +31,7 @@ export class RegisterComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly showPassword = signal(false);
   readonly showConfirmPassword = signal(false);
+  readonly isRegistered = signal(false);
 
   // Register Form Group
   readonly registerForm: FormGroup = this.fb.group({
@@ -93,8 +94,7 @@ export class RegisterComponent {
     this.authService.register(registration).subscribe({
       next: () => {
         this.isLoading.set(false);
-        // Owner registration completes -> redirect immediately to the onboarding dashboard wizard
-        this.router.navigate(['/auth/onboarding']);
+        this.isRegistered.set(true);
       },
       error: (error) => {
         this.isLoading.set(false);

@@ -111,7 +111,8 @@ namespace InsightX.API
             {
                 var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
                 var adminEmail = builder.Configuration["SuperAdmin:Email"] ?? "";
-                if (jwtKey.Contains("CHANGE_ME") || adminEmail.Contains("CHANGE_ME"))
+                var adminPassword = builder.Configuration["SuperAdmin:Password"] ?? "";
+                if (jwtKey.Contains("CHANGE_ME") || adminEmail.Contains("CHANGE_ME") || adminPassword.Contains("CHANGE_ME"))
                 {
                     throw new InvalidOperationException(
                         "SECURITY: Production startup blocked. Jwt:Key and SuperAdmin credentials " +

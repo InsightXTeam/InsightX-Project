@@ -103,7 +103,9 @@ namespace InsightX.Infrastructure.Services
                                    select new { ur.UserId, RoleName = r.Name })
                                   .ToListAsync();
 
-            var rolesDict = userRoles.ToDictionary(ur => ur.UserId, ur => ur.RoleName);
+            var rolesDict = userRoles
+                .GroupBy(ur => ur.UserId)
+                .ToDictionary(g => g.Key, g => g.First().RoleName);
 
             var dtos = rawUsers.Select(u => new UserResponseDto(
                 u.Id,

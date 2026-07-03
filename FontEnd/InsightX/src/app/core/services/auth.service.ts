@@ -50,10 +50,8 @@ export class AuthService {
     );
   }
 
-  register(registration: { companyName: string; ownerName: string; email: string; password: string }): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiBase}/auth/register`, registration).pipe(
-      tap(response => this.handleAuthentication(response, registration.email))
-    );
+  register(registration: { companyName: string; ownerName: string; email: string; password: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiBase}/auth/register`, registration);
   }
 
   refreshToken(): Observable<AuthResponse> {
@@ -129,7 +127,11 @@ export class AuthService {
       if (parts.length !== 3) return null;
       
       const payload = parts[1];
-      const decodedPayload = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      let base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      const decodedPayload = atob(base64);
       const claims = JSON.parse(decodedPayload);
 
       // Extract claims. The .NET claims mapper can sometimes result in URI keys for sub and role.
