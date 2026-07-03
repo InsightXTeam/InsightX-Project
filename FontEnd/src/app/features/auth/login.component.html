@@ -1,7 +1,6 @@
 <div class="login-wrapper d-flex align-items-center justify-content-center p-3">
   <div class="login-container glass-panel animate-fade-in p-5 text-center">
-    
-    <!-- Branding Header -->
+
     <div class="mb-4">
       <div class="logo-circle mx-auto mb-3 d-flex align-items-center justify-content-center">
         <i class="bi bi-hexagon-fill text-indigo fs-1"></i>
@@ -10,67 +9,58 @@
       <p class="text-secondary small">Business Intelligence & Autonomous Agent Dashboard</p>
     </div>
 
-    <!-- Login Form -->
     <form (ngSubmit)="login()" #loginForm="ngForm">
-      <!-- Role Selection -->
       <div class="mb-3 text-start">
-        <label class="form-label text-secondary small fw-semibold">Dashboard Access Role</label>
-        <select class="form-select form-control-glass" name="role" [(ngModel)]="selectedRole">
-          <option value="Owner">Owner (Entire Factory View)</option>
-          <option value="Manager">Department Manager (Restricted View)</option>
-        </select>
+        <label class="form-label text-secondary small fw-semibold">Email</label>
+        <input type="email" class="form-control form-control-glass" name="email"
+               [(ngModel)]="email" required placeholder="owner@insightx.com" />
       </div>
 
-      <!-- Department Selection (Conditional) -->
-      <div class="mb-4 text-start" *ngIf="selectedRole === 'Manager'">
-        <label class="form-label text-secondary small fw-semibold">Select Department</label>
-        <select class="form-select form-control-glass" name="departmentId" [(ngModel)]="selectedDeptId">
-          <option [value]="1">Production Department</option>
-          <option [value]="2">Quality Control Department</option>
-          <option [value]="3">Human Resources Department</option>
-        </select>
+      <div class="mb-3 text-start">
+        <label class="form-label text-secondary small fw-semibold">Password</label>
+        <input type="password" class="form-control form-control-glass" name="password"
+               [(ngModel)]="password" required placeholder="Password123!" />
       </div>
 
-      <!-- Submit Button -->
-      <button type="submit" class="btn btn-glass-primary w-100 mb-4 py-3">
-        <i class="bi bi-shield-lock-fill me-2"></i>
-        Access Dashboard
+      <div *ngIf="errorMessage" class="alert alert-danger py-2 small mb-3">
+        {{ errorMessage }}
+      </div>
+
+      <button type="submit" class="btn btn-glass-primary w-100 mb-4 py-3" [disabled]="isLoading">
+        <span *ngIf="!isLoading"><i class="bi bi-shield-lock-fill me-2"></i>Sign In</span>
+        <span *ngIf="isLoading"><i class="bi bi-hourglass-split me-2"></i>Signing in...</span>
       </button>
     </form>
 
-    <!-- Divider -->
     <div class="divider d-flex align-items-center my-3">
       <hr class="flex-grow-1 border-secondary opacity-25">
       <span class="px-3 text-muted small fw-bold">QUICK ACCESS FOR GRADING DEMO</span>
       <hr class="flex-grow-1 border-secondary opacity-25">
     </div>
 
-    <!-- Quick login links -->
     <div class="row g-2">
       <div class="col-6">
-        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Owner', null)">
-          <i class="bi bi-person-fill-check me-2 text-indigo"></i>
-          Owner
+        <button class="btn btn-outline-light btn-sm w-100 py-2" (click)="loginQuick('owner@insightx.com')">
+          <i class="bi bi-person-fill-check me-2 text-indigo"></i>Owner
         </button>
       </div>
       <div class="col-6">
-        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 1)">
-          <i class="bi bi-cone-striped me-2 text-indigo"></i>
-          Prod Mgr
+        <button class="btn btn-outline-light btn-sm w-100 py-2" (click)="loginQuick('prod_mgr@insightx.com')">
+          <i class="bi bi-cone-striped me-2 text-indigo"></i>Prod Mgr
         </button>
       </div>
       <div class="col-6">
-        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 2)">
-          <i class="bi bi-patch-check-fill me-2 text-indigo"></i>
-          QC Mgr
+        <button class="btn btn-outline-light btn-sm w-100 py-2" (click)="loginQuick('qc_mgr@insightx.com')">
+          <i class="bi bi-patch-check-fill me-2 text-indigo"></i>QC Mgr
         </button>
       </div>
       <div class="col-6">
-        <button class="btn btn-outline-light btn-sm w-100 py-2 d-flex align-items-center justify-content-center" (click)="loginQuick('Manager', 3)">
-          <i class="bi bi-people-fill me-2 text-indigo"></i>
-          HR Mgr
+        <button class="btn btn-outline-light btn-sm w-100 py-2" (click)="loginQuick('hr_mgr@insightx.com')">
+          <i class="bi bi-people-fill me-2 text-indigo"></i>HR Mgr
         </button>
       </div>
     </div>
+
+    <p class="text-muted small mt-3 mb-0">Demo password: <code>Password123!</code></p>
   </div>
 </div>

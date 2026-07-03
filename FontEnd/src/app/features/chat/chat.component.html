@@ -1,0 +1,62 @@
+<div class="chat-page d-flex flex-column animate-fade-in">
+  <div class="page-header d-flex justify-content-between align-items-center mb-3">
+    <div>
+      <h2 class="fw-bold text-white mb-1">AI Agent Chat</h2>
+      <p class="text-secondary mb-0 small">Ask questions about your company reports — powered by RAG + LLM</p>
+    </div>
+    <button class="btn btn-outline-danger btn-sm" (click)="clearHistory()" [disabled]="messages.length === 0">
+      <i class="bi bi-trash me-1"></i> Clear History
+    </button>
+  </div>
+
+  <div class="chat-container glass-panel d-flex flex-column flex-grow-1">
+    <!-- Messages -->
+    <div class="messages-area flex-grow-1 p-4" #messagesContainer>
+      <div *ngIf="messages.length === 0" class="empty-state text-center py-5">
+        <i class="bi bi-chat-dots fs-1 text-indigo d-block mb-3"></i>
+        <h5 class="text-white">Ask InsightX AI anything</h5>
+        <p class="text-secondary small">Try: "Why did production drop in March?"</p>
+      </div>
+
+      <div *ngFor="let msg of messages" class="message-row mb-3" [class.user-row]="msg.role === 'user'">
+        <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'assistant'">
+          <div class="bubble-header small mb-1">
+            <i class="bi me-1" [ngClass]="msg.role === 'user' ? 'bi-person-fill' : 'bi-robot'"></i>
+            {{ msg.role === 'user' ? 'You' : 'InsightX AI' }}
+          </div>
+          <p class="mb-0">{{ msg.content }}</p>
+          <div *ngIf="msg.sources && msg.sources.length > 0" class="sources mt-2 pt-2">
+            <small class="text-indigo">
+              <i class="bi bi-journal-text me-1"></i>
+              Sources: {{ formatSources(msg.sources) }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div *ngIf="isProcessing" class="message-row mb-3">
+        <div class="message-bubble ai-bubble typing-indicator">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area p-3 border-top border-secondary border-opacity-25">
+      <form (ngSubmit)="sendMessage()" class="d-flex gap-2">
+        <input
+          type="text"
+          class="form-control form-control-glass flex-grow-1"
+          placeholder="Ask a question about your reports..."
+          [(ngModel)]="question"
+          name="question"
+          [disabled]="isProcessing"
+          autocomplete="off" />
+        <button type="submit" class="btn btn-glass-primary px-4" [disabled]="isProcessing || !question.trim()">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

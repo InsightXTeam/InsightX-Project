@@ -12,19 +12,30 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  public selectedRole: string = 'Owner';
-  public selectedDeptId: number = 1;
+  public email = 'owner@insightx.com';
+  public password = 'Password123!';
+  public errorMessage = '';
+  public isLoading = false;
 
   constructor(private authService: AuthService, private router: Router) {}
 
   public login(): void {
-    const dept = this.selectedRole === 'Owner' ? null : Number(this.selectedDeptId);
-    this.authService.login(this.selectedRole, dept);
-    this.router.navigate(['/dashboard']);
+    this.errorMessage = '';
+    this.isLoading = true;
+
+    this.authService.loginWithCredentials(this.email, this.password).subscribe(response => {
+      this.isLoading = false;
+      if (response) {
+        this.router.navigate(['/dashboard']);
+      } else {
+        this.errorMessage = 'Invalid email or password.';
+      }
+    });
   }
 
-  public loginQuick(role: string, deptId: number | null): void {
-    this.authService.login(role, deptId);
-    this.router.navigate(['/dashboard']);
+  public loginQuick(email: string): void {
+    this.email = email;
+    this.password = 'Password123!';
+    this.login();
   }
 }

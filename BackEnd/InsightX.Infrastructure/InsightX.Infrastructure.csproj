@@ -1,13 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);SKEXP0001;SKEXP0010</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\InsightX.Application\InsightX.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
@@ -16,12 +21,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.28">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.15.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.0" />
   </ItemGroup>
 
 </Project>

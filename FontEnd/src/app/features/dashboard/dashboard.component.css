@@ -1,0 +1,52 @@
+.text-indigo { color: var(--color-primary); }
+
+.kpi-card {
+  border-left: 3px solid transparent;
+  transition: var(--transition-smooth);
+}
+
+.kpi-card.kpi-good { border-left-color: var(--color-success); }
+.kpi-card.kpi-critical { border-left-color: var(--color-danger); }
+
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(99, 102, 241, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 1.2rem;
+}
+
+.alert-item {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.custom-table {
+  --bs-table-bg: transparent;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.03);
+}
+
+.custom-table th {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom-color: var(--border-glass);
+}
+
+.custom-table td {
+  border-bottom-color: var(--border-glass);
+  color: var(--text-primary);
+}
+
+.bg-danger-subtle {
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+
+.border-danger-subtle {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}

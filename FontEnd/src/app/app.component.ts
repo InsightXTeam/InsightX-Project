@@ -5,9 +5,7 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  template: '<router-outlet />',
+  styles: [`:host { display: block; min-height: 100vh; }`]
 })
-export class AppComponent {
-  title = 'InsightX';
-}
+export class AppComponent {}
