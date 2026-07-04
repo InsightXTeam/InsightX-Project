@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace InsightX.API.Controllers.Report
 {
-    // [Authorize] // Temporarily disabled for isolated testing
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ReportsController : ControllerBase
@@ -36,10 +36,9 @@ namespace InsightX.API.Controllers.Report
         [RequestFormLimits(MultipartBodyLengthLimit = 104857600)] // 100MB
         public async Task<IActionResult> Upload([FromForm] UploadReportDto dto)
         {
-            // Temporarily mocked for isolated testing without Auth token
-            var companyIdClaim = "1"; // Mocked
-            var departmentIdClaim = "1"; // Mocked
-            var userName = "Test User";
+            var companyIdClaim = User.FindFirstValue("CompanyId");
+            var departmentIdClaim = User.FindFirstValue("DepartmentId");
+            var userName = User.Identity?.Name ?? "Unknown";
 
             if (!int.TryParse(companyIdClaim, out int companyId))
                 return Unauthorized("Company ID is missing from token.");
@@ -55,10 +54,9 @@ namespace InsightX.API.Controllers.Report
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            // Temporarily mocked for isolated testing without Auth token
-            var companyIdClaim = "1"; // Mocked
-            var roleClaim = "Admin"; // Mocked
-            var userName = "Test User";
+            var companyIdClaim = User.FindFirstValue("CompanyId");
+            var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+            var userName = User.Identity?.Name ?? "Unknown";
 
             if (!int.TryParse(companyIdClaim, out int companyId))
                 return Unauthorized("Company ID is missing from token.");
@@ -70,6 +68,13 @@ namespace InsightX.API.Controllers.Report
         [HttpGet("{id}/status")]
         public async Task<IActionResult> Status(int id)
         {
+            //var companyIdClaim = User.FindFirstValue("CompanyId");
+            //var roleClaim = User.FindFirstValue(ClaimTypes.Role);
+            //var userName = User.Identity?.Name ?? "Unknown";
+
+            //if (!int.TryParse(companyIdClaim, out int companyId))
+            //    return Unauthorized("Company ID is missing from token.");
+
             var result = await _service.GetStatusAsync(id);
             return Ok(result);
         }

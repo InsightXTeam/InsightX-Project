@@ -1,6 +1,5 @@
 using InsightX.Application.Interfaces;
 using Microsoft.SemanticKernel;
-using System;
 
 namespace InsightX.Infrastructure.AI.Report
 {
@@ -12,7 +11,11 @@ namespace InsightX.Infrastructure.AI.Report
         {
             var builder = Kernel.CreateBuilder();
 
-            builder.AddOpenAIChatCompletion(modelId: "qwen2.5:1.5b", apiKey: "ollama", endpoint: new Uri("http://localhost:11434/v1"));
+            //hard coded we should move this to config file appsettings
+            builder.AddOpenAIChatCompletion(
+                modelId: "qwen2.5:1.5b",
+                apiKey: "ollama",
+                endpoint: new Uri("http://localhost:11434/v1"));
 
             _kernel = builder.Build();
         }

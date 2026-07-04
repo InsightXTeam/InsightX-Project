@@ -37,7 +37,7 @@ namespace InsightX.Infrastructure.DocumentReaders.Image
                 }
                 catch (Exception ex)
                 {
-                    return $"OCR Error: {ex.Message}";
+                    throw new InvalidOperationException($"OCR Error: {ex.Message}");
                 }
             });
         }

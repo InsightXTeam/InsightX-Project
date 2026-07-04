@@ -56,7 +56,7 @@
                     {{ processingIds().has(r.id) ? 'Processing...' : 'Process' }}
                   </button>
                 }
-                @if (r.status === 'Pending Confirmation') {
+                @if (r.status === 'PendingConfirmation') {
                   <button 
                     class="action-btn review-btn" 
                     (click)="reviewReport(r.id)"
@@ -64,7 +64,7 @@
                     Review
                   </button>
                 }
-                @if (r.status === 'Done' || r.status === 'Processed') {
+                @if (r.status === 'Done') {
                   <button 
                     class="action-btn results-btn" 
                     (click)="viewResults(r.id)"

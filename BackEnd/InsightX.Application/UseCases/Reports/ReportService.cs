@@ -1,6 +1,7 @@
 using InsightX.Application.DTOs.Reports;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities.Reports;
+using InsightX.Domain.Enums;
 
 namespace InsightX.Application.UseCases.Reports
 {
@@ -22,10 +23,10 @@ namespace InsightX.Application.UseCases.Reports
             {
                 FileName = dto.File.FileName,
                 FilePath = path,
-                UploadedAt = DateTime.Now,
-                Status = "Pending",
+                UploadedAt = DateTime.UtcNow,
+                Status = ReportStatus.Pending.ToString(),
                 CompanyId = companyId,
-                DepartmentId = departmentId ?? 0,
+                DepartmentId = departmentId,
                 UploadedBy = uploadedBy
             };
             await _repository.AddAsync(report);
@@ -83,11 +84,11 @@ namespace InsightX.Application.UseCases.Reports
             var report = await _repository.GetByIdAsync(id);
             if (report == null) throw new Exception("Report not found");
 
-            if (report.Status != "Pending Confirmation")
+            if (report.Status != ReportStatus.PendingConfirmation.ToString())
                 throw new Exception("Report is not pending confirmation");
 
             report.ExtractedText = dto.ExtractedText;
-            
+
             // We do NOT set it to "Done" here. The controller will call ExtractKpisAsync next.
             await _repository.UpdateAsync(report);
         }
@@ -99,7 +100,7 @@ namespace InsightX.Application.UseCases.Reports
             {
                 // Delete physical file
                 _storage.DeleteFile(report.FilePath);
-                
+
                 // Delete from DB
                 await _repository.DeleteAsync(report);
             }

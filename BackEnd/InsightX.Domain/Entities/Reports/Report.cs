@@ -1,3 +1,5 @@
+using InsightX.Domain.Enums;
+
 namespace InsightX.Domain.Entities.Reports
 {
     public class Report
@@ -10,13 +12,13 @@ namespace InsightX.Domain.Entities.Reports
 
         public int CompanyId { get; set; }
 
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public string UploadedBy { get; set; } = string.Empty;
 
         public DateTime UploadedAt { get; set; }
 
-        public string Status { get; set; } = "Pending";
+        public string Status { get; set; } = ReportStatus.Pending.ToString();
 
         public string ExtractedText { get; set; } = string.Empty;
 

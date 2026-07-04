@@ -18,8 +18,11 @@ namespace InsightX.Infrastructure.DocumentReaders.WordReader
                 using var document = WordprocessingDocument.Open(filePath, false);
 
                 var body = document?.MainDocumentPart?.Document?.Body;
-
-                var text = string.Join(Environment.NewLine, body!.Descendants<Paragraph>().Select(p => p.InnerText));
+                if (body == null)
+                {
+                    throw new InvalidOperationException($"Invalid Word document structure. No body found.{filePath}");
+                }
+                var text = string.Join(Environment.NewLine, body.Descendants<Paragraph>().Select(p => p.InnerText));
 
                 return text;
             });

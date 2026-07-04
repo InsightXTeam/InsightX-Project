@@ -34,9 +34,9 @@ export class ReportList implements OnInit {
   getBadgeClass(status: string): string {
     const s = status?.toLowerCase() || '';
     if (s === 'done' || s === 'processed') return 'status-done';
-    if (s === 'pending confirmation') return 'status-processing'; // changed color logic slightly
-    if (s === 'pending' || s === 'processing') return 'status-processing';
-    if (s === 'failed' || s === 'error') return 'status-failed';
+    if (s === 'pendingconfirmation') return 'status-processing'; 
+    if (s === 'pending' || s === 'processing' || s === 'processingai') return 'status-processing';
+    if (s === 'failed' || s === 'error' || s === 'failedai') return 'status-failed';
     return '';
   }
 

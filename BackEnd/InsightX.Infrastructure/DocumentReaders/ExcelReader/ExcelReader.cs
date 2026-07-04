@@ -1,5 +1,6 @@
 ﻿using InsightX.Application.Interfaces;
 using OfficeOpenXml;
+using System.Text;
 
 namespace InsightX.Infrastructure.DocumentReaders
 {
@@ -12,7 +13,7 @@ namespace InsightX.Infrastructure.DocumentReaders
 
         public async Task<string> ExtractTextAsync(string filePath)
         {
-            ExcelPackage.License.SetNonCommercialPersonal("Mohamed");
+            ExcelPackage.License.SetNonCommercialPersonal("InsightX");
 
             return await Task.Run(() =>
             {
@@ -20,17 +21,17 @@ namespace InsightX.Infrastructure.DocumentReaders
 
                 var sheet = package.Workbook.Worksheets[0];
 
-                var text = string.Empty;
+                var text = new StringBuilder();
 
                 for (int row = 1; row <= sheet.Dimension.Rows; row++)
                 {
                     for (int col = 1; col <= sheet.Dimension.Columns; col++)
                     {
-                        text += sheet.Cells[row, col].Text + " ";
+                        text.Append(sheet.Cells[row, col].Text + " ");
                     }
-                    text += Environment.NewLine;
+                    text.Append(Environment.NewLine);
                 }
-                return text;
+                return text.ToString();
             });
         }
     }

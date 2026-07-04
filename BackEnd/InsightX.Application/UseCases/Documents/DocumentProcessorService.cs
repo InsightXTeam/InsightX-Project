@@ -1,6 +1,7 @@
 using InsightX.Application.DTOs.Reports;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities.Reports;
+using InsightX.Domain.Enums;
 using System.Text.Json;
 
 namespace InsightX.Application.UseCases.Documents
@@ -10,6 +11,7 @@ namespace InsightX.Application.UseCases.Documents
         private readonly IReportRepository _repository;
         private readonly IEnumerable<IDocumentReader> _readers;
         private readonly IAIExtractionService _ai;
+
         public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai)
         {
             _repository = repository;
@@ -24,7 +26,7 @@ namespace InsightX.Application.UseCases.Documents
             if (report == null)
                 throw new Exception("Report not found");
 
-            report.Status = "Processing";
+            report.Status = ReportStatus.Processing.ToString();
             await _repository.UpdateAsync(report);
 
             try
@@ -42,14 +44,14 @@ namespace InsightX.Application.UseCases.Documents
                 var text = await reader.ExtractTextAsync(report.FilePath);
 
                 report.ExtractedText = text;
-                report.Status = "Pending Confirmation"; // Waiting for user to review the text
+                report.Status = ReportStatus.PendingConfirmation.ToString(); // Waiting for user to review the text
 
                 await _repository.UpdateAsync(report);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error processing document: {ex.Message}");
-                report.Status = "Failed";
+                report.Status = ReportStatus.Failed.ToString();
                 await _repository.UpdateAsync(report);
                 throw;
             }
@@ -65,7 +67,7 @@ namespace InsightX.Application.UseCases.Documents
             if (string.IsNullOrEmpty(report.ExtractedText))
                 throw new Exception("No text available to extract KPIs from");
 
-            report.Status = "Processing AI";
+            report.Status = ReportStatus.ProcessingAI.ToString();
             await _repository.UpdateAsync(report);
 
             try
@@ -100,13 +102,12 @@ namespace InsightX.Application.UseCases.Documents
                     }).ToList();
                 }
 
-                report.Status = "Done";
+                report.Status = ReportStatus.Done.ToString();
                 await _repository.UpdateAsync(report);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error extracting KPIs: {ex.Message}");
-                report.Status = "Failed AI";
+                report.Status = ReportStatus.FailedAI.ToString();
                 await _repository.UpdateAsync(report);
                 throw;
             }
