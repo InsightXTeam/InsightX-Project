@@ -27,8 +27,8 @@ namespace InsightX.Infrastructure.Persistence
 
             builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Department)
-                .WithMany(d => d.Users)
-                .HasForeignKey(u => u.DepartmentId)
+                .WithOne(d => d.User)
+                .HasForeignKey<ApplicationUser>(u => u.DepartmentId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
 
