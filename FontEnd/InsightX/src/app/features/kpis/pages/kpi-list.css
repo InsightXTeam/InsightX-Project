@@ -169,33 +169,48 @@
 /* KPI Grid */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 24px;
 }
 
+/* Target Type Badges inside Card */
+.target-type-badge.min-target {
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.target-type-badge.max-limit {
+  background: rgba(244, 63, 94, 0.12);
+  color: #fecdd3;
+  border: 1px solid rgba(244, 63, 94, 0.2);
+}
+
 .kpi-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  transition: all 0.25s ease;
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
   overflow: hidden;
 }
 
 .kpi-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
 }
 
 .kpi-icon {
-  background: rgba(16, 185, 129, 0.1);
-  color: #10b981;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  color: #818cf8;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;

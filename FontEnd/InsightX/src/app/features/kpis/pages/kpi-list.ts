@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
+import { ToastService } from '../../../core/services/toast.service';
 
 export interface KpiResponse {
   id: number;
@@ -19,17 +21,20 @@ export interface KpiResponse {
 @Component({
   selector: 'app-kpi-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   templateUrl: './kpi-list.html',
   styleUrl: './kpi-list.css'
 })
 export class KpiListComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly kpis = signal<KpiResponse[]>([]);
+  readonly showDeleteConfirm = signal(false);
+  kpiToDeleteId: number | null = null;
   readonly isLoading = signal(false);
   readonly showForm = signal(false);
   readonly error = signal<string | null>(null);
@@ -105,6 +110,7 @@ export class KpiListComponent implements OnInit {
         this.kpis.update(list => [...list, newKpi]);
         this.toggleForm();
         this.isLoading.set(false);
+        this.toastService.show('KPI created successfully');
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -162,9 +168,16 @@ export class KpiListComponent implements OnInit {
     });
   }
 
-  deleteKpi(id: number): void {
-    if (!confirm('Are you sure you want to delete this KPI?')) return;
+  triggerDelete(id: number): void {
+    this.kpiToDeleteId = id;
+    this.showDeleteConfirm.set(true);
+  }
 
+  confirmDelete(): void {
+    const id = this.kpiToDeleteId;
+    if (id === null) return;
+
+    this.showDeleteConfirm.set(false);
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -172,12 +185,18 @@ export class KpiListComponent implements OnInit {
       next: () => {
         this.kpis.update(list => list.filter(k => k.id !== id));
         this.isLoading.set(false);
+        this.toastService.show('KPI deleted successfully');
       },
       error: (err) => {
         this.isLoading.set(false);
         this.error.set(this.extractErrorMessage(err, 'Failed to delete KPI. Please try again.'));
       }
     });
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.kpiToDeleteId = null;
   }
 
   private extractErrorMessage(err: any, fallback: string): string {
