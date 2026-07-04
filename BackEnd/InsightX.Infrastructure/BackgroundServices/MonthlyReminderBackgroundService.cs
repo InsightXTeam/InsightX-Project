@@ -55,7 +55,6 @@ namespace InsightX.Infrastructure.BackgroundServices
             _logger.LogInformation("Sending monthly report reminders to all companies...");
             try
             {
-                // BackgroundService must create its own scope for scoped services (DbContext etc.)
                 using var scope = _scopeFactory.CreateScope();
                 var useCase = scope.ServiceProvider.GetRequiredService<CreateMonthlyReminderUseCase>();
                 await useCase.ExecuteAsync();

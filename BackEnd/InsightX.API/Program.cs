@@ -25,6 +25,9 @@ namespace InsightX.API
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            /*
+             * Anomaly Alert services
+             * */
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
             builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
@@ -66,6 +69,7 @@ namespace InsightX.API
 
             var app = builder.Build();
 
+            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
