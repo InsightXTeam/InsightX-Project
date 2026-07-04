@@ -50,7 +50,7 @@
               <div class="kpi-row">
                 <div class="row-info">
                   <span class="row-name">{{ kpi.name }}</span>
-                   <span class="row-meta">Threshold: {{ kpi.threshold }}{{ kpi.unit }} | Direction: {{ kpi.thresholdDirection === 0 ? 'Below' : 'Above' }} | Alert Diff: {{ kpi.alertPercentageDiff }}% | Trend: {{ kpi.trendMonthsCount }}m</span>
+                   <span class="row-meta">Target: {{ kpi.threshold }}{{ kpi.unit }} | Type: {{ kpi.thresholdDirection === 1 ? 'Minimum Target' : 'Maximum Limit' }} | Alert Diff: {{ kpi.alertPercentageDiff }}% | Trend: {{ kpi.trendMonthsCount }}m</span>
                 </div>
                 <button type="button" class="delete-btn" (click)="removeKpi($index)" title="Remove KPI">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
@@ -65,32 +65,39 @@
           <div class="input-grid">
             <div class="form-group-onboard">
               <label class="label-onboard">KPI Name</label>
-              <input type="text" [(ngModel)]="newKpi.name" class="input-onboard" placeholder="e.g. Server Uptime" />
+              <input type="text" [(ngModel)]="newKpi.name" class="input-onboard" placeholder="Enter metric name" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Target</label>
-              <input type="number" [(ngModel)]="newKpi.threshold" class="input-onboard" placeholder="99.9" step="any" />
+              <label class="label-onboard">Target Threshold</label>
+              <input type="number" [(ngModel)]="newKpi.threshold" class="input-onboard" placeholder="Enter value" step="any" />
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Unit</label>
-              <input type="text" [(ngModel)]="newKpi.unit" class="input-onboard" placeholder="%" />
+              <input type="text" [(ngModel)]="newKpi.unit" class="input-onboard" placeholder="e.g. %, ms, etc." />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Direction</label>
-              <select [(ngModel)]="newKpi.thresholdDirection" class="input-onboard" style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;">
-                <option [value]="1">Above</option>
-                <option [value]="0">Below</option>
+              <label class="label-onboard">Target Type</label>
+              <select [(ngModel)]="newKpi.thresholdDirection" class="input-onboard select-onboard">
+                <option [value]="1">Minimum Target</option>
+                <option [value]="0">Maximum Limit</option>
               </select>
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Alert Diff %</label>
-              <input type="number" [(ngModel)]="newKpi.alertPercentageDiff" class="input-onboard" placeholder="10" step="any" />
+              <input type="number" [(ngModel)]="newKpi.alertPercentageDiff" class="input-onboard" placeholder="Enter percentage" step="any" />
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Trend Months</label>
-              <input type="number" [(ngModel)]="newKpi.trendMonthsCount" class="input-onboard" placeholder="3" />
+              <input type="number" [(ngModel)]="newKpi.trendMonthsCount" class="input-onboard" placeholder="Enter months count" />
             </div>
-            <button type="button" class="add-btn" (click)="addKpi()" [disabled]="!newKpi.name || newKpi.threshold === null || newKpi.alertPercentageDiff === null || newKpi.trendMonthsCount === null">Add</button>
+            <div style="grid-column: span 3; display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="button" class="add-btn" (click)="addKpi()" [disabled]="!newKpi.name || newKpi.threshold === null || newKpi.alertPercentageDiff === null || newKpi.trendMonthsCount === null">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add KPI Metric
+              </button>
+            </div>
           </div>
         </div>
       }
@@ -140,9 +147,16 @@
           <div class="input-grid-dept">
             <div class="form-group-onboard">
               <label class="label-onboard">Department Name</label>
-              <input type="text" [(ngModel)]="newDeptName" class="input-onboard" placeholder="e.g. Engineering" (keyup.enter)="addDept()" />
+              <input type="text" [(ngModel)]="newDeptName" class="input-onboard" placeholder="Enter department name" (keyup.enter)="addDept()" />
             </div>
-            <button type="button" class="add-btn" (click)="addDept()" [disabled]="!newDeptName.trim()">Add</button>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="button" class="add-btn" (click)="addDept()" [disabled]="!newDeptName.trim()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Department
+              </button>
+            </div>
           </div>
         </div>
       }
@@ -183,19 +197,19 @@
           <div class="input-grid-manager">
             <div class="form-group-onboard">
               <label class="label-onboard">Full Name</label>
-              <input type="text" [(ngModel)]="newManager.name" class="input-onboard" placeholder="Alice Smith" />
+              <input type="text" [(ngModel)]="newManager.name" class="input-onboard" placeholder="Enter full name" />
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Email Address</label>
-              <input type="email" [(ngModel)]="newManager.email" class="input-onboard" placeholder="alice@company.com" />
+              <input type="email" [(ngModel)]="newManager.email" class="input-onboard" placeholder="Enter email address" />
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Password</label>
-              <input type="password" [(ngModel)]="newManager.password" class="input-onboard" placeholder="Min 8 chars, 1 digit" />
+              <input type="password" [(ngModel)]="newManager.password" class="input-onboard" placeholder="Enter password" />
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">Assign Department</label>
-              <select [(ngModel)]="newManager.departmentId" class="input-onboard" style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;">
+              <select [(ngModel)]="newManager.departmentId" class="input-onboard select-onboard">
                 <option [value]="0" disabled selected>Select Department</option>
                 @for (dept of createdDepartments(); track dept.id) {
                   <option [value]="dept.id">{{ dept.name }}</option>
@@ -203,7 +217,12 @@
               </select>
             </div>
             <div class="manager-full-width" style="display: flex; justify-content: flex-end; margin-top: 10px;">
-              <button type="button" class="add-btn" (click)="inviteManager()" [disabled]="!newManager.name || !newManager.email || !newManager.password || !newManager.departmentId">Invite Manager</button>
+              <button type="button" class="add-btn" (click)="inviteManager()" [disabled]="!newManager.name || !newManager.email || !newManager.password || !newManager.departmentId">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                </svg>
+                Invite Manager
+              </button>
             </div>
           </div>
         </div>

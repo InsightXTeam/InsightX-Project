@@ -150,19 +150,20 @@
 }
 
 .preset-chip {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 30px;
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #cbd5e1;
+  color: #94a3b8;
 }
 
 .preset-chip:hover {
-  background: rgba(79, 70, 229, 0.15);
-  border-color: #4f46e5;
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
   color: white;
   transform: translateY(-1px);
 }
@@ -235,37 +236,35 @@
 /* Controls Grid */
 .input-grid {
   display: grid;
-  grid-template-columns: 1.8fr 1fr 0.7fr 1.2fr 1.1fr 1.1fr auto;
-  gap: 12px;
-  align-items: end;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
 }
 
 .input-grid-dept {
   display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  align-items: end;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
 }
 
 .input-grid-manager {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 24px;
+  border-radius: 16px;
+  margin-bottom: 24px;
 }
 
 .manager-full-width {
@@ -287,39 +286,53 @@
 
 .input-onboard {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 16px;
   background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
   color: white;
   font-size: 14px;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .input-onboard:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+  border-color: #6366f1;
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.select-onboard {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  padding-right: 40px !important;
 }
 
 .add-btn {
-  background: #4f46e5;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  padding: 10px 16px;
+  border-radius: 10px;
+  padding: 12px 24px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  height: 38px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
   display: flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
 }
 
 .add-btn:hover:not(:disabled) {
-  background: #4338ca;
+  background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
   transform: translateY(-1px);
 }
 
