@@ -24,8 +24,24 @@ namespace InsightXAI.Application.UseCases.Rag
 
         public async Task<IndexReportResponseDto> ExecuteAsync(
             IndexReportRequestDto request,
+               int companyId,
+               int departmentId,
             CancellationToken cancellationToken = default)
         {
+            var currentYear = DateTime.UtcNow.Year;
+
+            if (request.ReportId <= 0)
+                throw new ArgumentException("ReportId must be greater than zero.", nameof(request.ReportId));
+
+            if (request.Year < 2000 || request.Year > currentYear)
+                throw new ArgumentException($"Year must be between 2000 and {currentYear}.", nameof(request.Year));
+
+            if (string.IsNullOrWhiteSpace(request.Month))
+                throw new ArgumentException("Month is required.", nameof(request.Month));
+
+            if (string.IsNullOrWhiteSpace(request.FullText))
+                throw new ArgumentException("FullText is required.", nameof(request.FullText));
+
             // Split report text into chunks.
             var chunks = _chunkingService.SplitIntoChunks(request.FullText);
 
@@ -55,8 +71,8 @@ namespace InsightXAI.Application.UseCases.Rag
                 {
                     Text = chunks[i].Text,
                     Vector = vectors[i],
-                    CompanyId = request.CompanyId,
-                    DepartmentId = request.DepartmentId,
+                    CompanyId = companyId,
+                    DepartmentId = departmentId,
                     ReportId = request.ReportId,
                     Month = request.Month,
                     Year = request.Year

@@ -16,6 +16,9 @@ namespace InsightXAI.Application.UseCases.Rag
 
         public async Task ExecuteAsync(int companyId, int reportId, CancellationToken cancellationToken = default)
         {
+            if (reportId <= 0)
+                throw new ArgumentException("ReportId must be greater than zero.", nameof(reportId));
+
             // Delete report vectors from the vector store.
             await _vectorStore.DeleteByReportIdAsync(companyId, reportId, cancellationToken);
         }

@@ -1,5 +1,7 @@
+using InsightX.Application.Extensions;
 using InsightXAI.Application.DTOs;
 using InsightXAI.Application.UseCases.Rag;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InsightXAI.API.Controllers.Rag
@@ -9,6 +11,7 @@ namespace InsightXAI.API.Controllers.Rag
     /// </summary>
     [ApiController]
     [Route("rag")]
+    [Authorize]
     public class RagController : ControllerBase
     {
         private readonly IndexReportUseCase _indexReportUseCase;
@@ -31,7 +34,13 @@ namespace InsightXAI.API.Controllers.Rag
             [FromBody] IndexReportRequestDto request,
             CancellationToken cancellationToken)
         {
-            var result = await _indexReportUseCase.ExecuteAsync(request, cancellationToken);
+            var companyId = User.GetCompanyId();
+            var departmentId = User.GetDepartmentId();
+
+            var result = await _indexReportUseCase.ExecuteAsync(request,
+                companyId,
+                departmentId, cancellationToken);
+
             return Ok(result);
         }
 
@@ -41,14 +50,18 @@ namespace InsightXAI.API.Controllers.Rag
             [FromBody] RetrieveRequestDto request,
             CancellationToken cancellationToken)
         {
-            var result = await _retrieveChunksUseCase.ExecuteAsync(request, cancellationToken);
+            var companyId = User.GetCompanyId();
+
+            var result = await _retrieveChunksUseCase.ExecuteAsync(request, companyId, cancellationToken);
             return Ok(result);
         }
 
         // Deletes all indexed chunks for a report.
-        [HttpDelete("{companyId:int}/{reportId:int}")]
-        public async Task<IActionResult> DeleteReportChunks(int companyId, int reportId, CancellationToken cancellationToken)
+        [HttpDelete("{reportId:int}")]
+        public async Task<IActionResult> DeleteReportChunks(int reportId, CancellationToken cancellationToken)
         {
+            var companyId = User.GetCompanyId();
+
             await _deleteReportChunksUseCase.ExecuteAsync(companyId, reportId, cancellationToken);
             return NoContent();
         }

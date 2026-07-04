@@ -18,18 +18,27 @@ namespace InsightXAI.Application.UseCases.Rag
         }
 
         public async Task<RetrieveResponseDto> ExecuteAsync(RetrieveRequestDto request,
+            int companyId,
             CancellationToken cancellationToken = default)
         {
+
+            if (string.IsNullOrWhiteSpace(request.Question))
+                throw new ArgumentException("Question is required.", nameof(request.Question));
+
+            if (request.TopK <= 0)
+                throw new ArgumentException("TopK must be greater than zero.", nameof(request.TopK));
+
+            if (request.TopK > 50)
+                throw new ArgumentException("TopK cannot be greater than 50.", nameof(request.TopK));
+
             // Generate an embedding for the question.
             var questionVector = await _embeddingService.GetEmbeddingAsync(request.Question, cancellationToken);
 
             // Search for the most relevant chunks within the company scope.
-            var topK = request.TopK <= 0 ? 5 : Math.Min(request.TopK, 50);
-
             var chunks = await _vectorStore.SearchAsync(
                 questionVector,
-                request.CompanyId,
-                topK,
+                companyId,
+                request.TopK,
                 cancellationToken);
 
             return new RetrieveResponseDto

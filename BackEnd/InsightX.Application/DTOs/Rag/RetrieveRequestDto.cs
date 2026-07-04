@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace InsightXAI.Application.DTOs
 {
     /// <summary>
@@ -5,11 +7,9 @@ namespace InsightXAI.Application.DTOs
     /// </summary>
     public class RetrieveRequestDto
     {
-
         public string Question { get; set; } = string.Empty;
 
-        public int CompanyId { get; set; }
-
-        public int TopK { get; set; } = 5;
+        [DefaultValue(1)]
+        public int TopK { get; set; } = 1;
     }
 }

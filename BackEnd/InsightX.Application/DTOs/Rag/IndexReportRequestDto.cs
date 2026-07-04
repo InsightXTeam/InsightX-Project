@@ -7,10 +7,6 @@ namespace InsightXAI.Application.DTOs
     {
         public int ReportId { get; set; }
 
-        public int CompanyId { get; set; }
-
-        public int DepartmentId { get; set; }
-
         public string Month { get; set; } = string.Empty;
 
         public int Year { get; set; }
