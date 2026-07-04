@@ -13,4 +13,5 @@ namespace InsightX.Application.DTOs
     );
 
     public record ChangePasswordDto(string CurrentPassword, string NewPassword);
+    public record UpdateUserDepartmentDto(int? DepartmentId);
 }

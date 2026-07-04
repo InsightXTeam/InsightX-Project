@@ -11,6 +11,9 @@ interface KpiItem {
   name: string;
   threshold: number;
   unit: string;
+  alertPercentageDiff: number;
+  trendMonthsCount: number;
+  thresholdDirection: number;
 }
 
 interface DepartmentItem {
@@ -49,7 +52,7 @@ export class OnboardingComponent {
   readonly managers = signal<ManagerItem[]>([]);
 
   // Input bindings
-  newKpi = { name: '', threshold: null as number | null, unit: '%' };
+  newKpi = { name: '', threshold: null as number | null, unit: '%', alertPercentageDiff: null as number | null, trendMonthsCount: null as number | null, thresholdDirection: 1 };
   newDeptName = '';
   newManager = { name: '', email: '', password: '', departmentId: 0 };
 
@@ -59,27 +62,30 @@ export class OnboardingComponent {
   );
 
   // KPI Actions
-  addKpiPreset(name: string, threshold: number, unit: string): void {
+  addKpiPreset(name: string, threshold: number, unit: string, alertPercentageDiff: number = 10, trendMonthsCount: number = 3, thresholdDirection: number = 1): void {
     const exists = this.kpis().some(k => k.name.toLowerCase() === name.toLowerCase());
     if (!exists) {
-      this.kpis.update(list => [...list, { name, threshold, unit }]);
+      this.kpis.update(list => [...list, { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection }]);
     }
   }
 
   addKpi(): void {
-    if (!this.newKpi.name.trim() || this.newKpi.threshold === null) return;
+    if (!this.newKpi.name.trim() || this.newKpi.threshold === null || this.newKpi.alertPercentageDiff === null || this.newKpi.trendMonthsCount === null) return;
     
     const exists = this.kpis().some(k => k.name.toLowerCase() === this.newKpi.name.trim().toLowerCase());
     if (!exists) {
       this.kpis.update(list => [...list, {
         name: this.newKpi.name.trim(),
         threshold: this.newKpi.threshold!,
-        unit: this.newKpi.unit.trim()
+        unit: this.newKpi.unit.trim(),
+        alertPercentageDiff: this.newKpi.alertPercentageDiff!,
+        trendMonthsCount: this.newKpi.trendMonthsCount!,
+        thresholdDirection: Number(this.newKpi.thresholdDirection)
       }]);
     }
     
     // Clear inputs
-    this.newKpi = { name: '', threshold: null, unit: '%' };
+    this.newKpi = { name: '', threshold: null, unit: '%', alertPercentageDiff: null, trendMonthsCount: null, thresholdDirection: 1 };
   }
 
   removeKpi(index: number): void {
@@ -185,7 +191,10 @@ export class OnboardingComponent {
       kpis: this.kpis().map(k => ({
         name: k.name,
         threshold: k.threshold,
-        unit: k.unit
+        unit: k.unit,
+        alertPercentageDiff: k.alertPercentageDiff,
+        trendMonthsCount: k.trendMonthsCount,
+        thresholdDirection: Number(k.thresholdDirection)
       }))
     };
 

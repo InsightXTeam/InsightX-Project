@@ -36,7 +36,7 @@ namespace InsightX.Infrastructure.Services
                 company.Name,
                 company.CreatedAt,
                 company.Departments.Select(d => new DepartmentProfileDto(d.Id, d.Name)).ToList(),
-                company.KPIs.Select(k => new KpiProfileDto(k.Id, k.Name, k.Threshold, k.Unit)).ToList()
+                company.KPIs.Select(k => new KpiProfileDto(k.Id, k.Name, k.Threshold, k.Unit, k.AlertPercentageDiff, k.TrendMonthsCount, k.ThresholdDirection)).ToList()
             );
 
             return ServiceResult<CompanyProfileDto>.Success(dto);
@@ -60,6 +60,9 @@ namespace InsightX.Infrastructure.Services
                 Name = k.Name,
                 Threshold = k.Threshold,
                 Unit = k.Unit,
+                AlertPercentageDiff = k.AlertPercentageDiff,
+                TrendMonthsCount = k.TrendMonthsCount,
+                ThresholdDirection = k.ThresholdDirection,
                 CompanyId = companyId
             }).ToList();
 

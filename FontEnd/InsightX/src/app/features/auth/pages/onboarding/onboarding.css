@@ -235,7 +235,7 @@
 /* Controls Grid */
 .input-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
+  grid-template-columns: 1.8fr 1fr 0.7fr 1.2fr 1.1fr 1.1fr auto;
   gap: 12px;
   align-items: end;
   background: rgba(255, 255, 255, 0.02);

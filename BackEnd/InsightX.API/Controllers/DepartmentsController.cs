@@ -51,7 +51,7 @@ namespace InsightX.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateDepartmentDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateDepartmentDto dto)
         {
             var companyId = User.GetCompanyId();
             var result = await _departmentService.UpdateAsync(id, dto, companyId);

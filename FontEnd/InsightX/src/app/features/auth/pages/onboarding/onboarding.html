@@ -34,10 +34,10 @@
           <div class="presets-section">
             <h4 class="presets-title">Quick Add Presets</h4>
             <div class="presets-container">
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%')">Server Uptime (99.9%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points')">Sprint Velocity (80pts)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%')">Retention Rate (95.5%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%')">QA Pass Rate (98%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%', 0.5, 1)">Server Uptime (99.9%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points', 10, 3)">Sprint Velocity (80pts)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%', 5, 6)">Retention Rate (95.5%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%', 2, 3)">QA Pass Rate (98%)</button>
             </div>
           </div>
 
@@ -50,7 +50,7 @@
               <div class="kpi-row">
                 <div class="row-info">
                   <span class="row-name">{{ kpi.name }}</span>
-                  <span class="row-meta">Threshold: {{ kpi.threshold }} {{ kpi.unit }}</span>
+                   <span class="row-meta">Threshold: {{ kpi.threshold }}{{ kpi.unit }} | Direction: {{ kpi.thresholdDirection === 0 ? 'Below' : 'Above' }} | Alert Diff: {{ kpi.alertPercentageDiff }}% | Trend: {{ kpi.trendMonthsCount }}m</span>
                 </div>
                 <button type="button" class="delete-btn" (click)="removeKpi($index)" title="Remove KPI">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
@@ -75,7 +75,22 @@
               <label class="label-onboard">Unit</label>
               <input type="text" [(ngModel)]="newKpi.unit" class="input-onboard" placeholder="%" />
             </div>
-            <button type="button" class="add-btn" (click)="addKpi()" [disabled]="!newKpi.name || newKpi.threshold === null">Add</button>
+            <div class="form-group-onboard">
+              <label class="label-onboard">Direction</label>
+              <select [(ngModel)]="newKpi.thresholdDirection" class="input-onboard" style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;">
+                <option [value]="1">Above</option>
+                <option [value]="0">Below</option>
+              </select>
+            </div>
+            <div class="form-group-onboard">
+              <label class="label-onboard">Alert Diff %</label>
+              <input type="number" [(ngModel)]="newKpi.alertPercentageDiff" class="input-onboard" placeholder="10" step="any" />
+            </div>
+            <div class="form-group-onboard">
+              <label class="label-onboard">Trend Months</label>
+              <input type="number" [(ngModel)]="newKpi.trendMonthsCount" class="input-onboard" placeholder="3" />
+            </div>
+            <button type="button" class="add-btn" (click)="addKpi()" [disabled]="!newKpi.name || newKpi.threshold === null || newKpi.alertPercentageDiff === null || newKpi.trendMonthsCount === null">Add</button>
           </div>
         </div>
       }

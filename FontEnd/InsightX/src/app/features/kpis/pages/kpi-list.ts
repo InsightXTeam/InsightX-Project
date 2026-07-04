@@ -11,6 +11,9 @@ export interface KpiResponse {
   threshold: number;
   unit: string;
   companyId: number;
+  alertPercentageDiff: number;
+  trendMonthsCount: number;
+  thresholdDirection: number;
 }
 
 @Component({
@@ -39,11 +42,17 @@ export class KpiListComponent implements OnInit {
   newKpiName = '';
   newKpiThreshold: number | null = null;
   newKpiUnit = '%';
+  newKpiAlertPercentageDiff: number | null = null;
+  newKpiTrendMonthsCount: number | null = null;
+  newKpiThresholdDirection = 1;
 
   // Input bindings (Edit KPI)
   editKpiName = '';
   editKpiThreshold: number | null = null;
   editKpiUnit = '';
+  editKpiAlertPercentageDiff: number | null = null;
+  editKpiTrendMonthsCount: number | null = null;
+  editKpiThresholdDirection = 1;
 
   ngOnInit(): void {
     this.loadKpis();
@@ -70,6 +79,9 @@ export class KpiListComponent implements OnInit {
     this.newKpiName = '';
     this.newKpiThreshold = null;
     this.newKpiUnit = '%';
+    this.newKpiAlertPercentageDiff = null;
+    this.newKpiTrendMonthsCount = null;
+    this.newKpiThresholdDirection = 1;
     this.error.set(null);
   }
 
@@ -77,13 +89,16 @@ export class KpiListComponent implements OnInit {
     const name = this.newKpiName.trim();
     const threshold = this.newKpiThreshold;
     const unit = this.newKpiUnit.trim();
+    const alertPercentageDiff = this.newKpiAlertPercentageDiff;
+    const trendMonthsCount = this.newKpiTrendMonthsCount;
+    const thresholdDirection = Number(this.newKpiThresholdDirection);
 
-    if (!name || threshold === null || !unit) return;
+    if (!name || threshold === null || !unit || alertPercentageDiff === null || trendMonthsCount === null) return;
 
     this.isLoading.set(true);
     this.error.set(null);
 
-    const payload = { name, threshold, unit };
+    const payload = { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection };
 
     this.http.post<KpiResponse>(`${this.apiBase}/kpis`, payload).subscribe({
       next: (newKpi) => {
@@ -103,6 +118,9 @@ export class KpiListComponent implements OnInit {
     this.editKpiName = kpi.name;
     this.editKpiThreshold = kpi.threshold;
     this.editKpiUnit = kpi.unit;
+    this.editKpiAlertPercentageDiff = kpi.alertPercentageDiff;
+    this.editKpiTrendMonthsCount = kpi.trendMonthsCount;
+    this.editKpiThresholdDirection = kpi.thresholdDirection ?? 1;
     this.error.set(null);
   }
 
@@ -111,19 +129,25 @@ export class KpiListComponent implements OnInit {
     this.editKpiName = '';
     this.editKpiThreshold = null;
     this.editKpiUnit = '';
+    this.editKpiAlertPercentageDiff = null;
+    this.editKpiTrendMonthsCount = null;
+    this.editKpiThresholdDirection = 1;
   }
 
   updateKpi(id: number): void {
     const name = this.editKpiName.trim();
     const threshold = this.editKpiThreshold;
     const unit = this.editKpiUnit.trim();
+    const alertPercentageDiff = this.editKpiAlertPercentageDiff;
+    const trendMonthsCount = this.editKpiTrendMonthsCount;
+    const thresholdDirection = Number(this.editKpiThresholdDirection);
 
-    if (!name || threshold === null || !unit) return;
+    if (!name || threshold === null || !unit || alertPercentageDiff === null || trendMonthsCount === null) return;
 
     this.isLoading.set(true);
     this.error.set(null);
 
-    const payload = { name, threshold, unit };
+    const payload = { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection };
 
     this.http.put<KpiResponse>(`${this.apiBase}/kpis/${id}`, payload).subscribe({
       next: (updatedKpi) => {

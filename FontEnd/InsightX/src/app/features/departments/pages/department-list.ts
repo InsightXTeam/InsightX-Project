@@ -9,6 +9,8 @@ export interface DepartmentResponse {
   id: number;
   name: string;
   companyId: number;
+  managerName?: string | null;
+  managerId?: string | null;
 }
 
 @Component({
@@ -25,6 +27,7 @@ export class DepartmentListComponent implements OnInit {
 
   // Signals
   readonly departments = signal<DepartmentResponse[]>([]);
+  readonly managers = signal<{ id: string, name: string }[]>([]);
   readonly isLoading = signal(false);
   readonly showForm = signal(false);
   readonly error = signal<string | null>(null);
@@ -36,9 +39,24 @@ export class DepartmentListComponent implements OnInit {
   // Input binds
   newDeptName = '';
   editDeptName = '';
+  editDeptManagerId = '';
 
   ngOnInit(): void {
     this.loadDepartments();
+    if (this.isOwner()) {
+      this.loadManagers();
+    }
+  }
+
+  loadManagers(): void {
+    this.http.get<any[]>(`${this.apiBase}/users`).subscribe({
+      next: (users) => {
+        const mgrs = (users || [])
+          .filter(u => u.role === 'Manager')
+          .map(u => ({ id: u.id, name: u.name }));
+        this.managers.set(mgrs);
+      }
+    });
   }
 
   loadDepartments(): void {
@@ -88,12 +106,14 @@ export class DepartmentListComponent implements OnInit {
   startEdit(dept: DepartmentResponse): void {
     this.editingId.set(dept.id);
     this.editDeptName = dept.name;
+    this.editDeptManagerId = dept.managerId || '';
     this.error.set(null);
   }
 
   cancelEdit(): void {
     this.editingId.set(null);
     this.editDeptName = '';
+    this.editDeptManagerId = '';
   }
 
   updateDepartment(id: number): void {
@@ -103,9 +123,15 @@ export class DepartmentListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.put<DepartmentResponse>(`${this.apiBase}/departments/${id}`, { name: trimmed }).subscribe({
+    const payload = {
+      name: trimmed,
+      managerId: this.editDeptManagerId || null
+    };
+
+    this.http.put<DepartmentResponse>(`${this.apiBase}/departments/${id}`, payload).subscribe({
       next: (updatedDept) => {
         this.departments.update(list => list.map(d => d.id === id ? updatedDept : d));
+        this.loadManagers(); // Reload managers list as their department associations might change
         this.cancelEdit();
         this.isLoading.set(false);
       },

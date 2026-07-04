@@ -221,5 +221,64 @@ namespace InsightX.Infrastructure.Services
 
             return ServiceResult.Success();
         }
+
+        public async Task<ServiceResult> UpdateUserDepartmentAsync(string id, int? departmentId, int companyId)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return ServiceResult.Fail(400, "Invalid user ID.");
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return ServiceResult.Fail(404, "User not found.");
+            }
+
+            if (user.CompanyId != companyId)
+            {
+                return ServiceResult.Fail(403, "You do not have permission to update this user.");
+            }
+
+            var isManager = await _userManager.IsInRoleAsync(user, "Manager");
+            if (!isManager)
+            {
+                return ServiceResult.Fail(400, "Only users with the Manager role can be assigned to a department.");
+            }
+
+            if (departmentId.HasValue)
+            {
+                var deptExists = await _context.Departments
+                    .AnyAsync(d => d.Id == departmentId.Value && d.CompanyId == companyId);
+
+                if (!deptExists)
+                {
+                    return ServiceResult.Fail(400, "Invalid department for your company.");
+                }
+
+                // Unassign any other manager currently assigned to this department
+                var otherManagers = await (from u in _context.Users
+                                           join ur in _context.UserRoles on u.Id equals ur.UserId
+                                           join r in _context.Roles on ur.RoleId equals r.Id
+                                           where u.CompanyId == companyId && u.DepartmentId == departmentId.Value && u.Id != id && r.Name == "Manager"
+                                           select u)
+                                          .ToListAsync();
+
+                foreach (var other in otherManagers)
+                {
+                    other.DepartmentId = null;
+                }
+            }
+
+            user.DepartmentId = departmentId;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                return ServiceResult.Fail(400, errors);
+            }
+
+            return ServiceResult.Success();
+        }
     }
 }

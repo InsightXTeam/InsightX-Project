@@ -10,7 +10,7 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult<DepartmentResponseDto>> CreateAsync(CreateDepartmentDto dto, int companyId);
         Task<ServiceResult<DepartmentResponseDto>> GetByIdAsync(int id, int companyId);
         Task<ServiceResult<List<DepartmentResponseDto>>> GetAllAsync(int companyId);
-        Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, CreateDepartmentDto dto, int companyId);
+        Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, UpdateDepartmentDto dto, int companyId);
         Task<ServiceResult> DeleteAsync(int id, int companyId);
     }
 }

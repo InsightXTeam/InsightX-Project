@@ -40,13 +40,16 @@ namespace InsightX.Infrastructure.Services
                 Name = dto.Name,
                 Threshold = dto.Threshold,
                 Unit = dto.Unit,
+                AlertPercentageDiff = dto.AlertPercentageDiff,
+                TrendMonthsCount = dto.TrendMonthsCount,
+                ThresholdDirection = dto.ThresholdDirection,
                 CompanyId = companyId
             };
 
             _context.KPIs.Add(kpi);
             await _context.SaveChangesAsync();
 
-            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId);
+            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId, kpi.AlertPercentageDiff, kpi.TrendMonthsCount, kpi.ThresholdDirection);
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 
@@ -60,7 +63,7 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<KpiResponseDto>.Fail(404, "KPI not found.");
             }
 
-            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId);
+            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId, kpi.AlertPercentageDiff, kpi.TrendMonthsCount, kpi.ThresholdDirection);
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 
@@ -68,7 +71,7 @@ namespace InsightX.Infrastructure.Services
         {
             var kpis = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
-                .Select(k => new KpiResponseDto(k.Id, k.Name, k.Threshold, k.Unit, k.CompanyId))
+                .Select(k => new KpiResponseDto(k.Id, k.Name, k.Threshold, k.Unit, k.CompanyId, k.AlertPercentageDiff, k.TrendMonthsCount, k.ThresholdDirection))
                 .ToListAsync();
 
             return ServiceResult<List<KpiResponseDto>>.Success(kpis);
@@ -100,11 +103,14 @@ namespace InsightX.Infrastructure.Services
             kpi.Name = dto.Name;
             kpi.Threshold = dto.Threshold;
             kpi.Unit = dto.Unit;
+            kpi.AlertPercentageDiff = dto.AlertPercentageDiff;
+            kpi.TrendMonthsCount = dto.TrendMonthsCount;
+            kpi.ThresholdDirection = dto.ThresholdDirection;
 
             _context.KPIs.Update(kpi);
             await _context.SaveChangesAsync();
 
-            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId);
+            var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId, kpi.AlertPercentageDiff, kpi.TrendMonthsCount, kpi.ThresholdDirection);
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 

@@ -13,5 +13,6 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult> SetActivationStatusAsync(string id, bool isActivated);
         Task<ServiceResult> DeleteManagerAsync(string id, int companyId);
         Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto);
+        Task<ServiceResult> UpdateUserDepartmentAsync(string id, int? departmentId, int companyId);
     }
 }

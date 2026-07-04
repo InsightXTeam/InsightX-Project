@@ -58,7 +58,14 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<DepartmentResponseDto>.Fail(404, "Department not found.");
             }
 
-            var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId);
+            var manager = await (from u in _context.Users
+                                 join ur in _context.UserRoles on u.Id equals ur.UserId
+                                 join r in _context.Roles on ur.RoleId equals r.Id
+                                 where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
+                                 select new { u.Id, u.Name })
+                                .FirstOrDefaultAsync();
+
+            var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId, manager?.Name, manager?.Id);
             return ServiceResult<DepartmentResponseDto>.Success(responseDto);
         }
 
@@ -66,13 +73,32 @@ namespace InsightX.Infrastructure.Services
         {
             var departments = await _context.Departments
                 .Where(d => d.CompanyId == companyId)
-                .Select(d => new DepartmentResponseDto(d.Id, d.Name, d.CompanyId))
                 .ToListAsync();
 
-            return ServiceResult<List<DepartmentResponseDto>>.Success(departments);
+            var managers = await (from u in _context.Users
+                                  join ur in _context.UserRoles on u.Id equals ur.UserId
+                                  join r in _context.Roles on ur.RoleId equals r.Id
+                                  where u.CompanyId == companyId && r.Name == "Manager"
+                                  select new { u.DepartmentId, u.Id, u.Name })
+                                 .ToListAsync();
+
+            var managerDict = managers
+                .Where(m => m.DepartmentId.HasValue)
+                .GroupBy(m => m.DepartmentId!.Value)
+                .ToDictionary(g => g.Key, g => g.First());
+
+            var dtos = departments.Select(d => new DepartmentResponseDto(
+                d.Id,
+                d.Name,
+                d.CompanyId,
+                managerDict.TryGetValue(d.Id, out var m) ? m.Name : null,
+                managerDict.TryGetValue(d.Id, out m) ? m.Id : null
+            )).ToList();
+
+            return ServiceResult<List<DepartmentResponseDto>>.Success(dtos);
         }
 
-        public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, CreateDepartmentDto dto, int companyId)
+        public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, UpdateDepartmentDto dto, int companyId)
         {
             if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
             {
@@ -95,11 +121,51 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<DepartmentResponseDto>.Fail(400, "A department with this name already exists in your company.");
             }
 
+            // Update name
             dept.Name = dto.Name;
             _context.Departments.Update(dept);
+
+            // Handle manager update
+            // 1. Unassign any current manager for this department
+            var currentManagers = await (from u in _context.Users
+                                         join ur in _context.UserRoles on u.Id equals ur.UserId
+                                         join r in _context.Roles on ur.RoleId equals r.Id
+                                         where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
+                                         select u)
+                                        .ToListAsync();
+
+            foreach (var manager in currentManagers)
+            {
+                manager.DepartmentId = null;
+            }
+
+            // 2. Assign the new manager if provided
+            if (!string.IsNullOrEmpty(dto.ManagerId))
+            {
+                var newManager = await (from u in _context.Users
+                                        join ur in _context.UserRoles on u.Id equals ur.UserId
+                                        join r in _context.Roles on ur.RoleId equals r.Id
+                                        where u.CompanyId == companyId && u.Id == dto.ManagerId && r.Name == "Manager"
+                                        select u)
+                                       .FirstOrDefaultAsync();
+
+                if (newManager != null)
+                {
+                    newManager.DepartmentId = id;
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId);
+            // Fetch final manager details
+            var finalManager = await (from u in _context.Users
+                                      join ur in _context.UserRoles on u.Id equals ur.UserId
+                                      join r in _context.Roles on ur.RoleId equals r.Id
+                                      where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
+                                      select new { u.Id, u.Name })
+                                     .FirstOrDefaultAsync();
+
+            var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId, finalManager?.Name, finalManager?.Id);
             return ServiceResult<DepartmentResponseDto>.Success(responseDto);
         }
 

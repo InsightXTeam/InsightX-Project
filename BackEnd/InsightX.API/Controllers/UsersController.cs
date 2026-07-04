@@ -81,5 +81,14 @@ namespace InsightX.API.Controllers
             var result = await _userService.ChangePasswordAsync(userId, dto);
             return result.IsSuccess ? Ok() : StatusCode(result.StatusCode, result.Error);
         }
+
+        [HttpPut("{id}/department")]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> UpdateUserDepartment(string id, [FromBody] UpdateUserDepartmentDto dto)
+        {
+            var companyId = User.GetCompanyId();
+            var result = await _userService.UpdateUserDepartmentAsync(id, dto.DepartmentId, companyId);
+            return result.IsSuccess ? Ok() : StatusCode(result.StatusCode, result.Error);
+        }
     }
 }

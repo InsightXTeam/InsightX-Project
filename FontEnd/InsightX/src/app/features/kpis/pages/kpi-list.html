@@ -48,6 +48,18 @@
           />
         </div>
         <div class="form-group flex-1">
+          <label class="form-label">Direction</label>
+          <select 
+            [(ngModel)]="newKpiThresholdDirection" 
+            class="input-field"
+            [disabled]="isLoading()"
+            style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E\'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;"
+          >
+            <option [value]="1">Above</option>
+            <option [value]="0">Below</option>
+          </select>
+        </div>
+        <div class="form-group flex-1">
           <label class="form-label">Unit</label>
           <input 
             type="text" 
@@ -57,10 +69,31 @@
             [disabled]="isLoading()"
           />
         </div>
+        <div class="form-group flex-1">
+          <label class="form-label">Alert Diff %</label>
+          <input 
+            type="number" 
+            [(ngModel)]="newKpiAlertPercentageDiff" 
+            placeholder="e.g. 10" 
+            class="input-field"
+            [disabled]="isLoading()"
+            step="any"
+          />
+        </div>
+        <div class="form-group flex-1">
+          <label class="form-label">Trend Months</label>
+          <input 
+            type="number" 
+            [(ngModel)]="newKpiTrendMonthsCount" 
+            placeholder="e.g. 3" 
+            class="input-field"
+            [disabled]="isLoading()"
+          />
+        </div>
       </div>
       <div class="form-actions">
         <button class="cancel-btn" (click)="toggleForm()" [disabled]="isLoading()" type="button">Cancel</button>
-        <button class="save-btn" (click)="saveKpi()" [disabled]="!newKpiName.trim() || newKpiThreshold === null || !newKpiUnit.trim() || isLoading()" type="button">
+        <button class="save-btn" (click)="saveKpi()" [disabled]="!newKpiName.trim() || newKpiThreshold === null || !newKpiUnit.trim() || newKpiAlertPercentageDiff === null || newKpiTrendMonthsCount === null || isLoading()" type="button">
           {{ isLoading() ? 'Adding...' : 'Add KPI' }}
         </button>
       </div>
@@ -105,7 +138,7 @@
                   [disabled]="isLoading()"
                 />
               </div>
-              <div class="edit-form-grid">
+              <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr 1.2fr; gap: 8px;">
                 <input 
                   type="number" 
                   [(ngModel)]="editKpiThreshold" 
@@ -121,9 +154,35 @@
                   placeholder="Unit (e.g. %)"
                   [disabled]="isLoading()"
                 />
+                <select 
+                  [(ngModel)]="editKpiThresholdDirection" 
+                  class="edit-input-field"
+                  [disabled]="isLoading()"
+                  style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E\'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;"
+                >
+                  <option [value]="1">Above</option>
+                  <option [value]="0">Below</option>
+                </select>
               </div>
-              <div class="edit-actions">
-                <button class="edit-btn-save" (click)="updateKpi(kpi.id)" [disabled]="!editKpiName.trim() || editKpiThreshold === null || !editKpiUnit.trim() || isLoading()">Save</button>
+              <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                <input 
+                  type="number" 
+                  [(ngModel)]="editKpiAlertPercentageDiff" 
+                  class="edit-input-field" 
+                  placeholder="Alert Diff %"
+                  [disabled]="isLoading()"
+                  step="any"
+                />
+                <input 
+                  type="number" 
+                  [(ngModel)]="editKpiTrendMonthsCount" 
+                  class="edit-input-field" 
+                  placeholder="Trend Months"
+                  [disabled]="isLoading()"
+                />
+              </div>
+              <div class="edit-actions" style="margin-top: 12px;">
+                <button class="edit-btn-save" (click)="updateKpi(kpi.id)" [disabled]="!editKpiName.trim() || editKpiThreshold === null || !editKpiUnit.trim() || editKpiAlertPercentageDiff === null || editKpiTrendMonthsCount === null || isLoading()">Save</button>
                 <button class="edit-btn-cancel" (click)="cancelEdit()" [disabled]="isLoading()">Cancel</button>
               </div>
             </div>
@@ -134,6 +193,20 @@
               <span class="metric-unit">{{ kpi.unit }}</span>
             </div>
             <span class="kpi-company">Target Threshold</span>
+            <div class="kpi-extra-metrics" style="display: flex; flex-direction: column; gap: 6px; margin-top: 12px; font-size: 13px; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Direction:</span>
+                <span style="color: #cbd5e1; font-weight: 500;">{{ kpi.thresholdDirection === 0 ? 'Below' : 'Above' }}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Alert Diff:</span>
+                <span style="color: #cbd5e1; font-weight: 500;">{{ kpi.alertPercentageDiff }}%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Trend Period:</span>
+                <span style="color: #cbd5e1; font-weight: 500;">{{ kpi.trendMonthsCount }} months</span>
+              </div>
+            </div>
           }
           
           <div class="card-footer">
