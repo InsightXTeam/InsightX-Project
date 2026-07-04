@@ -282,9 +282,11 @@
     position: fixed;
     height: 100vh;
     left: -260px;
+    z-index: 1000;
   }
   
-  .sidebar.active {
+  .sidebar.active,
+  :host(.active) .sidebar {
     left: 0;
   }
 }

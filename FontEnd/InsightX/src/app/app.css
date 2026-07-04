@@ -89,3 +89,47 @@
   background-color: var(--bg-primary);
   position: relative;
 }
+
+/* Hamburger Menu Button */
+.hamburger-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-right: 12px;
+}
+
+.hamburger-btn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+/* Mobile overlay */
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999; /* Below sidebar (1000) but above everything else */
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .hamburger-btn {
+    display: flex; /* Show hamburger button on mobile screens */
+  }
+
+  .top-navbar {
+    padding: 0 16px; /* Decrease padding on mobile */
+  }
+}

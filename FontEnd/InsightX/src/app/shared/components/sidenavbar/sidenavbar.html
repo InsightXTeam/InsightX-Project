@@ -18,7 +18,7 @@
     <!-- Departments (Owner Only) -->
     @if (role() === 'Owner') {
       <li class="nav-item">
-        <a class="nav-link" routerLink="/departments" routerLinkActive="active">
+        <a class="nav-link" routerLink="/departments" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21h10.5V3.75c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125V21z" />
@@ -33,7 +33,7 @@
     <!-- KPIs (Owner Only) -->
     @if (role() === 'Owner') {
       <li class="nav-item">
-        <a class="nav-link" routerLink="/kpis" routerLinkActive="active">
+        <a class="nav-link" routerLink="/kpis" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
@@ -48,7 +48,7 @@
     <!-- Users/Managers Management -->
     @if (role() === 'Owner') {
       <li class="nav-item">
-        <a class="nav-link" routerLink="/users" routerLinkActive="active">
+        <a class="nav-link" routerLink="/users" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A11.386 11.386 0 0110.089 21c-2.331 0-4.512-.647-6.366-1.773a3.25 3.25 0 01-1.473-2.613 4.125 4.125 0 016.924-2.73M15 11.25a3 3 0 11-6 0 3 3 0 016 0zm6 2.25a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zM5.25 10.5a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
@@ -66,7 +66,7 @@
     <!-- Profile Link (All Roles) -->
     @if (role() === 'Owner' || role() === 'Manager' || role() === 'sadmin') {
       <li class="nav-item">
-        <a class="nav-link" routerLink="/profile" routerLinkActive="active">
+        <a class="nav-link" routerLink="/profile" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -81,7 +81,7 @@
     <!-- Super Admin Menu -->
     @if (role() === 'sadmin') {
       <li class="nav-item">
-        <a class="nav-link" routerLink="/users/owners" routerLinkActive="active">
+        <a class="nav-link" routerLink="/users/owners" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
@@ -96,14 +96,14 @@
 
   <!-- User Footer Section -->
   <div class="user-footer" *ngIf="user()">
-    <div class="user-profile" routerLink="/profile" style="cursor: pointer;" title="View Profile">
+    <div class="user-profile" routerLink="/profile" style="cursor: pointer;" title="View Profile" (click)="linkClicked.emit()">
       <div class="avatar">{{ userInitials() }}</div>
       <div class="user-details">
         <span class="user-name" [title]="user()?.email">{{ user()?.name || user()?.email }}</span>
         <span class="user-role">{{ roleDisplay() }}</span>
       </div>
     </div>
-    <button class="logout-btn" (click)="onLogout()" type="button" title="Log out">
+    <button class="logout-btn" (click)="onLogout(); linkClicked.emit()" type="button" title="Log out">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
       </svg>

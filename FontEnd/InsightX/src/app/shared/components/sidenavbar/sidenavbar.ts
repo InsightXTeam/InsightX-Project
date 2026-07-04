@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -13,6 +13,8 @@ import { AuthService } from '../../../core/services/auth.service';
 export class SidenavbarComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  @Output() readonly linkClicked = new EventEmitter<void>();
 
   // States
   readonly isCollapsed = signal(false);

@@ -1,18 +1,29 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SidenavbarComponent } from './shared/components/sidenavbar/sidenavbar';
 import { AuthService } from './core/services/auth.service';
+import { ToastContainerComponent } from './shared/components/toast/toast-container';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, SidenavbarComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, SidenavbarComponent, ToastContainerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   readonly authService = inject(AuthService);
+
+  readonly isMobileMenuOpen = signal(false);
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.isMobileMenuOpen.set(false);
+  }
 
   // Computed details to display at the end of the top navbar
   readonly user = this.authService.currentUser;

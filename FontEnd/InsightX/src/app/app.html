@@ -1,14 +1,24 @@
 @if (authService.isAuthenticated()) {
   <div class="app-shell">
     <!-- Left Sidebar -->
-    <app-sidenavbar></app-sidenavbar>
+    <app-sidenavbar [class.active]="isMobileMenuOpen()" (linkClicked)="closeMobileMenu()"></app-sidenavbar>
+    
+    <!-- Mobile Menu Overlay -->
+    @if (isMobileMenuOpen()) {
+      <div class="mobile-overlay" (click)="closeMobileMenu()"></div>
+    }
     
     <!-- Main Right Content Area -->
     <div class="app-main-layout">
       <!-- Top Header Navbar -->
       <header class="top-navbar">
-        <div class="navbar-left">
-          <!-- Can expand with search boxes, notifications, or breadcrumbs later -->
+        <div class="navbar-left" style="display: flex; align-items: center;">
+          <!-- Hamburger Button for Mobile screens -->
+          <button class="hamburger-btn" (click)="toggleMobileMenu()" type="button" aria-label="Toggle Navigation Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" style="width: 22px; height: 22px;">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
         </div>
         
         <!-- Clickable Profile Info -->
@@ -31,3 +41,5 @@
   <!-- Plain router outlet for login/registration/public views -->
   <router-outlet></router-outlet>
 }
+
+<app-toast-container></app-toast-container>
