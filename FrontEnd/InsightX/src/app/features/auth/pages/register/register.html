@@ -1,0 +1,223 @@
+<div class="auth-container">
+  <div class="auth-card">
+    @if (isRegistered()) {
+      <!-- Success View -->
+      <div class="auth-header" style="text-align: center;">
+        <div class="logo-row" style="justify-content: center; margin-bottom: 24px;">
+          <div class="logo-box" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); color: #10b981; display: flex; align-items: center; justify-content: center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon" style="color: #10b981; width: 24px; height: 24px;">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <span class="logo-text">InsightX AI</span>
+        </div>
+        <h2 class="auth-title">Registration Successful</h2>
+        <p class="auth-subtitle" style="margin-top: 16px; font-size: 0.95rem; line-height: 1.6; color: var(--color-text-secondary, #94a3b8);">
+          Your account has been created and is pending approval by the Super Admin. You will be able to log in once your account is activated.
+        </p>
+      </div>
+      
+      <div style="margin-top: 32px;">
+        <a routerLink="/auth/login" class="submit-btn" style="display: block; text-align: center; text-decoration: none; line-height: 2.5rem;">
+          Go to Sign In &rarr;
+        </a>
+      </div>
+    } @else {
+      <!-- Header Area -->
+      <div class="auth-header">
+        <div class="logo-row">
+          <div class="logo-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon">
+              <rect x="3" y="3" width="18" height="18" rx="5" />
+              <path d="M9 9h6v6H9z" />
+              <path d="M9 1v2M15 1v2M9 21v2M15 21v2M21 9h2M21 15h2M1 9h2M1 15h2" />
+            </svg>
+          </div>
+          <span class="logo-text">InsightX AI</span>
+        </div>
+        <h2 class="auth-title">Create your company account</h2>
+        <p class="auth-subtitle">Set up InsightX AI for your organization.</p>
+      </div>
+
+      <!-- Error Alert Box -->
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <!-- Registration Form -->
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form" autocomplete="on">
+        
+        <!-- Section 1 — Company Info -->
+        <div class="section-divider">
+          <span class="section-title">Section 1 — Company Info</span>
+          <div class="section-line"></div>
+        </div>
+
+        <!-- Company Name -->
+        <div class="form-group">
+          <label for="companyName" class="form-label">Company Name</label>
+          <div class="input-wrapper">
+            <input
+              id="companyName"
+              type="text"
+              formControlName="companyName"
+              class="form-input"
+              placeholder="Enter your company name"
+              autocomplete="organization"
+              required
+            />
+          </div>
+          @if (companyNameControl.touched && companyNameControl.invalid) {
+            <span class="error-msg">
+              Company name is required.
+            </span>
+          }
+        </div>
+
+        <!-- Section 2 — Owner Account -->
+        <div class="section-divider">
+          <span class="section-title">Section 2 — Owner Account</span>
+          <div class="section-line"></div>
+        </div>
+
+        <!-- Full Name -->
+        <div class="form-group">
+          <label for="ownerName" class="form-label">Full Name</label>
+          <div class="input-wrapper">
+            <input
+              id="ownerName"
+              type="text"
+              formControlName="ownerName"
+              class="form-input"
+              placeholder="Enter your full name"
+              autocomplete="name"
+              required
+            />
+          </div>
+          @if (ownerNameControl.touched && ownerNameControl.invalid) {
+            <span class="error-msg">
+              Full name is required.
+            </span>
+          }
+        </div>
+
+        <!-- Work Email -->
+        <div class="form-group">
+          <label for="email" class="form-label">Work Email</label>
+          <div class="input-wrapper">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="form-input"
+              placeholder="Enter your email address"
+              autocomplete="email"
+              required
+            />
+          </div>
+          @if (emailControl.touched && emailControl.invalid) {
+            <span class="error-msg">
+              Enter a valid email address.
+            </span>
+          }
+        </div>
+
+        <!-- Password & Confirm Password Row -->
+        <div class="form-row">
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input
+                id="password"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                class="form-input form-input-password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                required
+              />
+              <button type="button" class="eye-toggle-btn" (click)="togglePasswordVisibility()" aria-label="Toggle Password Visibility">
+                @if (showPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (passwordControl.touched && passwordControl.invalid) {
+              <span class="error-msg">
+                Min 8 characters, at least 1 digit.
+              </span>
+            }
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <div class="input-wrapper">
+              <input
+                id="confirmPassword"
+                [type]="showConfirmPassword() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                class="form-input form-input-password"
+                placeholder="••••••••"
+                autocomplete="new-password"
+                required
+              />
+              <button type="button" class="eye-toggle-btn" (click)="toggleConfirmPasswordVisibility()" aria-label="Toggle Password Visibility">
+                @if (showConfirmPassword()) {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                } @else {
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                  </svg>
+                }
+              </button>
+            </div>
+            @if (confirmPasswordControl.touched && confirmPasswordControl.invalid) {
+              <span class="error-msg">
+                Confirm password is required.
+              </span>
+            }
+          </div>
+        </div>
+
+        <!-- Password Mismatch Error -->
+        @if (registerForm.touched && registerForm.errors?.['passwordMismatch']) {
+          <span class="error-msg" style="margin-top: -8px; text-align: center; display: block;">
+            Passwords do not match.
+          </span>
+        }
+
+        <!-- Submit button -->
+        <button type="submit" class="submit-btn" [disabled]="registerForm.invalid || isLoading()">
+          @if (isLoading()) {
+            <span class="spinner"></span>
+            <span>Creating account...</span>
+          } @else {
+            <span>Create Account &rarr;</span>
+          }
+        </button>
+      </form>
+
+      <!-- Footer Promo -->
+      <div class="register-promo">
+        Already registered? <a routerLink="/auth/login" class="promo-link">Sign In</a>
+      </div>
+    }
+  </div>
+</div>
