@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface UserResponse {
   id: string;
@@ -17,22 +19,27 @@ interface UserResponse {
 interface Department {
   id: number;
   name: string;
+  managerName?: string | null;
+  managerId?: string | null;
 }
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   templateUrl: './user-list.html',
   styleUrl: './user-list.css'
 })
 export class UserListComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly users = signal<UserResponse[]>([]);
+  readonly showDeleteConfirm = signal(false);
+  userToDeleteId: string | null = null;
   readonly departments = signal<Department[]>([]);
   readonly isLoading = signal(false);
   readonly showForm = signal(false);
@@ -102,6 +109,7 @@ export class UserListComponent implements OnInit {
         this.isLoading.set(false);
         this.showForm.set(false);
         this.newManager = { name: '', email: '', password: '', departmentId: 0 };
+        this.toastService.show('Manager invited successfully');
         this.loadUsers(); // Reload team members
       },
       error: (err) => {
@@ -111,15 +119,23 @@ export class UserListComponent implements OnInit {
     });
   }
 
-  deleteUser(id: string): void {
-    if (!confirm('Are you sure you want to delete this manager?')) return;
+  triggerDelete(id: string): void {
+    this.userToDeleteId = id;
+    this.showDeleteConfirm.set(true);
+  }
 
+  confirmDelete(): void {
+    const id = this.userToDeleteId;
+    if (!id) return;
+
+    this.showDeleteConfirm.set(false);
     this.isLoading.set(true);
     this.error.set(null);
 
     this.http.delete(`${this.apiBase}/users/${id}`).subscribe({
       next: () => {
         this.isLoading.set(false);
+        this.toastService.show('Manager deleted successfully');
         this.loadUsers(); // Reload team members
       },
       error: (err) => {
@@ -127,6 +143,11 @@ export class UserListComponent implements OnInit {
         this.error.set(this.extractErrorMessage(err, 'Failed to delete manager.'));
       }
     });
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.userToDeleteId = null;
   }
 
   startEditUser(user: UserResponse): void {

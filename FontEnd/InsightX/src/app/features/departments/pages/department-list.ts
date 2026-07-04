@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
+import { ToastService } from '../../../core/services/toast.service';
 
 export interface DepartmentResponse {
   id: number;
@@ -16,18 +18,21 @@ export interface DepartmentResponse {
 @Component({
   selector: 'app-department-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
   templateUrl: './department-list.html',
   styleUrl: './department-list.css'
 })
 export class DepartmentListComponent implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly toastService = inject(ToastService);
   private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly departments = signal<DepartmentResponse[]>([]);
-  readonly managers = signal<{ id: string, name: string }[]>([]);
+  readonly showDeleteConfirm = signal(false);
+  deptToDeleteId: number | null = null;
+  readonly managers = signal<{ id: string, name: string, departmentId?: number | null, departmentName?: string | null }[]>([]);
   readonly isLoading = signal(false);
   readonly showForm = signal(false);
   readonly error = signal<string | null>(null);
@@ -53,7 +58,12 @@ export class DepartmentListComponent implements OnInit {
       next: (users) => {
         const mgrs = (users || [])
           .filter(u => u.role === 'Manager')
-          .map(u => ({ id: u.id, name: u.name }));
+          .map(u => ({
+            id: u.id,
+            name: u.name,
+            departmentId: u.departmentId,
+            departmentName: u.departmentName
+          }));
         this.managers.set(mgrs);
       }
     });
@@ -95,6 +105,7 @@ export class DepartmentListComponent implements OnInit {
         this.newDeptName = '';
         this.showForm.set(false);
         this.isLoading.set(false);
+        this.toastService.show('Department created successfully');
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -130,10 +141,9 @@ export class DepartmentListComponent implements OnInit {
 
     this.http.put<DepartmentResponse>(`${this.apiBase}/departments/${id}`, payload).subscribe({
       next: (updatedDept) => {
-        this.departments.update(list => list.map(d => d.id === id ? updatedDept : d));
+        this.loadDepartments(); // Reload departments to reflect reassignment on other departments
         this.loadManagers(); // Reload managers list as their department associations might change
         this.cancelEdit();
-        this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -142,9 +152,16 @@ export class DepartmentListComponent implements OnInit {
     });
   }
 
-  deleteDepartment(id: number): void {
-    if (!confirm('Are you sure you want to delete this department? Linked users will be unassigned.')) return;
+  triggerDelete(id: number): void {
+    this.deptToDeleteId = id;
+    this.showDeleteConfirm.set(true);
+  }
 
+  confirmDelete(): void {
+    const id = this.deptToDeleteId;
+    if (id === null) return;
+
+    this.showDeleteConfirm.set(false);
     this.isLoading.set(true);
     this.error.set(null);
 
@@ -152,12 +169,18 @@ export class DepartmentListComponent implements OnInit {
       next: () => {
         this.departments.update(list => list.filter(d => d.id !== id));
         this.isLoading.set(false);
+        this.toastService.show('Department deleted successfully');
       },
       error: (err) => {
         this.isLoading.set(false);
         this.error.set(this.extractErrorMessage(err, 'Failed to delete department. Please try again.'));
       }
     });
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.deptToDeleteId = null;
   }
 
   private extractErrorMessage(err: any, fallback: string): string {
