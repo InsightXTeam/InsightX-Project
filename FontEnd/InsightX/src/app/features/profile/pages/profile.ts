@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractContro
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
+import { ToastService } from '../../../core/services/toast.service';
 
 const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const newPass = control.get('newPassword');
@@ -24,6 +25,7 @@ export class ProfileComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly http = inject(HttpClient);
+  private readonly toastService = inject(ToastService);
   private readonly apiBase = environment.apiBaseUrl;
 
   // Status Signals
@@ -101,6 +103,7 @@ export class ProfileComponent {
       next: () => {
         this.isLoading.set(false);
         this.successMessage.set('Password updated successfully.');
+        this.toastService.show('Password updated successfully');
         this.passwordForm.reset();
       },
       error: (err) => {
