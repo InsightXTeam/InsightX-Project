@@ -27,16 +27,19 @@ namespace InsightX.Application.UseCases.Alerts
             string kpiName,
             decimal currentValue)
         {
+            // 1- detecting if there any problems
             var result = await _detector.CheckAsync(companyId, departmentId, kpiName, currentValue);
             if (!result.IsAnomaly) return;
 
-            var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
-            var history = await _metricsRepository.GetLastNMonthsAsync(companyId, kpiName, config?.TrendMonthsCount ?? 3);
+            // 2- get history context for ai
+            var history = await _metricsRepository.GetLastNMonthsAsync(companyId, kpiName, 3);
             var historyContext = string.Join(", ", history);
 
+            // 3- make ai generate message
             var (message, recommendation) = await _messageGenerator.GenerateAsync(kpiName, result.CurrentValue, result.Threshold, historyContext);
 
-            var alert = new Alert
+            // 4- store alert in DB
+            var alert = new Alert()
             {
                 CompanyId = companyId,
                 DepartmentId = departmentId,
