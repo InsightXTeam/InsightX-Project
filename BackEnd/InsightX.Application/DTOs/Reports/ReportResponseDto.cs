@@ -10,6 +10,6 @@ namespace InsightX.Application.DTOs.Reports
 
         public DateTime UploadedAt { get; set; }
 
-        public string UploadedBy { get; set; } = string.Empty;
+        public string UploadedById { get; set; } = string.Empty;
     }
 }

@@ -8,14 +8,14 @@ namespace InsightX.Application.Interfaces
 
         Task<List<ReportResponseDto>> GetReportsAsync(int companyId, string role, string userName);
 
-        Task<string> GetStatusAsync(int id);
+        Task<string> GetStatusAsync(int id, int companyId);
 
-        Task<string> GetPreviewAsync(int id);
+        Task<string> GetPreviewAsync(int id, int companyId);
 
-        Task<string> GetExtractedTextAsync(int id);
+        Task<string> GetExtractedTextAsync(int id, int companyId);
 
-        Task ConfirmTextAsync(int id, ConfirmReportDto dto);
+        Task ConfirmTextAsync(int id, ConfirmReportDto dto, int companyId);
 
-        Task DeleteAsync(int id);
+        Task DeleteAsync(int id, int companyId);
     }
 }

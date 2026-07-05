@@ -8,6 +8,8 @@ namespace InsightX.Application.Interfaces
 
         Task<Report?> GetByIdAsync(int id);
 
+        Task<Report?> GetByIdForCompanyAsync(int id, int companyId);  // NEW
+
         Task<List<Report>> GetByCompanyAndUserAsync(int companyId, string role, string userName);
 
         Task AddAsync(Report report);

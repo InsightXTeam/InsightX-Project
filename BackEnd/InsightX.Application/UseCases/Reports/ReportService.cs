@@ -27,7 +27,7 @@ namespace InsightX.Application.UseCases.Reports
                 Status = ReportStatus.Pending.ToString(),
                 CompanyId = companyId,
                 DepartmentId = departmentId,
-                UploadedBy = uploadedBy
+                UploadedById = uploadedBy
             };
             await _repository.AddAsync(report);
             return new ReportResponseDto
@@ -36,7 +36,7 @@ namespace InsightX.Application.UseCases.Reports
                 FileName = report.FileName,
                 Status = report.Status,
                 UploadedAt = report.UploadedAt,
-                UploadedBy = report.UploadedBy
+                UploadedById = report.UploadedById
             };
         }
 
@@ -50,20 +50,21 @@ namespace InsightX.Application.UseCases.Reports
                 FileName = x.FileName,
                 Status = x.Status,
                 UploadedAt = x.UploadedAt,
-                UploadedBy = x.UploadedBy
+                UploadedById = x.UploadedById
             }).ToList();
         }
 
-        public async Task<string> GetStatusAsync(int id)
+        public async Task<string> GetStatusAsync(int id, int companyId)
         {
-            var report = await _repository.GetByIdAsync(id);
-            return report?.Status ?? "Not Found";
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId);
+            if (report == null) throw new KeyNotFoundException("Report not found");
+            return report.Status;
         }
 
-        public async Task<string> GetPreviewAsync(int id)
+        public async Task<string> GetPreviewAsync(int id, int companyId)
         {
-            var report = await _repository.GetByIdAsync(id);
-            if (report == null || report.ExtractedMetrics == null) return "Not Found";
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId);
+            if (report == null || report.ExtractedMetrics == null) throw new KeyNotFoundException("Report not found");
             return System.Text.Json.JsonSerializer.Serialize(report.ExtractedMetrics.Select(m => new ExtractedMetricDto
             {
                 KPIName = m.KPIName,
@@ -73,37 +74,32 @@ namespace InsightX.Application.UseCases.Reports
             }));
         }
 
-        public async Task<string> GetExtractedTextAsync(int id)
+        public async Task<string> GetExtractedTextAsync(int id, int companyId)
         {
-            var report = await _repository.GetByIdAsync(id);
-            return report?.ExtractedText ?? "Not Found";
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId);
+            if (report == null) throw new KeyNotFoundException("Report not found");
+            return report.ExtractedText;
         }
 
-        public async Task ConfirmTextAsync(int id, ConfirmReportDto dto)
+        public async Task ConfirmTextAsync(int id, ConfirmReportDto dto, int companyId)
         {
-            var report = await _repository.GetByIdAsync(id);
-            if (report == null) throw new Exception("Report not found");
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId);
+            if (report == null) throw new KeyNotFoundException("Report not found");
 
             if (report.Status != ReportStatus.PendingConfirmation.ToString())
                 throw new Exception("Report is not pending confirmation");
 
             report.ExtractedText = dto.ExtractedText;
-
-            // We do NOT set it to "Done" here. The controller will call ExtractKpisAsync next.
             await _repository.UpdateAsync(report);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, int companyId)
         {
-            var report = await _repository.GetByIdAsync(id);
-            if (report != null)
-            {
-                // Delete physical file
-                _storage.DeleteFile(report.FilePath);
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId);
+            if (report == null) throw new KeyNotFoundException("Report not found");
 
-                // Delete from DB
-                await _repository.DeleteAsync(report);
-            }
+            _storage.DeleteFile(report.FilePath);
+            await _repository.DeleteAsync(report);
         }
     }
 }

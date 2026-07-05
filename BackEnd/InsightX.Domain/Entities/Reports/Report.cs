@@ -1,4 +1,5 @@
 using InsightX.Domain.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InsightX.Domain.Entities.Reports
 {
@@ -14,7 +15,8 @@ namespace InsightX.Domain.Entities.Reports
 
         public int? DepartmentId { get; set; }
 
-        public string UploadedBy { get; set; } = string.Empty;
+        [Column("UploadedBy")]
+        public string UploadedById { get; set; } = string.Empty;
 
         public DateTime UploadedAt { get; set; }
 

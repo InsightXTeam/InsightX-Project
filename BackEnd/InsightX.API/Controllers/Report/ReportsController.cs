@@ -1,8 +1,8 @@
 using InsightX.Application.DTOs.Reports;
+using InsightX.Application.Extensions;
 using InsightX.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace InsightX.API.Controllers.Report
 {
@@ -11,41 +11,23 @@ namespace InsightX.API.Controllers.Report
     [ApiController]
     public class ReportsController : ControllerBase
     {
-        // POST   => /reports/upload
-        // GET    => /reports
-        // GET    => /reports/{id}/status
-        // GET    => /reports/{id}/preview
-        // GET    => /reports/{id}/text
-        // POST   => /reports/{id}/confirm
-        // DELETE => /reports/{id}
-        // POST   => /reports/{id}/process
-
         private readonly IReportService _service;
-
         private readonly IDocumentProcessor _processor;
 
         public ReportsController(IReportService service, IDocumentProcessor processor)
         {
             _service = service;
-
             _processor = processor;
         }
 
         [HttpPost("upload")]
-        [DisableRequestSizeLimit]
-        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)] // 100MB
+        [RequestSizeLimit(104857600)]
+        [RequestFormLimits(MultipartBodyLengthLimit = 104857600)]
         public async Task<IActionResult> Upload([FromForm] UploadReportDto dto)
         {
-            var companyIdClaim = User.FindFirstValue("CompanyId");
-            var departmentIdClaim = User.FindFirstValue("DepartmentId");
-            var userName = User.Identity?.Name ?? "Unknown";
-
-            if (!int.TryParse(companyIdClaim, out int companyId))
-                return Unauthorized("Company ID is missing from token.");
-
-            int? departmentId = null;
-            if (int.TryParse(departmentIdClaim, out int parsedDeptId))
-                departmentId = parsedDeptId;
+            var companyId = User.GetCompanyId();
+            var departmentId = User.GetDepartmentId();
+            var userName = User.GetUserId();
 
             var result = await _service.UploadAsync(dto, companyId, departmentId, userName);
             return Ok(result);
@@ -54,65 +36,55 @@ namespace InsightX.API.Controllers.Report
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var companyIdClaim = User.FindFirstValue("CompanyId");
-            var roleClaim = User.FindFirstValue(ClaimTypes.Role);
-            var userName = User.Identity?.Name ?? "Unknown";
+            var companyId = User.GetCompanyId();
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            var userName = User.GetUserId();
 
-            if (!int.TryParse(companyIdClaim, out int companyId))
-                return Unauthorized("Company ID is missing from token.");
-
-            var result = await _service.GetReportsAsync(companyId, roleClaim ?? "", userName);
+            var result = await _service.GetReportsAsync(companyId, role, userName);
             return Ok(result);
         }
 
         [HttpGet("{id}/status")]
         public async Task<IActionResult> Status(int id)
         {
-            //var companyIdClaim = User.FindFirstValue("CompanyId");
-            //var roleClaim = User.FindFirstValue(ClaimTypes.Role);
-            //var userName = User.Identity?.Name ?? "Unknown";
-
-            //if (!int.TryParse(companyIdClaim, out int companyId))
-            //    return Unauthorized("Company ID is missing from token.");
-
-            var result = await _service.GetStatusAsync(id);
+            var result = await _service.GetStatusAsync(id, User.GetCompanyId());
             return Ok(result);
         }
 
         [HttpGet("{id}/preview")]
         public async Task<IActionResult> Preview(int id)
         {
-            var result = await _service.GetPreviewAsync(id);
+            var result = await _service.GetPreviewAsync(id, User.GetCompanyId());
             return Content(result, "application/json");
         }
 
         [HttpGet("{id}/text")]
         public async Task<IActionResult> GetText(int id)
         {
-            var result = await _service.GetExtractedTextAsync(id);
+            var result = await _service.GetExtractedTextAsync(id, User.GetCompanyId());
             return Ok(new { text = result });
         }
 
         [HttpPost("{id}/confirm")]
         public async Task<IActionResult> Confirm(int id, [FromBody] ConfirmReportDto dto)
         {
-            await _service.ConfirmTextAsync(id, dto);
-            await _processor.ExtractKpisAsync(id);
+            var companyId = User.GetCompanyId();
+            await _service.ConfirmTextAsync(id, dto, companyId);
+            await _processor.ExtractKpisAsync(id, companyId);
             return Ok(new { message = "Text confirmed and KPIs extracted successfully" });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _service.DeleteAsync(id);
+            await _service.DeleteAsync(id, User.GetCompanyId());
             return NoContent();
         }
 
         [HttpPost("{id}/process")]
         public async Task<IActionResult> Process(int id)
         {
-            await _processor.ProcessAsync(id);
-
+            await _processor.ProcessAsync(id, User.GetCompanyId());
             return Ok(new { message = "Processing finished" });
         }
     }
