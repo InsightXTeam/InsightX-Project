@@ -99,6 +99,15 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<AuthResponseDto>.Fail(400, "Your account is not activated yet. Please wait for Super Admin activation.");
             }
 
+            var oldTokens = await _context.RefreshTokens
+                .Where(r => r.UserId == user.Id && (r.IsRevoked || r.ExpiresAt <= DateTime.UtcNow))
+                .ToListAsync(cancellationToken);
+
+            if (oldTokens.Any())
+            {
+                _context.RefreshTokens.RemoveRange(oldTokens);
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
             var accessToken = _tokenService.GenerateAccessToken(user, roles);
             var refreshTokenString = _tokenService.GenerateRefreshToken();
