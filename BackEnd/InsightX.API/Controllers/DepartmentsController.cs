@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsightX.API.Controllers
 {
     [ApiController]
-    [Route("departments")]
+    [Route("api/[controller]")]
     public class DepartmentsController : ControllerBase
     {
         private readonly IDepartmentService _departmentService;

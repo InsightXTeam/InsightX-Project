@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsightX.API.Controllers
 {
     [ApiController]
-    [Route("users")]
+    [Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;

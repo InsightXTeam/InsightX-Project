@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace InsightX.API.Controllers
 {
     [ApiController]
-    [Route("kpis")]
+    [Route("api/[controller]")]
     public class KpisController : ControllerBase
     {
         private readonly IKpiService _kpiService;
