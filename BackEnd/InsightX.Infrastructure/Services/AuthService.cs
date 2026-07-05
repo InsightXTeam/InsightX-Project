@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -10,6 +6,7 @@ using InsightX.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
 
 namespace InsightX.Infrastructure.Services
 {
@@ -45,14 +42,14 @@ namespace InsightX.Infrastructure.Services
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                
+
                 var existingUser = await _userManager.FindByEmailAsync(dto.Email);
                 if (existingUser != null)
                 {
                     return ServiceResult<object>.Fail(400, "Email already registered.");
                 }
 
-                
+
                 var company = new Company
                 {
                     Name = dto.CompanyName,
@@ -118,7 +115,7 @@ namespace InsightX.Infrastructure.Services
             var expiryDays = _jwtOptions.Value.RefreshTokenExpiryDays;
             var refreshTokenEntity = new RefreshToken
             {
-                Token = refreshTokenString,
+                Token = TokenHasher.Hash(refreshTokenString),
                 UserId = user.Id,
                 ExpiresAt = DateTime.UtcNow.AddDays(expiryDays),
                 IsRevoked = false
@@ -153,8 +150,9 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<AuthResponseDto>.Fail(400, "Invalid claims.");
             }
 
+            var hashedToken = TokenHasher.Hash(dto.RefreshToken);
             var stored = await _context.RefreshTokens
-                .FirstOrDefaultAsync(r => r.Token == dto.RefreshToken
+                .FirstOrDefaultAsync(r => r.Token == hashedToken
                     && r.UserId == userId
                     && !r.IsRevoked
                     && r.ExpiresAt > DateTime.UtcNow);
@@ -179,7 +177,7 @@ namespace InsightX.Infrastructure.Services
             var expiryDays = _jwtOptions.Value.RefreshTokenExpiryDays;
             var newRefreshTokenEntity = new RefreshToken
             {
-                Token = newRefreshTokenString,
+                Token = TokenHasher.Hash(newRefreshTokenString),
                 UserId = user.Id,
                 ExpiresAt = DateTime.UtcNow.AddDays(expiryDays),
                 IsRevoked = false
