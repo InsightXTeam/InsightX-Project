@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using InsightX.API.Middleware;
 using InsightX.Domain.Entities;
 using InsightX.Infrastructure;
@@ -57,6 +58,17 @@ namespace InsightX.API
             builder.Services.AddAuthorization();
 
 
+
+            builder.Services.AddApiVersioning(options =>
+            {
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.ReportApiVersions = true;
+            }).AddMvc().AddApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VVV";
+                options.SubstituteApiVersionInUrl = true;
+            });
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
