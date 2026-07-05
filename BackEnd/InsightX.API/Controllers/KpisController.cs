@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using InsightX.Application.DTOs;
 using InsightX.Application.Extensions;
 using InsightX.Application.Interfaces;
@@ -51,7 +50,7 @@ namespace InsightX.API.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateKpiDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateKpiDto dto)
         {
             var companyId = User.GetCompanyId();
             var result = await _kpiService.UpdateAsync(id, dto, companyId);

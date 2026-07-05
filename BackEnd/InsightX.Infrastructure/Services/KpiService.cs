@@ -68,7 +68,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<List<KpiResponseDto>>.Success(kpis);
         }
 
-        public async Task<ServiceResult<KpiResponseDto>> UpdateAsync(int id, CreateKpiDto dto, int companyId)
+        public async Task<ServiceResult<KpiResponseDto>> UpdateAsync(int id, UpdateKpiDto dto, int companyId)
         {
             var kpi = await _context.KPIs
                 .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId);
