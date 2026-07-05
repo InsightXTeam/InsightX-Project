@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -44,11 +41,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult> SetupAsync(SetupDto dto, int companyId)
         {
-            if (dto == null || dto.KPIs == null)
-            {
-                return ServiceResult.Fail(400, "Invalid KPIs request.");
-            }
-
             var existing = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
                 .ToListAsync();

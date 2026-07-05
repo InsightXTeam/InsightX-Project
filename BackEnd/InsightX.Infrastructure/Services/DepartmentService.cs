@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -22,11 +18,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<DepartmentResponseDto>> CreateAsync(CreateDepartmentDto dto, int companyId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return ServiceResult<DepartmentResponseDto>.Fail(400, "Invalid department name.");
-            }
-
             var exists = await _context.Departments
                 .AnyAsync(d => d.CompanyId == companyId && d.Name.ToLower() == dto.Name.ToLower());
 
@@ -100,11 +91,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, UpdateDepartmentDto dto, int companyId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
-            {
-                return ServiceResult<DepartmentResponseDto>.Fail(400, "Invalid department name.");
-            }
-
             var dept = await _context.Departments
                 .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
 

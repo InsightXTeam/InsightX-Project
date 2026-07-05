@@ -1,6 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace InsightX.Application.DTOs
 {
-    public record InviteUserDto(string Name, string Email, string Password, int DepartmentId);
+    public record InviteUserDto(
+        [Required, MaxLength(100)] string Name,
+        [Required, EmailAddress] string Email,
+        [Required, MinLength(8)] string Password,
+        [Required, Range(1, int.MaxValue, ErrorMessage = "A valid department is required.")] int DepartmentId
+    );
     public record UserResponseDto(string Id, string Name, string Email, string Role, int? DepartmentId, string? DepartmentName);
     public record OwnerManagementDto(
         string UserId,
@@ -9,9 +16,12 @@ namespace InsightX.Application.DTOs
         bool IsActivated,
         int CompanyId,
         string CompanyName,
-        System.DateTime CompanyCreatedAt
+        DateTime CompanyCreatedAt
     );
 
-    public record ChangePasswordDto(string CurrentPassword, string NewPassword);
+    public record ChangePasswordDto(
+        [Required] string CurrentPassword,
+        [Required, MinLength(8)] string NewPassword
+    );
     public record UpdateUserDepartmentDto(int? DepartmentId);
 }

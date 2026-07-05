@@ -26,11 +26,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult> InviteAsync(InviteUserDto dto, int companyId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
-            {
-                return ServiceResult.Fail(400, "Invalid invitation data.");
-            }
-
             var dept = await _context.Departments
                 .FirstOrDefaultAsync(d => d.Id == dto.DepartmentId && d.CompanyId == companyId);
 
@@ -199,7 +194,7 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto)
         {
-            if (string.IsNullOrEmpty(userId) || dto == null || string.IsNullOrWhiteSpace(dto.CurrentPassword) || string.IsNullOrWhiteSpace(dto.NewPassword))
+            if (string.IsNullOrEmpty(userId))
             {
                 return ServiceResult.Fail(400, "Invalid change password request.");
             }

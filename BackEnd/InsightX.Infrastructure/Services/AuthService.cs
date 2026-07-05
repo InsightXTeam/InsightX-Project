@@ -34,11 +34,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<object>> RegisterAsync(RegisterDto dto)
         {
-            if (dto == null)
-            {
-                return ServiceResult<object>.Fail(400, "Invalid request.");
-            }
-
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
@@ -92,11 +87,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<AuthResponseDto>> LoginAsync(LoginDto dto)
         {
-            if (dto == null)
-            {
-                return ServiceResult<AuthResponseDto>.Fail(400, "Invalid request.");
-            }
-
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
             {
@@ -129,11 +119,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<AuthResponseDto>> RefreshAsync(RefreshDto dto)
         {
-            if (dto == null)
-            {
-                return ServiceResult<AuthResponseDto>.Fail(400, "Invalid request.");
-            }
-
             ClaimsPrincipal principal;
             try
             {

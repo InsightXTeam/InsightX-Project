@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -22,11 +18,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<KpiResponseDto>> CreateAsync(CreateKpiDto dto, int companyId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
-            {
-                return ServiceResult<KpiResponseDto>.Fail(400, "Invalid KPI name or unit.");
-            }
-
             var exists = await _context.KPIs
                 .AnyAsync(k => k.CompanyId == companyId && k.Name.ToLower() == dto.Name.ToLower());
 
@@ -79,11 +70,6 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult<KpiResponseDto>> UpdateAsync(int id, CreateKpiDto dto, int companyId)
         {
-            if (dto == null || string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Unit))
-            {
-                return ServiceResult<KpiResponseDto>.Fail(400, "Invalid KPI name or unit.");
-            }
-
             var kpi = await _context.KPIs
                 .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId);
 
