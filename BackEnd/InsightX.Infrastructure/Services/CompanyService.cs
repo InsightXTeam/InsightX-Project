@@ -42,24 +42,40 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<ServiceResult> SetupAsync(SetupDto dto, int companyId, CancellationToken cancellationToken = default)
         {
-            var existing = await _context.KPIs
+            var existingKpis = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
                 .ToListAsync(cancellationToken);
 
-            _context.KPIs.RemoveRange(existing);
+            var newNames = dto.KPIs.Select(k => k.Name).ToList();
 
-            var newKpis = dto.KPIs.Select(k => new KPI
+            var toRemove = existingKpis.Where(k => !newNames.Contains(k.Name)).ToList();
+            _context.KPIs.RemoveRange(toRemove);
+
+            foreach (var kpiDto in dto.KPIs)
             {
-                Name = k.Name,
-                Threshold = k.Threshold,
-                Unit = k.Unit,
-                AlertPercentageDiff = k.AlertPercentageDiff,
-                TrendMonthsCount = k.TrendMonthsCount,
-                ThresholdDirection = k.ThresholdDirection,
-                CompanyId = companyId
-            }).ToList();
-
-            await _context.KPIs.AddRangeAsync(newKpis, cancellationToken);
+                var existingKpi = existingKpis.FirstOrDefault(k => k.Name == kpiDto.Name);
+                if (existingKpi != null)
+                {
+                    existingKpi.Threshold = kpiDto.Threshold;
+                    existingKpi.Unit = kpiDto.Unit;
+                    existingKpi.AlertPercentageDiff = kpiDto.AlertPercentageDiff;
+                    existingKpi.TrendMonthsCount = kpiDto.TrendMonthsCount;
+                    existingKpi.ThresholdDirection = kpiDto.ThresholdDirection;
+                }
+                else
+                {
+                    _context.KPIs.Add(new KPI
+                    {
+                        Name = kpiDto.Name,
+                        Threshold = kpiDto.Threshold,
+                        Unit = kpiDto.Unit,
+                        AlertPercentageDiff = kpiDto.AlertPercentageDiff,
+                        TrendMonthsCount = kpiDto.TrendMonthsCount,
+                        ThresholdDirection = kpiDto.ThresholdDirection,
+                        CompanyId = companyId
+                    });
+                }
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
 
