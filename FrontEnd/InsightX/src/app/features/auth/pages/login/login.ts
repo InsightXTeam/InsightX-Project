@@ -2,11 +2,10 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
-import { environment } from '../../../../../environments/environment';
 import { ToastService } from '../../../../core/services/toast.service';
+import { CompanyService } from '../../../../core/services/company.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +18,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly http = inject(HttpClient);
+  private readonly companyService = inject(CompanyService);
   private readonly toastService = inject(ToastService);
 
   // States
@@ -81,7 +80,7 @@ export class LoginComponent {
           this.router.navigate(['/users/owners']);
         } else if (user.role === 'Owner') {
           // If Owner, check if company setup / onboarding is already completed
-          this.http.get<any>(`${environment.apiBaseUrl}/companies/me`).pipe(
+          this.companyService.getCompanyMe().pipe(
             catchError((err) => {
               // If fetching company fails, just proceed to onboarding as fallback
               return of(null);

@@ -1,17 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { AdminService, OwnerResponse } from '../../core/services/admin.service';
+import { extractErrorMessage } from '../../shared/utils/error.utils';
 
-interface OwnerResponse {
-  userId: string;
-  ownerName: string;
-  ownerEmail: string;
-  isActivated: boolean;
-  companyId: number;
-  companyName: string;
-  companyCreatedAt: string;
-}
+
 
 @Component({
   selector: 'app-owners-list',
@@ -21,7 +13,7 @@ interface OwnerResponse {
   styleUrl: './owners-list.css'
 })
 export class OwnersListComponent implements OnInit {
-  private readonly http = inject(HttpClient);
+  private readonly adminService = inject(AdminService);
 
   readonly owners = signal<OwnerResponse[]>([]);
   readonly isLoading = signal(false);
@@ -35,44 +27,41 @@ export class OwnersListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<OwnerResponse[]>(`${environment.apiBaseUrl}/users/owners`).subscribe({
+    this.adminService.getOwners().subscribe({
       next: (data) => {
         this.owners.set(data || []);
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to fetch platform company owners.'));
+        this.error.set(extractErrorMessage(err, 'Failed to fetch platform company owners.'));
       }
     });
   }
 
   toggleActivation(owner: OwnerResponse): void {
     this.isLoading.set(true);
-    const action = owner.isActivated ? 'deactivate' : 'activate';
-    
-    this.http.post(`${environment.apiBaseUrl}/users/${owner.userId}/${action}`, {}).subscribe({
+    const isActivate = !owner.isActivated;
+    const action = isActivate ? 'activate' : 'deactivate';
+
+    const request = isActivate
+      ? this.adminService.activateOwner(owner.userId)
+      : this.adminService.deactivateOwner(owner.userId);
+
+    request.subscribe({
       next: () => {
         // Toggle the state in local list
-        this.owners.update(list => 
+        this.owners.update(list =>
           list.map(o => o.userId === owner.userId ? { ...o, isActivated: !o.isActivated } : o)
         );
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, `Failed to ${action} owner account.`));
+        this.error.set(extractErrorMessage(err, `Failed to ${action} owner account.`));
       }
     });
   }
 
-  private extractErrorMessage(err: any, fallback: string): string {
-    const body = err?.error;
-    if (typeof body === 'string' && body.trim()) return body;
-    if (body && typeof body === 'object') {
-      return body.error || body.Error || body.message || body.title || fallback;
-    }
-    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
-    return fallback;
-  }
 }
+

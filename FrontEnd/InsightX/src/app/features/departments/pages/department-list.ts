@@ -1,19 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { DepartmentService, DepartmentResponse } from '../../../core/services/department.service';
+import { UserService } from '../../../core/services/user.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
 import { ToastService } from '../../../core/services/toast.service';
+import { extractErrorMessage } from '../../../shared/utils/error.utils';
 
-export interface DepartmentResponse {
-  id: number;
-  name: string;
-  companyId: number;
-  managerName?: string | null;
-  managerId?: string | null;
-}
 
 @Component({
   selector: 'app-department-list',
@@ -23,10 +16,10 @@ export interface DepartmentResponse {
   styleUrl: './department-list.css'
 })
 export class DepartmentListComponent implements OnInit {
-  private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly departmentService = inject(DepartmentService);
+  private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
-  private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly departments = signal<DepartmentResponse[]>([]);
@@ -54,7 +47,7 @@ export class DepartmentListComponent implements OnInit {
   }
 
   loadManagers(): void {
-    this.http.get<any[]>(`${this.apiBase}/users`).subscribe({
+    this.userService.getUsers().subscribe({
       next: (users) => {
         const mgrs = (users || [])
           .filter(u => u.role === 'Manager')
@@ -73,14 +66,14 @@ export class DepartmentListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<DepartmentResponse[]>(`${this.apiBase}/departments`).subscribe({
+    this.departmentService.getDepartments().subscribe({
       next: (data) => {
         this.departments.set(data || []);
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to load company departments. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to load company departments. Please try again.'));
       }
     });
   }
@@ -98,7 +91,7 @@ export class DepartmentListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.post<DepartmentResponse>(`${this.apiBase}/departments`, { name: trimmed }).subscribe({
+    this.departmentService.createDepartment(trimmed).subscribe({
       next: (newDept) => {
         // Append newly created department to local array
         this.departments.update(list => [...list, newDept]);
@@ -109,7 +102,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to create department. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to create department. Please try again.'));
       }
     });
   }
@@ -139,7 +132,7 @@ export class DepartmentListComponent implements OnInit {
       managerId: this.editDeptManagerId || null
     };
 
-    this.http.put<DepartmentResponse>(`${this.apiBase}/departments/${id}`, payload).subscribe({
+    this.departmentService.updateDepartment(id, payload).subscribe({
       next: (updatedDept) => {
         this.loadDepartments(); // Reload departments to reflect reassignment on other departments
         this.loadManagers(); // Reload managers list as their department associations might change
@@ -147,7 +140,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to update department. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to update department. Please try again.'));
       }
     });
   }
@@ -165,7 +158,7 @@ export class DepartmentListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.delete(`${this.apiBase}/departments/${id}`).subscribe({
+    this.departmentService.deleteDepartment(id).subscribe({
       next: () => {
         this.departments.update(list => list.filter(d => d.id !== id));
         this.isLoading.set(false);
@@ -173,7 +166,7 @@ export class DepartmentListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to delete department. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to delete department. Please try again.'));
       }
     });
   }
@@ -183,13 +176,5 @@ export class DepartmentListComponent implements OnInit {
     this.deptToDeleteId = null;
   }
 
-  private extractErrorMessage(err: any, fallback: string): string {
-    const body = err?.error;
-    if (typeof body === 'string' && body.trim()) return body;
-    if (body && typeof body === 'object') {
-      return body.error || body.Error || body.message || body.title || fallback;
-    }
-    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
-    return fallback;
-  }
 }
+

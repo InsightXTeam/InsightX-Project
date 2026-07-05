@@ -1,22 +1,12 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { KpiService, KpiResponse } from '../../../core/services/kpi.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
 import { ToastService } from '../../../core/services/toast.service';
+import { extractErrorMessage } from '../../../shared/utils/error.utils';
 
-export interface KpiResponse {
-  id: number;
-  name: string;
-  threshold: number;
-  unit: string;
-  companyId: number;
-  alertPercentageDiff: number;
-  trendMonthsCount: number;
-  thresholdDirection: number;
-}
+
 
 @Component({
   selector: 'app-kpi-list',
@@ -26,10 +16,9 @@ export interface KpiResponse {
   styleUrl: './kpi-list.css'
 })
 export class KpiListComponent implements OnInit {
-  private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly kpiService = inject(KpiService);
   private readonly toastService = inject(ToastService);
-  private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly kpis = signal<KpiResponse[]>([]);
@@ -67,14 +56,14 @@ export class KpiListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<KpiResponse[]>(`${this.apiBase}/kpis`).subscribe({
+    this.kpiService.getKpis().subscribe({
       next: (data) => {
         this.kpis.set(data || []);
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to load company KPIs. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to load company KPIs. Please try again.'));
       }
     });
   }
@@ -105,7 +94,7 @@ export class KpiListComponent implements OnInit {
 
     const payload = { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection };
 
-    this.http.post<KpiResponse>(`${this.apiBase}/kpis`, payload).subscribe({
+    this.kpiService.createKpi(payload).subscribe({
       next: (newKpi) => {
         this.kpis.update(list => [...list, newKpi]);
         this.toggleForm();
@@ -114,7 +103,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to create KPI. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to create KPI. Please try again.'));
       }
     });
   }
@@ -155,7 +144,7 @@ export class KpiListComponent implements OnInit {
 
     const payload = { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection };
 
-    this.http.put<KpiResponse>(`${this.apiBase}/kpis/${id}`, payload).subscribe({
+    this.kpiService.updateKpi(id, payload).subscribe({
       next: (updatedKpi) => {
         this.kpis.update(list => list.map(k => k.id === id ? updatedKpi : k));
         this.cancelEdit();
@@ -163,7 +152,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to update KPI. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to update KPI. Please try again.'));
       }
     });
   }
@@ -181,7 +170,7 @@ export class KpiListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.delete(`${this.apiBase}/kpis/${id}`).subscribe({
+    this.kpiService.deleteKpi(id).subscribe({
       next: () => {
         this.kpis.update(list => list.filter(k => k.id !== id));
         this.isLoading.set(false);
@@ -189,7 +178,7 @@ export class KpiListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to delete KPI. Please try again.'));
+        this.error.set(extractErrorMessage(err, 'Failed to delete KPI. Please try again.'));
       }
     });
   }
@@ -199,13 +188,5 @@ export class KpiListComponent implements OnInit {
     this.kpiToDeleteId = null;
   }
 
-  private extractErrorMessage(err: any, fallback: string): string {
-    const body = err?.error;
-    if (typeof body === 'string' && body.trim()) return body;
-    if (body && typeof body === 'object') {
-      return body.error || body.Error || body.message || body.title || fallback;
-    }
-    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
-    return fallback;
-  }
 }
+

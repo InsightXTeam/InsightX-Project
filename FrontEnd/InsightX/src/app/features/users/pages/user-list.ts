@@ -1,20 +1,13 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { UserService, UserResponse } from '../../../core/services/user.service';
+import { DepartmentService } from '../../../core/services/department.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
 import { ToastService } from '../../../core/services/toast.service';
+import { extractErrorMessage } from '../../../shared/utils/error.utils';
 
-interface UserResponse {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  departmentId: number | null;
-  departmentName: string | null;
-}
+
 
 interface Department {
   id: number;
@@ -31,10 +24,10 @@ interface Department {
   styleUrl: './user-list.css'
 })
 export class UserListComponent implements OnInit {
-  private readonly http = inject(HttpClient);
   private readonly authService = inject(AuthService);
+  private readonly userService = inject(UserService);
+  private readonly departmentService = inject(DepartmentService);
   private readonly toastService = inject(ToastService);
-  private readonly apiBase = environment.apiBaseUrl;
 
   // Signals
   readonly users = signal<UserResponse[]>([]);
@@ -64,20 +57,20 @@ export class UserListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.get<UserResponse[]>(`${this.apiBase}/users`).subscribe({
+    this.userService.getUsers().subscribe({
       next: (data) => {
         this.users.set(data || []);
         this.isLoading.set(false);
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to fetch team members.'));
+        this.error.set(extractErrorMessage(err, 'Failed to fetch team members.'));
       }
     });
   }
 
   loadDepartments(): void {
-    this.http.get<Department[]>(`${this.apiBase}/departments`).subscribe({
+    this.departmentService.getDepartments().subscribe({
       next: (data) => {
         this.departments.set(data || []);
       }
@@ -104,7 +97,7 @@ export class UserListComponent implements OnInit {
       departmentId: Number(departmentId)
     };
 
-    this.http.post(`${this.apiBase}/users/invite`, payload).subscribe({
+    this.userService.inviteManager(payload).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.showForm.set(false);
@@ -114,7 +107,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to invite manager. Make sure the email is not already in use.'));
+        this.error.set(extractErrorMessage(err, 'Failed to invite manager. Make sure the email is not already in use.'));
       }
     });
   }
@@ -132,7 +125,7 @@ export class UserListComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.http.delete(`${this.apiBase}/users/${id}`).subscribe({
+    this.userService.deleteUser(id).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.toastService.show('Manager deleted successfully');
@@ -140,7 +133,7 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to delete manager.'));
+        this.error.set(extractErrorMessage(err, 'Failed to delete manager.'));
       }
     });
   }
@@ -167,7 +160,7 @@ export class UserListComponent implements OnInit {
       departmentId: this.editUserDeptId === 0 ? null : Number(this.editUserDeptId)
     };
 
-    this.http.put(`${this.apiBase}/users/${user.id}/department`, payload).subscribe({
+    this.userService.updateUserDepartment(user.id, payload.departmentId).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.editingUserId.set(null);
@@ -175,18 +168,10 @@ export class UserListComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.error.set(this.extractErrorMessage(err, 'Failed to update manager department.'));
+        this.error.set(extractErrorMessage(err, 'Failed to update manager department.'));
       }
     });
   }
 
-  private extractErrorMessage(err: any, fallback: string): string {
-    const body = err?.error;
-    if (typeof body === 'string' && body.trim()) return body;
-    if (body && typeof body === 'object') {
-      return body.error || body.Error || body.message || body.title || fallback;
-    }
-    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
-    return fallback;
-  }
 }
+

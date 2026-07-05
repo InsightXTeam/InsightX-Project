@@ -2,10 +2,12 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { environment } from '../../../../../environments/environment';
+import { extractErrorMessage } from '../../../../shared/utils/error.utils';
+import { UserService } from '../../../../core/services/user.service';
+import { DepartmentService } from '../../../../core/services/department.service';
+import { CompanyService } from '../../../../core/services/company.service';
 
 interface KpiItem {
   name: string;
@@ -37,9 +39,10 @@ interface ManagerItem {
   styleUrl: './onboarding.css'
 })
 export class OnboardingComponent {
-  private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly apiBase = environment.apiBaseUrl;
+  private readonly userService = inject(UserService);
+  private readonly departmentService = inject(DepartmentService);
+  private readonly companyService = inject(CompanyService);
 
   // Stepper state
   readonly currentStep = signal(1);
@@ -57,7 +60,7 @@ export class OnboardingComponent {
   newManager = { name: '', email: '', password: '', departmentId: 0 };
 
   // Computed departments that have been successfully created in the backend (i.e. possess database IDs)
-  readonly createdDepartments = computed(() => 
+  readonly createdDepartments = computed(() =>
     this.departments().filter(d => d.id !== undefined && d.id !== null)
   );
 
@@ -71,7 +74,7 @@ export class OnboardingComponent {
 
   addKpi(): void {
     if (!this.newKpi.name.trim() || this.newKpi.threshold === null || this.newKpi.alertPercentageDiff === null || this.newKpi.trendMonthsCount === null) return;
-    
+
     const exists = this.kpis().some(k => k.name.toLowerCase() === this.newKpi.name.trim().toLowerCase());
     if (!exists) {
       this.kpis.update(list => [...list, {
@@ -83,7 +86,7 @@ export class OnboardingComponent {
         thresholdDirection: Number(this.newKpi.thresholdDirection)
       }]);
     }
-    
+
     // Clear inputs
     this.newKpi = { name: '', threshold: null, unit: '%', alertPercentageDiff: null, trendMonthsCount: null, thresholdDirection: 1 };
   }
@@ -135,7 +138,7 @@ export class OnboardingComponent {
       departmentId: Number(departmentId)
     };
 
-    this.http.post(`${this.apiBase}/users/invite`, payload).subscribe({
+    this.userService.inviteManager(payload).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.managers.update(list => [...list, {
@@ -150,7 +153,7 @@ export class OnboardingComponent {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(this.extractErrorMessage(err, 'Failed to invite manager. Make sure the email is unique.'));
+        this.errorMessage.set(extractErrorMessage(err, 'Failed to invite manager. Make sure the email is unique.'));
       }
     });
   }
@@ -198,21 +201,21 @@ export class OnboardingComponent {
       }))
     };
 
-    this.http.put(`${this.apiBase}/companies/setup`, payload).subscribe({
+    this.companyService.setupCompany(payload.kpis).subscribe({
       next: () => {
         this.isSubmitting.set(false);
         this.currentStep.set(2);
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(this.extractErrorMessage(err, 'Failed to configure company KPIs. Please try again.'));
+        this.errorMessage.set(extractErrorMessage(err, 'Failed to configure company KPIs. Please try again.'));
       }
     });
   }
 
   private submitDepartments(): void {
     const pendingDepts = this.departments().filter(d => !d.id);
-        
+
     if (pendingDepts.length === 0) {
       if (this.createdDepartments().length > 0) {
         this.currentStep.set(3);
@@ -225,11 +228,11 @@ export class OnboardingComponent {
     this.isSubmitting.set(true);
 
     // Call POST /departments for each department sequentially or concurrently
-    const calls: Observable<any>[] = pendingDepts.map(dept => 
-      this.http.post<any>(`${this.apiBase}/departments`, { name: dept.name }).pipe(
+    const calls: Observable<any>[] = pendingDepts.map(dept =>
+      this.departmentService.createDepartment(dept.name).pipe(
         tap(res => {
           // Update the department in local state with the returned ID
-          this.departments.update(list => 
+          this.departments.update(list =>
             list.map(d => d.name === dept.name ? { ...d, id: res.id } : d)
           );
         }),
@@ -263,13 +266,5 @@ export class OnboardingComponent {
     this.router.navigate(['/departments']);
   }
 
-  private extractErrorMessage(err: any, fallback: string): string {
-    const body = err?.error;
-    if (typeof body === 'string' && body.trim()) return body;
-    if (body && typeof body === 'object') {
-      return body.error || body.Error || body.message || body.title || fallback;
-    }
-    if (err?.status === 0) return 'Unable to reach the server. Please check your connection and try again.';
-    return fallback;
-  }
 }
+

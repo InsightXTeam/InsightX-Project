@@ -1,9 +1,8 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
@@ -24,9 +23,8 @@ const passwordMatchValidator: ValidatorFn = (control: AbstractControl): Validati
 export class ProfileComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
-  private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
   private readonly toastService = inject(ToastService);
-  private readonly apiBase = environment.apiBaseUrl;
 
   // Status Signals
   readonly isLoading = signal(false);
@@ -99,7 +97,7 @@ export class ProfileComponent {
       newPassword: this.passwordForm.value.newPassword
     };
 
-    this.http.post(`${this.apiBase}/users/change-password`, payload).subscribe({
+    this.userService.changePassword(payload).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.successMessage.set('Password updated successfully.');
