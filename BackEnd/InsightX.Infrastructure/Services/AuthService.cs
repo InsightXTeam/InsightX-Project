@@ -124,7 +124,7 @@ namespace InsightX.Infrastructure.Services
             _context.RefreshTokens.Add(refreshTokenEntity);
             await _context.SaveChangesAsync();
 
-            return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(accessToken, refreshTokenString));
+            return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(accessToken, refreshTokenString, user.MustChangePassword));
         }
 
         public async Task<ServiceResult<AuthResponseDto>> RefreshAsync(RefreshDto dto)
@@ -186,7 +186,7 @@ namespace InsightX.Infrastructure.Services
             _context.RefreshTokens.Add(newRefreshTokenEntity);
             await _context.SaveChangesAsync();
 
-            return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(newAccessToken, newRefreshTokenString));
+            return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(newAccessToken, newRefreshTokenString, false));
         }
 
         public async Task<ServiceResult> LogoutAsync(string userId)

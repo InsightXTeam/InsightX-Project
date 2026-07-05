@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, of } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
 import { environment } from '../../../../../environments/environment';
+import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -19,6 +20,7 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly toastService = inject(ToastService);
 
   // States
   readonly isLoading = signal(false);
@@ -68,7 +70,12 @@ export class LoginComponent {
           this.errorMessage.set('An error occurred during authentication.');
           return;
         }
-
+        if (response.mustChangePassword) {
+          this.isLoading.set(false);
+          this.router.navigate(['/profile']);
+          this.toastService.show('Please change your password for security reasons');
+          return;
+        }
         // Smart Redirect based on Role
         if (user.role === 'sadmin') {
           this.router.navigate(['/users/owners']);

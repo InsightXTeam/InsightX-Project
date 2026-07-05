@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -55,7 +52,8 @@ namespace InsightX.Infrastructure.Services
                 Name = dto.Name,
                 CompanyId = companyId,
                 DepartmentId = dto.DepartmentId,
-                IsActivated = true
+                IsActivated = true,
+                MustChangePassword = true
             };
 
             var result = await _userManager.CreateAsync(user, dto.Password);
@@ -218,7 +216,11 @@ namespace InsightX.Infrastructure.Services
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
                 return ServiceResult.Fail(400, errors);
             }
-
+            if (user.MustChangePassword)
+            {
+                user.MustChangePassword = false;
+                await _userManager.UpdateAsync(user);
+            }
             return ServiceResult.Success();
         }
 

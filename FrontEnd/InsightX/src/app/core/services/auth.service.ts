@@ -7,7 +7,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  
+
   role: 'sadmin' | 'Owner' | 'Manager' | string;
   companyId: number;
   departmentId: number | null;
@@ -16,6 +16,7 @@ export interface User {
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
+  mustChangePassword: boolean;
 }
 
 @Injectable({
@@ -92,7 +93,7 @@ export class AuthService {
       this.http.post(`${this.apiBase}/auth/logout`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       }).subscribe({
-        error: () => {} // Silent catch
+        error: () => { } // Silent catch
       });
     }
   }
@@ -103,7 +104,7 @@ export class AuthService {
     if (email) {
       localStorage.setItem('insightx_user_email', email);
     }
-    
+
     const user = this.decodeToken(response.accessToken, email);
     this.currentUser.set(user);
   }
@@ -125,7 +126,7 @@ export class AuthService {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return null;
-      
+
       const payload = parts[1];
       let base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
       while (base64.length % 4) {
@@ -139,7 +140,7 @@ export class AuthService {
       const role = claims['role'] || claims['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       const companyId = parseInt(claims['CompanyId'], 10);
       const name = claims['name'] || claims['unique_name'] || claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] || email.split('@')[0] || '';
-      
+
       let departmentId: number | null = null;
       if (claims['DepartmentId']) {
         const parsedDept = parseInt(claims['DepartmentId'], 10);
