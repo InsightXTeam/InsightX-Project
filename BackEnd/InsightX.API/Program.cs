@@ -1,5 +1,3 @@
-
-using System.Text;
 using InsightX.API.Middleware;
 using InsightX.Domain.Entities;
 using InsightX.Infrastructure;
@@ -8,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 namespace InsightX.API
@@ -57,16 +56,7 @@ namespace InsightX.API
 
             builder.Services.AddAuthorization();
 
-            builder.Services.AddCors(options =>
-            {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy.SetIsOriginAllowed(origin => true)
-                          .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials();
-                });
-            });
+
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -132,7 +122,6 @@ namespace InsightX.API
 
             app.UseHttpsRedirection();
 
-            app.UseCors("AllowAll");
 
             app.UseAuthentication();
             app.UseAuthorization();

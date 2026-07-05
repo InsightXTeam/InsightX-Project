@@ -1,8 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using InsightX.Application.Interfaces;
 using InsightX.Application.Common;
+using InsightX.Application.Interfaces;
+using InsightX.Infrastructure.Configuration;
 using InsightX.Infrastructure.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace InsightX.Infrastructure
 {
@@ -10,6 +11,23 @@ namespace InsightX.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var corsSettings = configuration
+                .GetSection(CorsSettings.SectionName)
+                .Get<CorsSettings>()!;
+
+            services.Configure<CorsSettings>(configuration.GetSection(CorsSettings.SectionName));
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsSettings.SectionName, policy =>
+                {
+                    policy
+                    .WithOrigins(corsSettings.AllowedOrigins.ToArray())
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
+
             services.AddScoped<ITokenService, TokenService>();
             services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
             services.AddScoped<IAuthService, AuthService>();
