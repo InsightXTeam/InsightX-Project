@@ -1,10 +1,16 @@
-﻿using InsightX.Application.Interfaces;
-using Tesseract;
+﻿using System.IO;
+using InsightX.Application.Interfaces;
 
 namespace InsightX.Infrastructure.DocumentReaders.Image
 {
     public class ImageReader : IDocumentReader
     {
+        private readonly IAIExtractionService _aiExtractionService;
+
+        public ImageReader(IAIExtractionService aiExtractionService)
+        {
+            _aiExtractionService = aiExtractionService;
+        }
         public bool CanRead(string extension)
         {
             return extension.Equals(".png", StringComparison.OrdinalIgnoreCase)
@@ -14,32 +20,15 @@ namespace InsightX.Infrastructure.DocumentReaders.Image
 
         public async Task<string> ExtractTextAsync(string filePath)
         {
-            return await Task.Run(() =>
+            try
             {
-                try
-                {
-                    // مسار ملفات اللغات
-                    string tessPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "tessdata");
-
-                    //EngineMode.LstmOnly افضل
-                    //EngineMode.Default
-
-                    using var engine = new TesseractEngine(tessPath, "eng+ara", EngineMode.Default);
-                    //using var engine = new TesseractEngine(tessPath, "eng+ara", EngineMode.LstmOnly);
-
-                    using var img = Pix.LoadFromFile(filePath);
-
-                    using var page = engine.Process(img);
-
-                    string text = page.GetText();
-
-                    return text?.Trim() ?? string.Empty;
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"OCR Error: {ex.Message}");
-                }
-            });
+                var imageBytes = await File.ReadAllBytesAsync(filePath);
+                return await _aiExtractionService.ExtractTextFromImageAsync(imageBytes, filePath);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"AI image text extraction error: {ex.Message}", ex);
+            }
         }
     }
 }

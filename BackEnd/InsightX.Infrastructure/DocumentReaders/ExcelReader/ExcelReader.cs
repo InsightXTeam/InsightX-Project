@@ -1,5 +1,5 @@
-﻿using InsightX.Application.Interfaces;
-using OfficeOpenXml;
+﻿using ExcelDataReader;
+using InsightX.Application.Interfaces;
 using System.Text;
 
 namespace InsightX.Infrastructure.DocumentReaders
@@ -8,30 +8,38 @@ namespace InsightX.Infrastructure.DocumentReaders
     {
         public bool CanRead(string extension)
         {
-            return extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase);
+            return extension.Equals(".xlsx", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals(".xls", StringComparison.OrdinalIgnoreCase);
+            //     ↑ Now supports both formats
         }
 
         public async Task<string> ExtractTextAsync(string filePath)
         {
-            ExcelPackage.License.SetNonCommercialPersonal("InsightX");
+            // Required for ExcelDataReader to work on non-Windows or .NET Core
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             return await Task.Run(() =>
             {
-                using var package = new ExcelPackage(new FileInfo(filePath));
+                using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read);
+                using var reader = ExcelReaderFactory.CreateReader(stream);
+                // ExcelReaderFactory auto-detects .xls vs .xlsx
 
-                var sheet = package.Workbook.Worksheets[0];
+                var sb = new StringBuilder();
 
-                var text = new StringBuilder();
-
-                for (int row = 1; row <= sheet.Dimension.Rows; row++)
+                do
                 {
-                    for (int col = 1; col <= sheet.Dimension.Columns; col++)
+                    while (reader.Read())
                     {
-                        text.Append(sheet.Cells[row, col].Text + " ");
+                        for (int col = 0; col < reader.FieldCount; col++)
+                        {
+                            sb.Append(reader.GetValue(col)?.ToString() ?? "");
+                            sb.Append(' ');
+                        }
+                        sb.AppendLine();
                     }
-                    text.Append(Environment.NewLine);
-                }
-                return text.ToString();
+                } while (reader.NextResult()); // Handles multiple sheets
+
+                return sb.ToString();
             });
         }
     }

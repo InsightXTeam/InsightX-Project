@@ -14,7 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.AI.Vision.ImageAnalysis" Version="1.0.0" />
     <PackageReference Include="DocumentFormat.OpenXml" Version="3.5.1" />
-    <PackageReference Include="EPPlus" Version="8.6.1" />
+    <PackageReference Include="ExcelDataReader" Version="3.9.0" />
     <PackageReference Include="iTextSharp" Version="5.5.13.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.28" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.28" />
@@ -33,6 +33,38 @@
     <None Update="tessdata\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x86\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x86\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x64\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x64\tesseract50.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x86\leptonica-1.82.0.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="C:\Users\Mohamed_Lotfy\.nuget\packages\tesseract\5.2.0\build\\..\x86\tesseract50.dll" />
   </ItemGroup>
 
 

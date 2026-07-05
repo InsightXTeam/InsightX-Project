@@ -1,13 +1,13 @@
 using InsightX.Application.Interfaces;
 using InsightX.Application.UseCases.Documents;
 using InsightX.Application.UseCases.Reports;
+using InsightX.Infrastructure.AI.Report;
 using InsightX.Infrastructure.DocumentReaders;
 using InsightX.Infrastructure.DocumentReaders.Image;
 using InsightX.Infrastructure.DocumentReaders.WordReader;
 using InsightX.Infrastructure.FileStorage;
 using InsightX.Infrastructure.Persistence;
 using InsightX.Infrastructure.Repositories;
-using InsightX.Infrastructure.AI.Report;
 using Microsoft.EntityFrameworkCore;
 
 namespace InsightX.API
@@ -67,10 +67,10 @@ namespace InsightX.API
             builder.Services.AddScoped<IDocumentReader, PdfDocumentReader>();
             builder.Services.AddScoped<IDocumentReader, ExcelReader>();
             builder.Services.AddScoped<IDocumentProcessor, DocumentProcessorService>();
-            builder.Services.AddScoped<IAIExtractionService, OllamaSemanticKernelService>();
             builder.Services.AddScoped<IExtractedMetricRepository, ExtractedMetricRepository>();
             builder.Services.AddScoped<IDocumentReader, WordReader>();
             builder.Services.AddScoped<IDocumentReader, ImageReader>();
+            builder.Services.AddHttpClient<IAIExtractionService, OllamaSemanticKernelService>();
 
             var app = builder.Build();
 

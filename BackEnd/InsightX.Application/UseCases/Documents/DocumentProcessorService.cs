@@ -19,12 +19,12 @@ namespace InsightX.Application.UseCases.Documents
             _ai = ai;
         }
 
-        public async Task ProcessAsync(int reportId)
+        public async Task ProcessAsync(int reportId, int companyId)
         {
-            var report = await _repository.GetByIdAsync(reportId);
+            var report = await _repository.GetByIdForCompanyAsync(reportId, companyId);
 
             if (report == null)
-                throw new Exception("Report not found");
+                throw new KeyNotFoundException("Report not found");
 
             report.Status = ReportStatus.Processing.ToString();
             await _repository.UpdateAsync(report);
@@ -32,37 +32,31 @@ namespace InsightX.Application.UseCases.Documents
             try
             {
                 var extension = Path.GetExtension(report.FilePath);
-
                 var reader = _readers.FirstOrDefault(x => x.CanRead(extension));
 
                 if (reader == null)
-                {
-                    throw new Exception("No reader found");
-                }
+                    throw new Exception("No reader found for this file type");
 
-                // ONLY extract text here
                 var text = await reader.ExtractTextAsync(report.FilePath);
 
                 report.ExtractedText = text;
-                report.Status = ReportStatus.PendingConfirmation.ToString(); // Waiting for user to review the text
-
+                report.Status = ReportStatus.PendingConfirmation.ToString();
                 await _repository.UpdateAsync(report);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Console.WriteLine($"Error processing document: {ex.Message}");
                 report.Status = ReportStatus.Failed.ToString();
                 await _repository.UpdateAsync(report);
                 throw;
             }
         }
 
-        public async Task ExtractKpisAsync(int reportId)
+        public async Task ExtractKpisAsync(int reportId, int companyId)
         {
-            var report = await _repository.GetByIdAsync(reportId);
+            var report = await _repository.GetByIdForCompanyAsync(reportId, companyId);
 
             if (report == null)
-                throw new Exception("Report not found");
+                throw new KeyNotFoundException("Report not found");
 
             if (string.IsNullOrEmpty(report.ExtractedText))
                 throw new Exception("No text available to extract KPIs from");
@@ -72,12 +66,8 @@ namespace InsightX.Application.UseCases.Documents
 
             try
             {
-                var kpis = new List<string> { "Revenue" }; // fallback since KPI entity is deleted
-
-                // AI runs on the MANAGER CONFIRMED text
+                var kpis = new List<string> { "Revenue" };
                 var metricsJson = await _ai.ExtractMetricsAsync(report.ExtractedText, kpis);
-
-                Console.WriteLine(metricsJson);
 
                 metricsJson = metricsJson.Replace("```json", "").Replace("```", "").Trim();
 
@@ -98,7 +88,7 @@ namespace InsightX.Application.UseCases.Documents
                         Month = x.Month ?? report.UploadedAt.Month,
                         Year = x.Year ?? report.UploadedAt.Year,
                         CompanyId = report.CompanyId,
-                        ConfirmedByManager = true // Implicitly confirmed since manager verified the text
+                        ConfirmedByManager = true
                     }).ToList();
                 }
 
