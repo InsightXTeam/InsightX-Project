@@ -33,7 +33,7 @@ namespace InsightX.Infrastructure.Services
             _jwtOptions = jwtOptions;
         }
 
-        public async Task<ServiceResult<object>> RegisterAsync(RegisterDto dto, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<RegisterResponseDto>> RegisterAsync(RegisterDto dto, CancellationToken cancellationToken = default)
         {
             using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
@@ -42,7 +42,7 @@ namespace InsightX.Infrastructure.Services
                 var existingUser = await _userManager.FindByEmailAsync(dto.Email);
                 if (existingUser != null)
                 {
-                    return ServiceResult<object>.Fail(400, "Email already registered.");
+                    return ServiceResult<RegisterResponseDto>.Fail(400, "Email already registered.");
                 }
 
 
@@ -66,7 +66,7 @@ namespace InsightX.Infrastructure.Services
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    return ServiceResult<object>.Fail(400, errors);
+                    return ServiceResult<RegisterResponseDto>.Fail(400, errors);
                 }
 
                 if (!await _roleManager.RoleExistsAsync("Owner"))
@@ -77,12 +77,12 @@ namespace InsightX.Infrastructure.Services
 
                 await transaction.CommitAsync(cancellationToken);
 
-                return ServiceResult<object>.Success(new { Message = "Registration successful. Please wait for the Super Admin to activate your account." });
+                return ServiceResult<RegisterResponseDto>.Success(new RegisterResponseDto("Registration successful. Please wait for the Super Admin to activate your account."));
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync(cancellationToken);
-                return ServiceResult<object>.Fail(500, $"An error occurred during registration: {ex.Message}");
+                return ServiceResult<RegisterResponseDto>.Fail(500, $"An error occurred during registration: {ex.Message}");
             }
         }
 

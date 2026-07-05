@@ -10,4 +10,5 @@ namespace InsightX.Application.DTOs
     public record LoginDto([Required, EmailAddress] string Email, [Required] string Password);
     public record RefreshDto([Required] string AccessToken, [Required] string RefreshToken);
     public record AuthResponseDto(string AccessToken, string RefreshToken, bool MustChangePassword);
+    public record RegisterResponseDto(string Message);
 }
