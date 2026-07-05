@@ -8,7 +8,7 @@ export interface User {
   email: string;
   name: string;
 
-  role: 'sadmin' | 'Owner' | 'Manager' | string;
+  role: 'SuperAdmin' | 'Owner' | 'Manager' | string;
   companyId: number;
   departmentId: number | null;
 }

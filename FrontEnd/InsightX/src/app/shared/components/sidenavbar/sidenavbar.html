@@ -64,7 +64,7 @@
     
 
     <!-- Profile Link (All Roles) -->
-    @if (role() === 'Owner' || role() === 'Manager' || role() === 'sadmin') {
+    @if (role() === 'Owner' || role() === 'Manager' || role() === 'SuperAdmin') {
       <li class="nav-item">
         <a class="nav-link" routerLink="/profile" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">
@@ -79,7 +79,7 @@
     }
 
     <!-- Super Admin Menu -->
-    @if (role() === 'sadmin') {
+    @if (role() === 'SuperAdmin') {
       <li class="nav-item">
         <a class="nav-link" routerLink="/users/owners" routerLinkActive="active" (click)="linkClicked.emit()">
           <span class="nav-icon">

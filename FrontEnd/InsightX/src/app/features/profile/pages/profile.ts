@@ -54,7 +54,7 @@ export class ProfileComponent {
 
   readonly roleDisplay = computed(() => {
     const r = this.role();
-    if (r === 'sadmin') return 'Super Admin';
+    if (r === 'SuperAdmin') return 'Super Admin';
     return r;
   });
 

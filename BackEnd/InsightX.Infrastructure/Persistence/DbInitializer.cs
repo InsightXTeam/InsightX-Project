@@ -19,7 +19,7 @@ namespace InsightX.Infrastructure.Persistence
                 var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var context = serviceProvider.GetRequiredService<AppDbContext>();
 
-                foreach (var role in new[] { "Owner", "Manager", "sadmin" })
+                foreach (var role in new[] { "Owner", "Manager", "SuperAdmin" })
                 {
                     if (!await roleManager.RoleExistsAsync(role))
                     {
@@ -64,7 +64,7 @@ namespace InsightX.Infrastructure.Persistence
                     var createResult = await userManager.CreateAsync(adminUser, adminPassword);
                     if (createResult.Succeeded)
                     {
-                        await userManager.AddToRoleAsync(adminUser, "sadmin");
+                        await userManager.AddToRoleAsync(adminUser, "SuperAdmin");
                         logger.LogInformation("Created Super Admin user: {Email}", adminEmail);
                     }
                     else

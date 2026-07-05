@@ -22,7 +22,7 @@ export class RootRedirectComponent implements OnInit {
       return;
     }
 
-    if (user.role === 'sadmin') {
+    if (user.role === 'SuperAdmin') {
       this.router.navigate(['/users/owners']);
     } else if (user.role === 'Owner') {
       // Check if owner's company has departments configured yet

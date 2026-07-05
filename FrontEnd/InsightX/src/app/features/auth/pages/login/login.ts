@@ -76,7 +76,7 @@ export class LoginComponent {
           return;
         }
         // Smart Redirect based on Role
-        if (user.role === 'sadmin') {
+        if (user.role === 'SuperAdmin') {
           this.router.navigate(['/users/owners']);
         } else if (user.role === 'Owner') {
           // If Owner, check if company setup / onboarding is already completed

@@ -36,7 +36,7 @@ export const routes: Routes = [
   {
     path: 'users/owners',
     component: OwnersListComponent,
-    canActivate: [isAuthenticatedGuard, roleGuard(['sadmin'])]
+    canActivate: [isAuthenticatedGuard, roleGuard(['SuperAdmin'])]
   },
   {
     path: 'profile',

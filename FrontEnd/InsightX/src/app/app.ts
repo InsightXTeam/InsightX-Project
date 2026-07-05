@@ -34,7 +34,7 @@ export class App {
   readonly roleDisplay = computed(() => {
     const role = this.user()?.role;
     if (!role) return '';
-    if (role.toLowerCase() === 'sadmin') return 'Super Admin';
+    if (role.toLowerCase() === 'superadmin') return 'Super Admin';
     return role;
   });
 

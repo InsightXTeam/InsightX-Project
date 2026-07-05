@@ -42,7 +42,7 @@ namespace InsightX.API.Controllers
         }
 
         [HttpGet("owners")]
-        [Authorize(Roles = "sadmin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> GetOwners(CancellationToken cancellationToken)
         {
             var result = await _userService.GetOwnersForManagementAsync(cancellationToken);
@@ -50,7 +50,7 @@ namespace InsightX.API.Controllers
         }
 
         [HttpPost("{id}/activate")]
-        [Authorize(Roles = "sadmin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Activate(string id, CancellationToken cancellationToken)
         {
             var result = await _userService.SetActivationStatusAsync(id, true, cancellationToken);
@@ -58,7 +58,7 @@ namespace InsightX.API.Controllers
         }
 
         [HttpPost("{id}/deactivate")]
-        [Authorize(Roles = "sadmin")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Deactivate(string id, CancellationToken cancellationToken)
         {
             var result = await _userService.SetActivationStatusAsync(id, false, cancellationToken);
