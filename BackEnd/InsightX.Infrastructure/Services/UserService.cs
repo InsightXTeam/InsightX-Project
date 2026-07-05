@@ -40,6 +40,25 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, "A user with this email already exists.");
             }
 
+            var existingManagers = await _context.Users
+                .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+                .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, RoleName = r.Name })
+                .Where(x => x.u.CompanyId == companyId
+                         && x.u.DepartmentId == dto.DepartmentId
+                         && x.RoleName == "Manager")
+                .Select(x => x.u)
+                .ToListAsync();
+
+            foreach (var manager in existingManagers)
+            {
+                manager.DepartmentId = null;
+            }
+
+            if (existingManagers.Any())
+            {
+                await _context.SaveChangesAsync();
+            }
+
             var user = new ApplicationUser
             {
                 UserName = dto.Email,
