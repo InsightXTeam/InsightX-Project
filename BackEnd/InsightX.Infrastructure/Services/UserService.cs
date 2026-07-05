@@ -1,3 +1,4 @@
+using System.Threading;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -24,10 +25,10 @@ namespace InsightX.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<ServiceResult> InviteAsync(InviteUserDto dto, int companyId)
+        public async Task<ServiceResult> InviteAsync(InviteUserDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var dept = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Id == dto.DepartmentId && d.CompanyId == companyId);
+                .FirstOrDefaultAsync(d => d.Id == dto.DepartmentId && d.CompanyId == companyId, cancellationToken);
 
             if (dept == null)
             {
@@ -47,7 +48,7 @@ namespace InsightX.Infrastructure.Services
                          && x.u.DepartmentId == dto.DepartmentId
                          && x.RoleName == "Manager")
                 .Select(x => x.u)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             foreach (var manager in existingManagers)
             {
@@ -56,7 +57,7 @@ namespace InsightX.Infrastructure.Services
 
             if (existingManagers.Any())
             {
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
 
             var user = new ApplicationUser
@@ -86,7 +87,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult<List<UserResponseDto>>> GetUsersAsync(int companyId, string role, string? departmentIdClaim)
+        public async Task<ServiceResult<List<UserResponseDto>>> GetUsersAsync(int companyId, string role, string? departmentIdClaim, CancellationToken cancellationToken = default)
         {
             IQueryable<ApplicationUser> query = _context.Users
                 .Where(u => u.CompanyId == companyId)
@@ -106,14 +107,14 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<List<UserResponseDto>>.Fail(403, "Forbidden");
             }
 
-            var rawUsers = await query.ToListAsync();
+            var rawUsers = await query.ToListAsync(cancellationToken);
             var userIds = rawUsers.Select(u => u.Id).ToList();
 
             var userRoles = await (from ur in _context.UserRoles
                                    join r in _context.Roles on ur.RoleId equals r.Id
                                    where userIds.Contains(ur.UserId)
                                    select new { ur.UserId, RoleName = r.Name })
-                                  .ToListAsync();
+                                  .ToListAsync(cancellationToken);
 
             var rolesDict = userRoles
                 .GroupBy(ur => ur.UserId)
@@ -131,14 +132,14 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<List<UserResponseDto>>.Success(dtos);
         }
 
-        public async Task<ServiceResult<List<OwnerManagementDto>>> GetOwnersForManagementAsync()
+        public async Task<ServiceResult<List<OwnerManagementDto>>> GetOwnersForManagementAsync(CancellationToken cancellationToken = default)
         {
             var owners = await _userManager.GetUsersInRoleAsync("Owner");
             var companyIds = owners.Select(u => u.CompanyId).Distinct().ToList();
 
             var companies = await _context.Companies
                 .Where(c => companyIds.Contains(c.Id))
-                .ToDictionaryAsync(c => c.Id);
+                .ToDictionaryAsync(c => c.Id, cancellationToken);
 
             var dtos = owners.Select(u => new OwnerManagementDto(
                 u.Id,
@@ -153,7 +154,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<List<OwnerManagementDto>>.Success(dtos);
         }
 
-        public async Task<ServiceResult> SetActivationStatusAsync(string id, bool isActivated)
+        public async Task<ServiceResult> SetActivationStatusAsync(string id, bool isActivated, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -177,7 +178,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult> DeleteManagerAsync(string id, int companyId)
+        public async Task<ServiceResult> DeleteManagerAsync(string id, int companyId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -211,7 +212,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto)
+        public async Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -238,7 +239,7 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult.Success();
         }
 
-        public async Task<ServiceResult> UpdateUserDepartmentAsync(string id, int? departmentId, int companyId)
+        public async Task<ServiceResult> UpdateUserDepartmentAsync(string id, int? departmentId, int companyId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -265,7 +266,7 @@ namespace InsightX.Infrastructure.Services
             if (departmentId.HasValue)
             {
                 var deptExists = await _context.Departments
-                    .AnyAsync(d => d.Id == departmentId.Value && d.CompanyId == companyId);
+                    .AnyAsync(d => d.Id == departmentId.Value && d.CompanyId == companyId, cancellationToken);
 
                 if (!deptExists)
                 {
@@ -278,7 +279,7 @@ namespace InsightX.Infrastructure.Services
                                            join r in _context.Roles on ur.RoleId equals r.Id
                                            where u.CompanyId == companyId && u.DepartmentId == departmentId.Value && u.Id != id && r.Name == "Manager"
                                            select u)
-                                          .ToListAsync();
+                                          .ToListAsync(cancellationToken);
 
                 foreach (var other in otherManagers)
                 {

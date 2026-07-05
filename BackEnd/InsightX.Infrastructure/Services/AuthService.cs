@@ -1,3 +1,4 @@
+using System.Threading;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -32,9 +33,9 @@ namespace InsightX.Infrastructure.Services
             _jwtOptions = jwtOptions;
         }
 
-        public async Task<ServiceResult<object>> RegisterAsync(RegisterDto dto)
+        public async Task<ServiceResult<object>> RegisterAsync(RegisterDto dto, CancellationToken cancellationToken = default)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
             try
             {
 
@@ -51,7 +52,7 @@ namespace InsightX.Infrastructure.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.Companies.Add(company);
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
 
                 var user = new ApplicationUser
                 {
@@ -74,18 +75,18 @@ namespace InsightX.Infrastructure.Services
                 }
                 await _userManager.AddToRoleAsync(user, "Owner");
 
-                await transaction.CommitAsync();
+                await transaction.CommitAsync(cancellationToken);
 
                 return ServiceResult<object>.Success(new { Message = "Registration successful. Please wait for the Super Admin to activate your account." });
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
                 return ServiceResult<object>.Fail(500, $"An error occurred during registration: {ex.Message}");
             }
         }
 
-        public async Task<ServiceResult<AuthResponseDto>> LoginAsync(LoginDto dto)
+        public async Task<ServiceResult<AuthResponseDto>> LoginAsync(LoginDto dto, CancellationToken cancellationToken = default)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
@@ -112,12 +113,12 @@ namespace InsightX.Infrastructure.Services
             };
 
             _context.RefreshTokens.Add(refreshTokenEntity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(accessToken, refreshTokenString, user.MustChangePassword));
         }
 
-        public async Task<ServiceResult<AuthResponseDto>> RefreshAsync(RefreshDto dto)
+        public async Task<ServiceResult<AuthResponseDto>> RefreshAsync(RefreshDto dto, CancellationToken cancellationToken = default)
         {
             ClaimsPrincipal principal;
             try
@@ -140,7 +141,7 @@ namespace InsightX.Infrastructure.Services
                 .FirstOrDefaultAsync(r => r.Token == hashedToken
                     && r.UserId == userId
                     && !r.IsRevoked
-                    && r.ExpiresAt > DateTime.UtcNow);
+                    && r.ExpiresAt > DateTime.UtcNow, cancellationToken);
 
             if (stored == null)
             {
@@ -169,12 +170,12 @@ namespace InsightX.Infrastructure.Services
             };
 
             _context.RefreshTokens.Add(newRefreshTokenEntity);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult<AuthResponseDto>.Success(new AuthResponseDto(newAccessToken, newRefreshTokenString, false));
         }
 
-        public async Task<ServiceResult> LogoutAsync(string userId)
+        public async Task<ServiceResult> LogoutAsync(string userId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -183,10 +184,10 @@ namespace InsightX.Infrastructure.Services
 
             var tokens = await _context.RefreshTokens
                 .Where(r => r.UserId == userId && !r.IsRevoked)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             tokens.ForEach(t => t.IsRevoked = true);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult.Success();
         }

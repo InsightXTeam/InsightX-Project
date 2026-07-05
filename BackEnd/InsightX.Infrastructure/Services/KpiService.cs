@@ -1,3 +1,4 @@
+using System.Threading;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -16,10 +17,10 @@ namespace InsightX.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<ServiceResult<KpiResponseDto>> CreateAsync(CreateKpiDto dto, int companyId)
+        public async Task<ServiceResult<KpiResponseDto>> CreateAsync(CreateKpiDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var exists = await _context.KPIs
-                .AnyAsync(k => k.CompanyId == companyId && k.Name.ToLower() == dto.Name.ToLower());
+                .AnyAsync(k => k.CompanyId == companyId && k.Name.ToLower() == dto.Name.ToLower(), cancellationToken);
 
             if (exists)
             {
@@ -38,16 +39,16 @@ namespace InsightX.Infrastructure.Services
             };
 
             _context.KPIs.Add(kpi);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId, kpi.AlertPercentageDiff, kpi.TrendMonthsCount, kpi.ThresholdDirection);
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 
-        public async Task<ServiceResult<KpiResponseDto>> GetByIdAsync(int id, int companyId)
+        public async Task<ServiceResult<KpiResponseDto>> GetByIdAsync(int id, int companyId, CancellationToken cancellationToken = default)
         {
             var kpi = await _context.KPIs
-                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId);
+                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId, cancellationToken);
 
             if (kpi == null)
             {
@@ -58,20 +59,20 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 
-        public async Task<ServiceResult<List<KpiResponseDto>>> GetAllAsync(int companyId)
+        public async Task<ServiceResult<List<KpiResponseDto>>> GetAllAsync(int companyId, CancellationToken cancellationToken = default)
         {
             var kpis = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
                 .Select(k => new KpiResponseDto(k.Id, k.Name, k.Threshold, k.Unit, k.CompanyId, k.AlertPercentageDiff, k.TrendMonthsCount, k.ThresholdDirection))
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             return ServiceResult<List<KpiResponseDto>>.Success(kpis);
         }
 
-        public async Task<ServiceResult<KpiResponseDto>> UpdateAsync(int id, UpdateKpiDto dto, int companyId)
+        public async Task<ServiceResult<KpiResponseDto>> UpdateAsync(int id, UpdateKpiDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var kpi = await _context.KPIs
-                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId);
+                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId, cancellationToken);
 
             if (kpi == null)
             {
@@ -79,7 +80,7 @@ namespace InsightX.Infrastructure.Services
             }
 
             var exists = await _context.KPIs
-                .AnyAsync(k => k.CompanyId == companyId && k.Id != id && k.Name.ToLower() == dto.Name.ToLower());
+                .AnyAsync(k => k.CompanyId == companyId && k.Id != id && k.Name.ToLower() == dto.Name.ToLower(), cancellationToken);
 
             if (exists)
             {
@@ -94,16 +95,16 @@ namespace InsightX.Infrastructure.Services
             kpi.ThresholdDirection = dto.ThresholdDirection;
 
             _context.KPIs.Update(kpi);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var response = new KpiResponseDto(kpi.Id, kpi.Name, kpi.Threshold, kpi.Unit, kpi.CompanyId, kpi.AlertPercentageDiff, kpi.TrendMonthsCount, kpi.ThresholdDirection);
             return ServiceResult<KpiResponseDto>.Success(response);
         }
 
-        public async Task<ServiceResult> DeleteAsync(int id, int companyId)
+        public async Task<ServiceResult> DeleteAsync(int id, int companyId, CancellationToken cancellationToken = default)
         {
             var kpi = await _context.KPIs
-                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId);
+                .FirstOrDefaultAsync(k => k.Id == id && k.CompanyId == companyId, cancellationToken);
 
             if (kpi == null)
             {
@@ -111,7 +112,7 @@ namespace InsightX.Infrastructure.Services
             }
 
             _context.KPIs.Remove(kpi);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult.Success();
         }

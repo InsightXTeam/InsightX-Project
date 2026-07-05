@@ -1,3 +1,4 @@
+using System.Threading;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -16,12 +17,12 @@ namespace InsightX.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<ServiceResult<CompanyProfileDto>> GetMyCompanyAsync(int companyId)
+        public async Task<ServiceResult<CompanyProfileDto>> GetMyCompanyAsync(int companyId, CancellationToken cancellationToken = default)
         {
             var company = await _context.Companies
                 .Include(c => c.Departments)
                 .Include(c => c.KPIs)
-                .FirstOrDefaultAsync(c => c.Id == companyId);
+                .FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
 
             if (company == null)
             {
@@ -39,11 +40,11 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<CompanyProfileDto>.Success(dto);
         }
 
-        public async Task<ServiceResult> SetupAsync(SetupDto dto, int companyId)
+        public async Task<ServiceResult> SetupAsync(SetupDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var existing = await _context.KPIs
                 .Where(k => k.CompanyId == companyId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             _context.KPIs.RemoveRange(existing);
 
@@ -58,9 +59,9 @@ namespace InsightX.Infrastructure.Services
                 CompanyId = companyId
             }).ToList();
 
-            await _context.KPIs.AddRangeAsync(newKpis);
+            await _context.KPIs.AddRangeAsync(newKpis, cancellationToken);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult.Success();
         }

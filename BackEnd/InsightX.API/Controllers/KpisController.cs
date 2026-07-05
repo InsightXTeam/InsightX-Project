@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using InsightX.Application.DTOs;
 using InsightX.Application.Extensions;
 using InsightX.Application.Interfaces;
@@ -19,10 +21,10 @@ namespace InsightX.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Create([FromBody] CreateKpiDto dto)
+        public async Task<IActionResult> Create([FromBody] CreateKpiDto dto, CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
-            var result = await _kpiService.CreateAsync(dto, companyId);
+            var result = await _kpiService.CreateAsync(dto, companyId, cancellationToken);
             if (result.IsSuccess && result.Data != null)
             {
                 return CreatedAtAction(nameof(GetById), new { id = result.Data.Id }, result.Data);
@@ -32,37 +34,37 @@ namespace InsightX.API.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
-            var result = await _kpiService.GetByIdAsync(id, companyId);
+            var result = await _kpiService.GetByIdAsync(id, companyId, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
-            var result = await _kpiService.GetAllAsync(companyId);
+            var result = await _kpiService.GetAllAsync(companyId, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateKpiDto dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateKpiDto dto, CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
-            var result = await _kpiService.UpdateAsync(id, dto, companyId);
+            var result = await _kpiService.UpdateAsync(id, dto, companyId, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
         [HttpDelete("{id}")]
         [Authorize(Roles = "Owner")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
-            var result = await _kpiService.DeleteAsync(id, companyId);
+            var result = await _kpiService.DeleteAsync(id, companyId, cancellationToken);
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, result.Error);
         }
     }

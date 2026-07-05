@@ -1,3 +1,4 @@
+using System.Threading;
 using InsightX.Application.Common;
 using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
@@ -16,10 +17,10 @@ namespace InsightX.Infrastructure.Services
             _context = context;
         }
 
-        public async Task<ServiceResult<DepartmentResponseDto>> CreateAsync(CreateDepartmentDto dto, int companyId)
+        public async Task<ServiceResult<DepartmentResponseDto>> CreateAsync(CreateDepartmentDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var exists = await _context.Departments
-                .AnyAsync(d => d.CompanyId == companyId && d.Name.ToLower() == dto.Name.ToLower());
+                .AnyAsync(d => d.CompanyId == companyId && d.Name.ToLower() == dto.Name.ToLower(), cancellationToken);
 
             if (exists)
             {
@@ -33,16 +34,16 @@ namespace InsightX.Infrastructure.Services
             };
 
             _context.Departments.Add(dept);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId);
             return ServiceResult<DepartmentResponseDto>.Success(responseDto);
         }
 
-        public async Task<ServiceResult<DepartmentResponseDto>> GetByIdAsync(int id, int companyId)
+        public async Task<ServiceResult<DepartmentResponseDto>> GetByIdAsync(int id, int companyId, CancellationToken cancellationToken = default)
         {
             var dept = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
+                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId, cancellationToken);
 
             if (dept == null)
             {
@@ -54,24 +55,24 @@ namespace InsightX.Infrastructure.Services
                                  join r in _context.Roles on ur.RoleId equals r.Id
                                  where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
                                  select new { u.Id, u.Name })
-                                .FirstOrDefaultAsync();
+                                .FirstOrDefaultAsync(cancellationToken);
 
             var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId, manager?.Name, manager?.Id);
             return ServiceResult<DepartmentResponseDto>.Success(responseDto);
         }
 
-        public async Task<ServiceResult<List<DepartmentResponseDto>>> GetAllAsync(int companyId)
+        public async Task<ServiceResult<List<DepartmentResponseDto>>> GetAllAsync(int companyId, CancellationToken cancellationToken = default)
         {
             var departments = await _context.Departments
                 .Where(d => d.CompanyId == companyId)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             var managers = await (from u in _context.Users
                                   join ur in _context.UserRoles on u.Id equals ur.UserId
                                   join r in _context.Roles on ur.RoleId equals r.Id
                                   where u.CompanyId == companyId && r.Name == "Manager"
                                   select new { u.DepartmentId, u.Id, u.Name })
-                                 .ToListAsync();
+                                 .ToListAsync(cancellationToken);
 
             var managerDict = managers
                 .Where(m => m.DepartmentId.HasValue)
@@ -89,10 +90,10 @@ namespace InsightX.Infrastructure.Services
             return ServiceResult<List<DepartmentResponseDto>>.Success(dtos);
         }
 
-        public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, UpdateDepartmentDto dto, int companyId)
+        public async Task<ServiceResult<DepartmentResponseDto>> UpdateAsync(int id, UpdateDepartmentDto dto, int companyId, CancellationToken cancellationToken = default)
         {
             var dept = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
+                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId, cancellationToken);
 
             if (dept == null)
             {
@@ -100,7 +101,7 @@ namespace InsightX.Infrastructure.Services
             }
 
             var exists = await _context.Departments
-                .AnyAsync(d => d.CompanyId == companyId && d.Id != id && d.Name.ToLower() == dto.Name.ToLower());
+                .AnyAsync(d => d.CompanyId == companyId && d.Id != id && d.Name.ToLower() == dto.Name.ToLower(), cancellationToken);
 
             if (exists)
             {
@@ -118,7 +119,7 @@ namespace InsightX.Infrastructure.Services
                                          join r in _context.Roles on ur.RoleId equals r.Id
                                          where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
                                          select u)
-                                        .ToListAsync();
+                                        .ToListAsync(cancellationToken);
 
             foreach (var manager in currentManagers)
             {
@@ -133,7 +134,7 @@ namespace InsightX.Infrastructure.Services
                                         join r in _context.Roles on ur.RoleId equals r.Id
                                         where u.CompanyId == companyId && u.Id == dto.ManagerId && r.Name == "Manager"
                                         select u)
-                                       .FirstOrDefaultAsync();
+                                       .FirstOrDefaultAsync(cancellationToken);
 
                 if (newManager != null)
                 {
@@ -141,7 +142,7 @@ namespace InsightX.Infrastructure.Services
                 }
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             // Fetch final manager details
             var finalManager = await (from u in _context.Users
@@ -149,16 +150,16 @@ namespace InsightX.Infrastructure.Services
                                       join r in _context.Roles on ur.RoleId equals r.Id
                                       where u.CompanyId == companyId && u.DepartmentId == id && r.Name == "Manager"
                                       select new { u.Id, u.Name })
-                                     .FirstOrDefaultAsync();
+                                     .FirstOrDefaultAsync(cancellationToken);
 
             var responseDto = new DepartmentResponseDto(dept.Id, dept.Name, dept.CompanyId, finalManager?.Name, finalManager?.Id);
             return ServiceResult<DepartmentResponseDto>.Success(responseDto);
         }
 
-        public async Task<ServiceResult> DeleteAsync(int id, int companyId)
+        public async Task<ServiceResult> DeleteAsync(int id, int companyId, CancellationToken cancellationToken = default)
         {
             var dept = await _context.Departments
-                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId);
+                .FirstOrDefaultAsync(d => d.Id == id && d.CompanyId == companyId, cancellationToken);
 
             if (dept == null)
             {
@@ -166,7 +167,7 @@ namespace InsightX.Infrastructure.Services
             }
 
             _context.Departments.Remove(dept);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult.Success();
         }
