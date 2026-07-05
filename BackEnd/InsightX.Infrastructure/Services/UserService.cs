@@ -95,11 +95,10 @@ namespace InsightX.Infrastructure.Services
 
             if (role == "Manager")
             {
-                if (string.IsNullOrEmpty(departmentIdClaim))
+                if (string.IsNullOrEmpty(departmentIdClaim) || !int.TryParse(departmentIdClaim, out var deptId))
                 {
                     return ServiceResult<List<UserResponseDto>>.Fail(403, "Forbidden");
                 }
-                var deptId = int.Parse(departmentIdClaim);
                 query = query.Where(u => u.DepartmentId == deptId);
             }
             else if (role != "Owner")
