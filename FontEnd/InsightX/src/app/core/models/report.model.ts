@@ -6,5 +6,5 @@ export interface Report {
   status: string;
   extractedText?: string;
   companyId?: number;
-  uploadedBy?: string;
+  uploadedById?: number;
 }

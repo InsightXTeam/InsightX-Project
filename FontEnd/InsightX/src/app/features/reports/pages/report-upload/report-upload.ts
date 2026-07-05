@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../../core/services/report.service';
 import { HttpEventType } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
+import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
 
 @Component({
   selector: 'app-report-upload',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ToastNotificationComponent],
   templateUrl: './report-upload.html',
   styleUrl: './report-upload.css',
 })
@@ -20,6 +21,9 @@ export class ReportUpload {
   isUploading = signal<boolean>(false);
   isProcessing = signal<boolean>(false);
   uploadProgress = signal<number>(0);
+  toastOpen = signal(false);
+  toastMessage = signal('');
+  toastType = signal<'success' | 'error' | 'info'>('success');
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -66,20 +70,25 @@ export class ReportUpload {
         } else if (event.type === HttpEventType.Response) {
           // Upload complete, now waiting for AI processing
           this.isUploading.set(false);
-          this.isProcessing.set(true);
-          
-          setTimeout(() => {
-            this.isProcessing.set(false);
-            this.router.navigate(['/reports']);
-          }, 1500);
+          this.isProcessing.set(false);
+          this.router.navigate(['/reports']);
         }
       },
-      error: (err) => {
-        console.error('Upload Failed', err);
+      error: () => {
         this.isUploading.set(false);
         this.isProcessing.set(false);
-        alert('Upload failed. Please try again.');
-      }
+        this.showToast('Upload failed. Please try again.', 'error');
+      },
     });
+  }
+
+  private showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
+    this.toastMessage.set(message);
+    this.toastType.set(type);
+    this.toastOpen.set(true);
+
+    setTimeout(() => {
+      this.toastOpen.set(false);
+    }, 4000);
   }
 }

@@ -1,15 +1,16 @@
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
+import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
 
 @Component({
   selector: 'app-report-preview',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ToastNotificationComponent],
   templateUrl: './report-preview.html',
-  styleUrls: ['./report-preview.css']
+  styleUrls: ['./report-preview.css'],
 })
 export class ReportPreview implements OnInit {
   private service = inject(ReportService);
@@ -22,13 +23,16 @@ export class ReportPreview implements OnInit {
   form!: FormGroup;
   isLoading = true;
   isSaving = false;
+  toastOpen = signal(false);
+  toastMessage = signal('');
+  toastType = signal<'success' | 'error' | 'info'>('success');
 
   ngOnInit() {
     this.reportId = Number(this.route.snapshot.paramMap.get('id'));
-    
+
     // Initialize form with a single text area control
     this.form = this.fb.group({
-      extractedText: ['', Validators.required]
+      extractedText: ['', Validators.required],
     });
 
     if (this.reportId) {
@@ -43,17 +47,16 @@ export class ReportPreview implements OnInit {
         // Backend returns { text: '...' }
         const textValue = typeof res === 'string' ? res : res.text || JSON.stringify(res);
         this.form.patchValue({
-          extractedText: textValue
+          extractedText: textValue,
         });
         this.isLoading = false;
         this.cdr.detectChanges(); // Force update the view
       },
-      error: (err) => {
-        console.error('Failed to load extracted text', err);
+      error: () => {
         this.isLoading = false;
         this.cdr.detectChanges(); // Force update the view
-        alert('Could not load text for review.');
-      }
+        this.showToast('Could not load text for review.', 'error');
+      },
     });
   }
 
@@ -65,9 +68,9 @@ export class ReportPreview implements OnInit {
 
     /*
      * =====================================================================
-     * CRITICAL HAND-OFF POINT: 
+     * CRITICAL HAND-OFF POINT:
      * When 'confirmAndSave' succeeds, the Manager has finalized the RAW TEXT.
-     * 
+     *
      * Backend Controller Implications (as specified by user):
      * 1. The backend saves the corrected extractedText to the DB.
      * 2. The backend THEN triggers the AI to extract KPIs from this text.
@@ -80,11 +83,20 @@ export class ReportPreview implements OnInit {
         this.isSaving = false;
         this.router.navigate(['/reports']);
       },
-      error: (err) => {
-        console.error('Failed to confirm data', err);
+      error: () => {
         this.isSaving = false;
-        alert('Failed to save data. Please try again.');
-      }
+        this.showToast('Failed to save data. Please try again.', 'error');
+      },
     });
+  }
+
+  private showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {
+    this.toastMessage.set(message);
+    this.toastType.set(type);
+    this.toastOpen.set(true);
+
+    setTimeout(() => {
+      this.toastOpen.set(false);
+    }, 4000);
   }
 }
