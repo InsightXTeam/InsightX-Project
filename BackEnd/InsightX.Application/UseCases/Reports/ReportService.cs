@@ -89,7 +89,7 @@ namespace InsightX.Application.UseCases.Reports
             return ServiceResult<string>.Success(report.ExtractedText);
         }
 
-        public async Task<ServiceResult> ConfirmTextAsync(int id, ConfirmReportDto dto, int companyId, string role, string userName, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult> ConfirmMetricsAsync(int id, ConfirmReportDto dto, int companyId, string role, string userName, CancellationToken cancellationToken = default)
         {
             var report = await _repository.GetByIdForCompanyAsync(id, companyId, cancellationToken);
             if (report == null) return ServiceResult.Fail(404, "Report not found");
@@ -99,7 +99,27 @@ namespace InsightX.Application.UseCases.Reports
             if (report.Status != ReportStatus.PendingConfirmation.ToString())
                 return ServiceResult.Fail(400, "Report is not pending confirmation");
 
-            report.ExtractedText = dto.ExtractedText;
+            // Clear old unconfirmed metrics
+            report.ExtractedMetrics.Clear();
+
+            // Add new confirmed metrics
+            if (dto.Metrics != null)
+            {
+                foreach (var m in dto.Metrics)
+                {
+                    report.ExtractedMetrics.Add(new ExtractedMetric
+                    {
+                        KPIName = m.KPIName,
+                        Value = m.Value,
+                        Month = m.Month ?? report.UploadedAt.Month,
+                        Year = m.Year ?? report.UploadedAt.Year,
+                        CompanyId = report.CompanyId,
+                        ConfirmedByManager = true
+                    });
+                }
+            }
+
+            report.Status = ReportStatus.Done.ToString();
             await _repository.UpdateAsync(report, cancellationToken);
             return ServiceResult.Success();
         }

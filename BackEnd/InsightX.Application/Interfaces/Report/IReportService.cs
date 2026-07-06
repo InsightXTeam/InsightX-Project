@@ -18,7 +18,7 @@ namespace InsightX.Application.Interfaces
 
         Task<ServiceResult<string>> GetExtractedTextAsync(int id, int companyId, CancellationToken cancellationToken = default);
 
-        Task<ServiceResult> ConfirmTextAsync(int id, ConfirmReportDto dto, int companyId, string role, string userName, CancellationToken cancellationToken = default);
+        Task<ServiceResult> ConfirmMetricsAsync(int id, ConfirmReportDto dto, int companyId, string role, string userName, CancellationToken cancellationToken = default);
 
         Task<ServiceResult> DeleteAsync(int id, int companyId, string role, string userName, CancellationToken cancellationToken = default);
     }
