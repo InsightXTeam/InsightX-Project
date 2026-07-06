@@ -52,18 +52,17 @@ namespace InsightX.API
                 return kernelBuilder.Build();
             });
 
-            // Register anomaly rules in priority order: Threshold → ZScore → Trend
             builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
-            builder.Services.AddScoped<IAnomalyRule, ZScoreRule>();
+            builder.Services.AddScoped<IAnomalyRule, YearOverYearRule>();
             builder.Services.AddScoped<IAnomalyRule, TrendRule>();
 
             builder.Services.AddScoped<IAnomalyDetector, ThreeLevelAnomalyDetector>();
             builder.Services.AddScoped<IReportConfirmedHandler, ReportConfirmedHandler>();
 
-            builder.Services.AddScoped<GenerateAlertUseCase>();
-            builder.Services.AddScoped<GetAlertsUseCase>();
-            builder.Services.AddScoped<MarkAlertSeenUseCase>();
-            builder.Services.AddScoped<CreateMonthlyReminderUseCase>();
+            builder.Services.AddScoped<IGenerateAlertUseCase, GenerateAlertUseCase>();
+            builder.Services.AddScoped<IGetAlertsUseCase, GetAlertsUseCase>();
+            builder.Services.AddScoped<IMarkAlertSeenUseCase, MarkAlertSeenUseCase>();
+            builder.Services.AddScoped<ICreateMonthlyReminderUseCase, CreateMonthlyReminderUseCase>();
 
             builder.Services.AddHostedService<MonthlyReminderBackgroundService>();
 
@@ -78,7 +77,7 @@ namespace InsightX.API
 
             app.UseHttpsRedirection();
 
-            // UseAuthentication MUST come before UseAuthorization
+            
             app.UseAuthentication();
             app.UseAuthorization();
 

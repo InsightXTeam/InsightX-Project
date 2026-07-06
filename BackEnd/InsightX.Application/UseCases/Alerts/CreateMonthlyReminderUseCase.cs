@@ -4,7 +4,7 @@ using InsightX.Domain.Enums;
 
 namespace InsightX.Application.UseCases.Alerts
 {
-    public class CreateMonthlyReminderUseCase
+    public class CreateMonthlyReminderUseCase : ICreateMonthlyReminderUseCase
     {
         private readonly IAlertRepository _alertRepository;
         private readonly IMetricsRepository _metricsRepository;
@@ -17,12 +17,14 @@ namespace InsightX.Application.UseCases.Alerts
             _metricsRepository = metricsRepository;
         }
 
-        public async Task ExecuteAsync()
+        public async Task ExecuteAsync(CancellationToken cancellationToken = default)
         {
             var companyIds = await _metricsRepository.GetAllCompanyIdsAsync();
 
             var nextMonth = DateTime.UtcNow.AddMonths(1);
             var monthName = nextMonth.ToString("MMMM yyyy");
+
+            var reminders = new List<Alert>();
 
             foreach (var companyId in companyIds)
             {
@@ -40,7 +42,12 @@ namespace InsightX.Application.UseCases.Alerts
                     AlertType = AlertType.MonthlyReminder
                 };
 
-                await _alertRepository.AddAsync(reminder);
+                reminders.Add(reminder);
+            }
+
+            if (reminders.Any())
+            {
+                await _alertRepository.AddRangeAsync(reminders, cancellationToken);
             }
         }
     }

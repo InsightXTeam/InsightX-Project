@@ -3,7 +3,7 @@ using InsightX.Domain.Entities;
 
 namespace InsightX.Application.UseCases.Alerts
 {
-    public class GenerateAlertUseCase
+    public class GenerateAlertUseCase : IGenerateAlertUseCase
     {
         private readonly IAnomalyDetector _detector;
         private readonly IAlertMessageGenerator _messageGenerator;
@@ -25,7 +25,8 @@ namespace InsightX.Application.UseCases.Alerts
             int companyId,
             int departmentId,
             string kpiName,
-            decimal currentValue)
+            decimal currentValue,
+            CancellationToken cancellationToken = default)
         {
             // 1- detecting if there any problems
             var result = await _detector.CheckAsync(companyId, departmentId, kpiName, currentValue);

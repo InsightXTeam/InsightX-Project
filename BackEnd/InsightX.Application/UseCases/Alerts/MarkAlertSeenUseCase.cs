@@ -1,8 +1,8 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 
 namespace InsightX.Application.UseCases.Alerts
 {
-    public class MarkAlertSeenUseCase
+    public class MarkAlertSeenUseCase : IMarkAlertSeenUseCase
     {
         private readonly IAlertRepository _alertRepository;
 
@@ -11,9 +11,9 @@ namespace InsightX.Application.UseCases.Alerts
             _alertRepository = alertRepository;
         }
 
-        public async Task ExecuteAsync(int alertId)
+        public async Task ExecuteAsync(int alertId, CancellationToken cancellationToken = default)
         {
-            await _alertRepository.MarkAsSeenAsync(alertId);
+            await _alertRepository.MarkAsSeenAsync(alertId, cancellationToken);
         }
     }
 }

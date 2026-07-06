@@ -3,7 +3,7 @@ using InsightX.Application.Interfaces;
 
 namespace InsightX.Application.UseCases.Alerts
 {
-    public class GetAlertsUseCase
+    public class GetAlertsUseCase : IGetAlertsUseCase
     {
         private readonly IAlertRepository _alertRepository;
 
@@ -12,7 +12,7 @@ namespace InsightX.Application.UseCases.Alerts
             _alertRepository = alertRepository;
         }
 
-        public async Task<List<AlertDto>> ExecuteAsync(int companyId, bool? seenFilter)
+        public async Task<List<AlertDto>> ExecuteAsync(int companyId, bool? seenFilter, CancellationToken cancellationToken = default)
         {
             var alerts = await _alertRepository.GetByCompanyAsync(companyId, seenFilter);
 
