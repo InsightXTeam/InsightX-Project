@@ -18,14 +18,14 @@ export class AdminService {
   private readonly apiBase = environment.apiBaseUrl;
 
   getOwners() {
-    return this.http.get<OwnerResponse[]>(`${this.apiBase}/superadmin/owners`);
+    return this.http.get<OwnerResponse[]>(`${this.apiBase}/users/owners`);
   }
 
   activateOwner(id: string) {
-    return this.http.post(`${this.apiBase}/superadmin/owners/${id}/activate`, {});
+    return this.http.post(`${this.apiBase}/users/${id}/activate`, {});
   }
 
   deactivateOwner(id: string) {
-    return this.http.post(`${this.apiBase}/superadmin/owners/${id}/deactivate`, {});
+    return this.http.post(`${this.apiBase}/users/${id}/deactivate`, {});
   }
 }
