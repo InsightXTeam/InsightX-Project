@@ -11,7 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AI\" />
     <Folder Include="DocumentReaders\" />
   </ItemGroup>
 
@@ -27,6 +26,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.77.0" />
   </ItemGroup>
 
 </Project>

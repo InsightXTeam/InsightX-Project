@@ -1,5 +1,4 @@
 using InsightX.Domain.Enums;
-
 namespace InsightX.Domain.Entities
 {
     public class KPI

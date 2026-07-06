@@ -22,6 +22,61 @@ namespace InsightX.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("InsightX.Domain.Entities.Alert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AlertType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("CurrentValue")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("KPIName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Recommendation")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("SeenByOwner")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("Threshold")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Alerts");
+                });
+
             modelBuilder.Entity("InsightX.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -149,6 +204,40 @@ namespace InsightX.Infrastructure.Migrations
                     b.HasIndex("CompanyId");
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("InsightX.Domain.Entities.HistoricalMetric", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("KPIName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Value")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("HistoricalMetrics");
                 });
 
             modelBuilder.Entity("InsightX.Domain.Entities.KPI", b =>
@@ -437,6 +526,25 @@ namespace InsightX.Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("InsightX.Domain.Entities.Alert", b =>
+                {
+                    b.HasOne("InsightX.Domain.Entities.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("InsightX.Domain.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("InsightX.Domain.Entities.ApplicationUser", b =>

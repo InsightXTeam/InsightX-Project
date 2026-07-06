@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 namespace InsightX.Domain.Entities
 {
     public class Department

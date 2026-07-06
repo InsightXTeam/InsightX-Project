@@ -1,0 +1,58 @@
+<article class="alert-card" [class]="borderClass" [attr.aria-label]="'Alert: ' + alert.kpiName">
+
+  <!-- Left: badge, KPI info, message -->
+  <div class="card-left">
+    <div class="card-meta">
+      <span class="badge" [class]="badgeClass">{{ badge }}</span>
+      <span class="card-date">{{ alert.createdAt | date:'MMM d' }}</span>
+    </div>
+
+    <div class="card-kpi">
+      <p class="kpi-name">{{ alert.kpiName }}</p>
+      <p class="kpi-message">{{ alert.message }}</p>
+    </div>
+
+    @if (alert.recommendation) {
+      <p class="card-recommendation">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        {{ alert.recommendation }}
+      </p>
+    }
+  </div>
+
+  <!-- Right: values + action -->
+  <div class="card-right">
+    @if (alert.alertType !== 'MonthlyReminder') {
+      <div class="card-values">
+        <div class="value-block">
+          <span class="value-label">Current Value</span>
+          <span class="value-number" [class.value--anomaly]="!alert.seenByOwner">
+            {{ alert.currentValue | number:'1.0-0' }}
+          </span>
+        </div>
+        <div class="value-divider"></div>
+        <div class="value-block">
+          <span class="value-label">Threshold</span>
+          <span class="value-number value--threshold">
+            {{ alert.threshold | number:'1.0-0' }}
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (!alert.seenByOwner) {
+      <button
+        class="mark-seen-btn"
+        id="mark-seen-{{ alert.id }}"
+        (click)="onMarkSeen()"
+        aria-label="Mark alert as seen"
+      >
+        Mark as Seen
+      </button>
+    }
+  </div>
+
+</article>

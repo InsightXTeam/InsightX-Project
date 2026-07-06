@@ -17,6 +17,8 @@ namespace InsightX.Infrastructure.Persistence
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
         public DbSet<Report> Reports => Set<Report>();
         public DbSet<ExtractedMetric> ExtractedMetrics => Set<ExtractedMetric>();
+        public DbSet<Alert> Alerts => Set<Alert>();
+        public DbSet<HistoricalMetric> HistoricalMetrics => Set<HistoricalMetric>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -76,6 +78,35 @@ namespace InsightX.Infrastructure.Persistence
                 .WithMany()
                 .HasForeignKey(e => e.CompanyId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Alert>(entity =>
+            {
+                entity.HasKey(a => a.Id);
+                entity.Property(a => a.KPIName).IsRequired().HasMaxLength(100);
+                entity.Property(a => a.Message).IsRequired().HasMaxLength(500);
+                entity.Property(a => a.Recommendation).HasMaxLength(500);
+                entity.Property(a => a.CurrentValue).HasPrecision(18, 2);
+                entity.Property(a => a.Threshold).HasPrecision(18, 2);
+                entity.Property(a => a.AlertType).HasConversion<int>();
+
+                entity.HasOne(a => a.Company)
+                      .WithMany()
+                      .HasForeignKey(a => a.CompanyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.Department)
+                      .WithMany()
+                      .HasForeignKey(a => a.DepartmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // HistoricalMetric Table Config (TEMP)
+            builder.Entity<HistoricalMetric>(entity =>
+            {
+                entity.HasKey(h => h.Id);
+                entity.Property(h => h.KPIName).IsRequired().HasMaxLength(100);
+                entity.Property(h => h.Value).HasPrecision(18, 2);
+            });
         }
     }
 }

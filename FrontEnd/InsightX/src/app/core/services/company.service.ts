@@ -13,7 +13,6 @@ export interface CompanyMeResponse {
   companyName?: string | null;
   departments?: CompanyDepartment[];
 }
-
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
   private readonly http = inject(HttpClient);

@@ -9,7 +9,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using InsightX.Application.Interfaces;
+using InsightX.Application.UseCases.Alerts;
+using InsightX.Infrastructure.AI;
+using InsightX.Infrastructure.Anomaly;
+using InsightX.Infrastructure.Anomaly.Rules;
+using InsightX.Infrastructure.BackgroundServices;
+using InsightX.Infrastructure.Handlers;
+using InsightX.Infrastructure.Persistence.Repositories;
+using Microsoft.SemanticKernel;
 
 namespace InsightX.API
 {
@@ -72,7 +80,6 @@ namespace InsightX.API
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
-
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
@@ -109,6 +116,47 @@ namespace InsightX.API
                 });
             });
 
+            /*
+             * Anomaly Alert services
+             * */
+            builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+            builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
+            builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
+
+            builder.Services.AddSingleton(sp =>
+            {
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var modelId = configuration["AI:ModelId"];
+                var apiKey = configuration["AI:ApiKey"];
+
+                var kernelBuilder = Kernel.CreateBuilder();
+
+                if (!string.IsNullOrWhiteSpace(modelId) && !string.IsNullOrWhiteSpace(apiKey))
+                {
+                    kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
+                }
+                else
+                {
+                    Console.WriteLine("Warning: AI model config missing (AI:ModelId / AI:ApiKey). Kernel started without chat completion service.");
+                }
+
+                return kernelBuilder.Build();
+            });
+
+            builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
+            builder.Services.AddScoped<IAnomalyRule, YearOverYearRule>();
+            builder.Services.AddScoped<IAnomalyRule, TrendRule>();
+
+            builder.Services.AddScoped<IAnomalyDetector, ThreeLevelAnomalyDetector>();
+            builder.Services.AddScoped<IReportConfirmedHandler, ReportConfirmedHandler>();
+
+            builder.Services.AddScoped<IGenerateAlertUseCase, GenerateAlertUseCase>();
+            builder.Services.AddScoped<IGetAlertsUseCase, GetAlertsUseCase>();
+            builder.Services.AddScoped<IMarkAlertSeenUseCase, MarkAlertSeenUseCase>();
+            builder.Services.AddScoped<ICreateMonthlyReminderUseCase, CreateMonthlyReminderUseCase>();
+
+            builder.Services.AddHostedService<MonthlyReminderBackgroundService>();
+
             var app = builder.Build();
 
             // Fail-fast guard: prevent production startup with placeholder secrets
@@ -141,7 +189,6 @@ namespace InsightX.API
 
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
 
             using (var scope = app.Services.CreateScope())

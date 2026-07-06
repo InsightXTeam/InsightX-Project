@@ -1,0 +1,72 @@
+<div class="alerts-page">
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <h1>Alerts</h1>
+
+    <div class="header-actions">
+      <!-- Filter Tabs -->
+      <div class="filter-tabs" role="tablist" aria-label="Alert filters">
+        @for (tab of tabs; track tab.key) {
+          <button
+            class="tab"
+            role="tab"
+            [class.active]="activeTab() === tab.key"
+            [attr.aria-selected]="activeTab() === tab.key"
+            [id]="'tab-' + tab.key"
+            (click)="setTab(tab.key)"
+          >
+            {{ tab.label }}
+            @if (tab.key === 'unseen' && unseenCount() > 0) {
+              <span class="tab-badge">{{ unseenCount() }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Notification Bell -->
+      <div class="bell-wrapper" [class.has-alerts]="unseenCount() > 0" aria-label="Notifications">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        @if (unseenCount() > 0) {
+          <span class="bell-badge">
+            {{ unseenCount() > 99 ? '99+' : unseenCount() }}
+          </span>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Content -->
+  @if (loading()) {
+    <div class="spinner" aria-label="Loading alerts"></div>
+  } @else if (error()) {
+    <div class="error-state">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p>{{ error() }}</p>
+      <button class="btn btn--ghost btn--sm" (click)="loadAlerts()">Retry</button>
+    </div>
+  } @else if (filtered().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">🔔</div>
+      <p>No {{ activeTab() === 'all' ? '' : activeTab() + ' ' }}alerts found.</p>
+    </div>
+  } @else {
+    <div class="alerts-list" role="list">
+      @for (alert of filtered(); track alert.id) {
+        <app-alert-card
+          role="listitem"
+          [alert]="alert"
+          (markSeen)="markSeen($event)"
+        />
+      }
+    </div>
+  }
+
+</div>

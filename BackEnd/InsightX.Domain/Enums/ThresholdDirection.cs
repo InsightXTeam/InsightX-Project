@@ -1,4 +1,4 @@
-﻿namespace InsightX.Domain.Enums
+namespace InsightX.Domain.Enums
 {
 
     public enum ThresholdDirection
