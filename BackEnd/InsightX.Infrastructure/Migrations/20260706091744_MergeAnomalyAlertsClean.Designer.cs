@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace InsightX.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260706091608_MergeAnomalyAlerts")]
-    partial class MergeAnomalyAlerts
+    [Migration("20260706091744_MergeAnomalyAlertsClean")]
+    partial class MergeAnomalyAlertsClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

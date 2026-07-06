@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace InsightX.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class MergeAnomalyAlerts : Migration
+    public partial class MergeAnomalyAlertsClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
