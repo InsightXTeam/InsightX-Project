@@ -1,15 +1,15 @@
 using InsightX.Application.Common;
 using InsightX.Application.Interfaces;
-using InsightX.Infrastructure.Configuration;
-using InsightX.Infrastructure.Services;
-using InsightX.Infrastructure.Repositories;
-using InsightX.Infrastructure.FileStorage;
-using InsightX.Infrastructure.AI.Report;
-using InsightX.Infrastructure.DocumentReaders;
-using InsightX.Infrastructure.DocumentReaders.WordReader;
-using InsightX.Infrastructure.DocumentReaders.Image;
-using InsightX.Application.UseCases.Reports;
 using InsightX.Application.UseCases.Documents;
+using InsightX.Application.UseCases.Reports;
+using InsightX.Infrastructure.AI.Report;
+using InsightX.Infrastructure.Configuration;
+using InsightX.Infrastructure.DocumentReaders;
+using InsightX.Infrastructure.DocumentReaders.Image;
+using InsightX.Infrastructure.DocumentReaders.WordReader;
+using InsightX.Infrastructure.FileStorage;
+using InsightX.Infrastructure.Repositories;
+using InsightX.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,7 +32,8 @@ namespace InsightX.Infrastructure
                     policy
                     .WithOrigins(corsSettings.AllowedOrigins.ToArray())
                     .AllowAnyHeader()
-                    .AllowAnyMethod();
+                    .AllowAnyMethod()
+                    .AllowCredentials();
                 });
             });
 
@@ -50,7 +51,7 @@ namespace InsightX.Infrastructure
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IDocumentProcessor, DocumentProcessorService>();
             services.AddScoped<IFileStorageService, FileStorageService>();
-            
+
             // Register HttpClient for AI Service
             services.AddHttpClient<IAIExtractionService, OllamaSemanticKernelService>();
             services.AddScoped<IAIExtractionService, OllamaSemanticKernelService>();
