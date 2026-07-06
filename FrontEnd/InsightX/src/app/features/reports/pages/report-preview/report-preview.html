@@ -17,8 +17,8 @@
       Back to Reports
     </button>
     <div class="header-titles">
-      <h1 class="page-title">Check Your Document Text</h1>
-      <p class="page-subtitle">Review the text from your document before you continue.</p>
+      <h1 class="page-title">Review Extracted Text</h1>
+      <p class="page-subtitle">Take a moment to ensure the text from your document is correct before proceeding.</p>
     </div>
   </div>
 
@@ -39,12 +39,10 @@
       </svg>
     </div>
     <div class="alert-content">
-      <h4>Raw Text Review</h4>
+      <h4>Data Validation</h4>
       <p>
-        Please review the text extracted from your document below. Correct any OCR mistakes or
-        typos. Once you click <strong>"Confirm & Extract KPIs"</strong>, the backend will process
-        this text using AI to generate the final reports and trigger the Anomaly Detection
-        pipelines.
+        Please review the text below to ensure it was extracted correctly. Feel free to fix any typos or OCR mistakes.
+        Once you click <strong>"Confirm & Extract KPIs"</strong>, our AI will analyze the text to generate the final reports and trigger any anomaly alerts.
       </p>
     </div>
   </div>
@@ -58,7 +56,7 @@
     } @else if (form) {
       <form [formGroup]="form" (ngSubmit)="confirmAndSave()" class="data-form">
         <div class="form-group mb-4">
-          <label for="extractedText" class="form-label">Document Text</label>
+          <label for="extractedText" class="form-label">Extracted Text</label>
           <textarea
             id="extractedText"
             class="input-field text-editor"
