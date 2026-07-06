@@ -2,7 +2,7 @@
 
   <!-- Page Header -->
   <header class="page-header">
-    <h1>Alerts</h1>
+    <h1>Smart Alerts & Notifications</h1>
 
     <div class="header-actions">
       <!-- Filter Tabs -->
@@ -24,18 +24,6 @@
         }
       </div>
 
-      <!-- Notification Bell -->
-      <div class="bell-wrapper" [class.has-alerts]="unseenCount() > 0" aria-label="Notifications">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 01-3.46 0"/>
-        </svg>
-        @if (unseenCount() > 0) {
-          <span class="bell-badge">
-            {{ unseenCount() > 99 ? '99+' : unseenCount() }}
-          </span>
-        }
-      </div>
     </div>
   </header>
 
@@ -55,7 +43,7 @@
   } @else if (filtered().length === 0) {
     <div class="empty-state">
       <div class="empty-icon">🔔</div>
-      <p>No {{ activeTab() === 'all' ? '' : activeTab() + ' ' }}alerts found.</p>
+      <p>You're all caught up! No {{ activeTab() === 'all' ? '' : activeTab() + ' ' }}alerts found.</p>
     </div>
   } @else {
     <div class="alerts-list" role="list">
