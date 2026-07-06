@@ -35,7 +35,18 @@ namespace InsightX.API.Controllers
                 return Forbid("Invalid or missing companyId claim.");
             }
 
-            var alerts = await _getAlerts.ExecuteAsync(companyId, seen, cancellationToken);
+            int? departmentId = null;
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            if (role == "Manager")
+            {
+                var deptIdClaim = User.FindFirst("departmentId")?.Value;
+                if (int.TryParse(deptIdClaim, out var dId))
+                {
+                    departmentId = dId;
+                }
+            }
+
+            var alerts = await _getAlerts.ExecuteAsync(companyId, seen, departmentId, cancellationToken);
             return Ok(alerts);
         }
 

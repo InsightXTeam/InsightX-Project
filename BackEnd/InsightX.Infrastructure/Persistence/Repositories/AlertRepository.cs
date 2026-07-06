@@ -25,10 +25,11 @@ namespace InsightX.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<List<Alert>> GetByCompanyAsync(int companyId, bool? seenFilter)
+        public async Task<List<Alert>> GetByCompanyAsync(int companyId, bool? seenFilter, int? departmentId = null)
         {
             var alerts = _context.Alerts.Where(a => a.CompanyId == companyId);
             if (seenFilter.HasValue) alerts = alerts.Where(a => a.SeenByOwner == seenFilter.Value);
+            if (departmentId.HasValue) alerts = alerts.Where(a => a.DepartmentId == departmentId.Value);
 
 
             return await alerts

@@ -51,7 +51,7 @@ export const routes: Routes = [
   {
     path: 'alerts',
     loadChildren: () => import('./features/alerts/alerts.routes').then(m => m.routes),
-    canActivate: [isAuthenticatedGuard, roleGuard(['Owner'])]
+    canActivate: [isAuthenticatedGuard, roleGuard(['Owner', 'Manager'])]
   },
   
   // Wildcards & Default Redirects

@@ -12,9 +12,9 @@ namespace InsightX.Application.UseCases.Alerts
             _alertRepository = alertRepository;
         }
 
-        public async Task<List<AlertDto>> ExecuteAsync(int companyId, bool? seenFilter, CancellationToken cancellationToken = default)
+        public async Task<List<AlertDto>> ExecuteAsync(int companyId, bool? seenFilter, int? departmentId = null, CancellationToken cancellationToken = default)
         {
-            var alerts = await _alertRepository.GetByCompanyAsync(companyId, seenFilter);
+            var alerts = await _alertRepository.GetByCompanyAsync(companyId, seenFilter, departmentId);
 
             return alerts.Select(a => new AlertDto
             {
