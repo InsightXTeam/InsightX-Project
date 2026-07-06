@@ -121,27 +121,7 @@ namespace InsightX.API
              * */
             builder.Services.AddScoped<IAlertRepository, AlertRepository>();
             builder.Services.AddScoped<IMetricsRepository, MetricsRepository>();
-            builder.Services.AddScoped<IAlertMessageGenerator, SemanticKernelAlertGenerator>();
-
-            builder.Services.AddSingleton(sp =>
-            {
-                var configuration = sp.GetRequiredService<IConfiguration>();
-                var modelId = configuration["AI:ModelId"];
-                var apiKey = configuration["AI:ApiKey"];
-
-                var kernelBuilder = Kernel.CreateBuilder();
-
-                if (!string.IsNullOrWhiteSpace(modelId) && !string.IsNullOrWhiteSpace(apiKey))
-                {
-                    kernelBuilder.AddOpenAIChatCompletion(modelId, apiKey);
-                }
-                else
-                {
-                    Console.WriteLine("Warning: AI model config missing (AI:ModelId / AI:ApiKey). Kernel started without chat completion service.");
-                }
-
-                return kernelBuilder.Build();
-            });
+            builder.Services.AddHttpClient<IAlertMessageGenerator, OllamaAlertGenerator>();
 
             builder.Services.AddScoped<IAnomalyRule, ThresholdRule>();
             builder.Services.AddScoped<IAnomalyRule, YearOverYearRule>();
