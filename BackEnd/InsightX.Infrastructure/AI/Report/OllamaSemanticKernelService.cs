@@ -84,15 +84,19 @@ Document:
         public async Task<string> ExtractTextFromImageAsync(byte[] imageBytes, string fileName)
         {
             var prompt = "Extract all readable text from the image and return only the text content without any commentary or formatting.";
-            var mimeType = GetMimeType(fileName);
             var base64 = Convert.ToBase64String(imageBytes);
-            var imageDataUri = $"data:{mimeType};base64,{base64}";
+            var format = Path.GetExtension(fileName).TrimStart('.').ToLowerInvariant();
+            if (format == "jpg") format = "jpeg";
 
             var request = new ChatCompletionRequest(
                 ModelId: _imageModel,
-                SystemPrompt: "You are an assistant that extracts text from images.",
-                Messages: new[] { new Message(Role: "user", Content: prompt) },
-                InputImage: new[] { new ImageInput(Image: imageDataUri) },
+                Messages: new[] { 
+                    new Message(
+                        Role: "user", 
+                        Text: prompt,
+                        Images: new[] { new ImagePayload(Format: format, DataBase64: base64) }
+                    ) 
+                },
                 MaxTokens: 2000);
 
             using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _imageApiUrl)
@@ -129,17 +133,19 @@ Document:
 
         private sealed record ChatCompletionRequest(
             [property: JsonPropertyName("model_id")] string ModelId,
-            [property: JsonPropertyName("system_prompt")] string SystemPrompt,
             [property: JsonPropertyName("messages")] Message[] Messages,
-            [property: JsonPropertyName("input_image")] ImageInput[]? InputImage = null,
+            [property: JsonPropertyName("system_prompt"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? SystemPrompt = null,
             [property: JsonPropertyName("max_tokens")] int MaxTokens = 1000);
 
-        private sealed record ImageInput(
-            [property: JsonPropertyName("image")] string Image);
+        private sealed record ImagePayload(
+            [property: JsonPropertyName("format")] string Format,
+            [property: JsonPropertyName("data_base64")] string DataBase64);
 
         private sealed record Message(
             [property: JsonPropertyName("role")] string Role,
-            [property: JsonPropertyName("content")] string Content);
+            [property: JsonPropertyName("content"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Content = null,
+            [property: JsonPropertyName("text"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Text = null,
+            [property: JsonPropertyName("images"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ImagePayload[]? Images = null);
 
         private sealed record ChatCompletionResponse(
             [property: JsonPropertyName("output_text")] string OutputText);

@@ -68,10 +68,27 @@ export class ReportUpload {
             this.uploadProgress.set(Math.round(100 * (event.loaded / event.total)));
           }
         } else if (event.type === HttpEventType.Response) {
-          // Upload complete, now waiting for AI processing
+          // Upload complete, now trigger AI processing
           this.isUploading.set(false);
-          this.isProcessing.set(false);
-          this.router.navigate(['/reports']);
+          this.isProcessing.set(true);
+          const reportId = event.body?.id;
+          
+          if (reportId) {
+            this.service.process(reportId).subscribe({
+              next: () => {
+                this.isProcessing.set(false);
+                this.router.navigate(['/reports', reportId, 'preview']);
+              },
+              error: () => {
+                this.isProcessing.set(false);
+                this.showToast('Processing failed. You can retry from the reports list.', 'error');
+                this.router.navigate(['/reports']);
+              }
+            });
+          } else {
+             this.isProcessing.set(false);
+             this.router.navigate(['/reports']);
+          }
         }
       },
       error: () => {

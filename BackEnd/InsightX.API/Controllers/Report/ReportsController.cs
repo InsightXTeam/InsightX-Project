@@ -84,10 +84,7 @@ namespace InsightX.API.Controllers.Report
             var confirmResult = await _service.ConfirmTextAsync(id, dto, companyId, role, userName, cancellationToken);
             if (!confirmResult.IsSuccess) return StatusCode(confirmResult.StatusCode, confirmResult.Error);
 
-            var kpiResult = await _processor.ExtractKpisAsync(id, companyId, role, userName, cancellationToken);
-            if (!kpiResult.IsSuccess) return StatusCode(kpiResult.StatusCode, kpiResult.Error);
-
-            return Ok(new { message = "Text confirmed and KPIs extracted successfully" });
+            return Ok(new { message = "KPIs confirmed successfully" });
         }
 
         [HttpDelete("{id}")]

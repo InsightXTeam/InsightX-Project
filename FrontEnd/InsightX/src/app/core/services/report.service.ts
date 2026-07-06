@@ -49,10 +49,9 @@ export class ReportService {
   }
 
   // POST /api/Reports/{id}/confirm
-  // Sends the manager-reviewed extracted text to the backend.
-  // The backend then: 1) saves the corrected text, 2) runs AI to extract KPIs, 3) saves KPIs to DB.
-  // We use JSON.stringify explicitly to ensure newlines (0x0A) are properly escaped.
-  confirm(id: number, payload: { extractedText: string }): Observable<any> {
+  // Sends the manager-reviewed metrics back to the backend.
+  // The backend then saves the corrected KPIs to DB and marks them confirmed.
+  confirm(id: number, payload: { metrics: any[] }): Observable<any> {
     const body = JSON.stringify(payload);
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post(`${this.apiUrl}/${id}/confirm`, body, { headers });

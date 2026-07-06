@@ -20,14 +20,17 @@ namespace InsightX.Application.Extensions
             return userId ?? throw new UnauthorizedAccessException("UserId is missing or invalid.");
         }
 
-        public static int GetDepartmentId(this ClaimsPrincipal user)
+        public static int? GetDepartmentId(this ClaimsPrincipal user)
         {
             var departmentIdClaim = user.FindFirst("DepartmentId")?.Value;
 
-            if (!int.TryParse(departmentIdClaim, out var departmentId))
-                throw new UnauthorizedAccessException("DepartmentId is missing or invalid.");
+            if (string.IsNullOrEmpty(departmentIdClaim))
+                return null;
 
-            return departmentId;
+            if (int.TryParse(departmentIdClaim, out var departmentId))
+                return departmentId;
+
+            return null;
         }
     }
 }
