@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Alert } from '../models/alert.model';
@@ -9,6 +9,15 @@ import { environment } from '../../../../environments/environment';
 export class AlertsApiService {
   private readonly http = inject(HttpClient);
   private readonly BASE = `${environment.apiBaseUrl}/alerts`;
+
+  readonly unseenCount = signal<number>(0);
+
+  fetchUnseenCount(): void {
+    this.getAlerts(false).subscribe({
+      next: (alerts) => this.unseenCount.set(alerts.length),
+      error: () => this.unseenCount.set(0)
+    });
+  }
 
   /**
    * GET /api/alerts?seen=true|false

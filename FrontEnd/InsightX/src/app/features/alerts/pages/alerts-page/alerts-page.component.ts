@@ -50,6 +50,7 @@ export class AlertsPageComponent implements OnInit {
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         this.allAlerts.set(sorted);
+        this.api.unseenCount.set(sorted.filter(a => !a.seenByOwner).length);
         this.loading.set(false);
       },
       error: () => {
@@ -66,6 +67,7 @@ export class AlertsPageComponent implements OnInit {
       this.allAlerts.update(alerts =>
         alerts.map(a => a.id === alertId ? { ...a, seenByOwner: true } : a)
       );
+      this.api.unseenCount.update(c => Math.max(0, c - 1));
     });
   }
 }
