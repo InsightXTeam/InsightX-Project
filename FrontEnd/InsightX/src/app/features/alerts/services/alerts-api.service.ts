@@ -25,7 +25,7 @@ export class AlertsApiService {
    * Pass null to get all.
    */
   getAlerts(seenFilter?: boolean | null): Observable<Alert[]> {
-    let params = new HttpParams();
+    let params = new HttpParams().set('t', Date.now().toString());
     if (seenFilter !== null && seenFilter !== undefined) {
       params = params.set('seen', String(seenFilter));
     }
