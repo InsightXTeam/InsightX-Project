@@ -76,6 +76,15 @@ namespace InsightX.API.Controllers
             return result.IsSuccess ? NoContent() : StatusCode(result.StatusCode, result.Error);
         }
 
+        [HttpPost("{id}/restore")]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> Restore(string id, CancellationToken cancellationToken)
+        {
+            var companyId = User.GetCompanyId();
+            var result = await _userService.RestoreManagerAsync(id, companyId, cancellationToken);
+            return result.IsSuccess ? Ok(new { Message = "User restored successfully." }) : StatusCode(result.StatusCode, result.Error);
+        }
+
         [HttpPost("change-password")]
         [Authorize]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto dto, CancellationToken cancellationToken)

@@ -32,6 +32,7 @@ export class UserListComponent implements OnInit {
 
   // Signals
   readonly users = signal<UserResponse[]>([]);
+  readonly currentTab = signal<'all' | 'active' | 'inactive'>('active');
   readonly showDeleteConfirm = signal(false);
   userToDeleteId: string | null = null;
   readonly departments = signal<Department[]>([]);
@@ -39,9 +40,27 @@ export class UserListComponent implements OnInit {
   readonly showForm = signal(false);
   readonly error = signal<string | null>(null);
   readonly editingUserId = signal<string | null>(null);
+  readonly searchQuery = signal('');
 
   // Computed Check
   readonly isOwner = computed(() => this.authService.currentUser()?.role === 'Owner');
+  readonly filteredUsers = computed(() => {
+    const tab = this.currentTab();
+    const query = this.searchQuery().toLowerCase().trim();
+    let filtered = this.users().filter(u => u.role !== 'Owner');
+
+    if (tab === 'active') {
+      filtered = filtered.filter(u => !u.isDeleted);
+    } else if (tab === 'inactive') {
+      filtered = filtered.filter(u => u.isDeleted);
+    }
+
+    if (query) {
+      filtered = filtered.filter(u => u.name?.toLowerCase().includes(query));
+    }
+
+    return filtered;
+  });
 
   // Input states
   newManager = { name: '', email: '', password: '', departmentId: 0 };
@@ -82,6 +101,10 @@ export class UserListComponent implements OnInit {
     this.showForm.update(val => !val);
     this.newManager = { name: '', email: '', password: '', departmentId: 0 };
     this.error.set(null);
+  }
+
+  setTab(tab: 'all' | 'active' | 'inactive'): void {
+    this.currentTab.set(tab);
   }
 
   submitInvitation(): void {
@@ -131,10 +154,57 @@ export class UserListComponent implements OnInit {
         this.isLoading.set(false);
         this.toastService.show('Manager deleted successfully');
         this.loadUsers(); // Reload team members
+        if (this.isOwner()) this.loadDepartments(); // Reload departments to reflect unassignment
       },
       error: (err) => {
         this.isLoading.set(false);
         this.error.set(extractErrorMessage(err, 'Failed to delete manager.'));
+      }
+    });
+  }
+
+  readonly showRestoreModal = signal(false);
+  userToRestoreId: string | null = null;
+  restoreUserDeptId: number = 0;
+
+  triggerRestore(id: string): void {
+    this.userToRestoreId = id;
+    this.restoreUserDeptId = 0;
+    this.showRestoreModal.set(true);
+  }
+
+  cancelRestore(): void {
+    this.showRestoreModal.set(false);
+    this.userToRestoreId = null;
+  }
+
+  confirmRestore(): void {
+    const id = this.userToRestoreId;
+    if (!id || this.restoreUserDeptId === 0) return;
+
+    this.showRestoreModal.set(false);
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.userService.restoreUser(id).subscribe({
+      next: () => {
+        this.userService.updateUserDepartment(id, this.restoreUserDeptId).subscribe({
+          next: () => {
+            this.isLoading.set(false);
+            this.toastService.show('Manager restored and assigned successfully');
+            this.loadUsers(); // Reload team members
+            if (this.isOwner()) this.loadDepartments(); // Reload departments to reflect reassignment
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            this.error.set(extractErrorMessage(err, 'Manager was restored but department assignment failed.'));
+            this.loadUsers();
+          }
+        });
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.error.set(extractErrorMessage(err, 'Failed to restore manager.'));
       }
     });
   }
@@ -166,6 +236,7 @@ export class UserListComponent implements OnInit {
         this.isLoading.set(false);
         this.editingUserId.set(null);
         this.loadUsers(); // Reload team members to see new department
+        if (this.isOwner()) this.loadDepartments(); // Reload departments to reflect new manager assignment
       },
       error: (err) => {
         this.isLoading.set(false);

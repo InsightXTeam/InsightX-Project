@@ -13,6 +13,7 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult<List<OwnerManagementDto>>> GetOwnersForManagementAsync(CancellationToken cancellationToken = default);
         Task<ServiceResult> SetActivationStatusAsync(string id, bool isActivated, CancellationToken cancellationToken = default);
         Task<ServiceResult> DeleteManagerAsync(string id, int companyId, CancellationToken cancellationToken = default);
+        Task<ServiceResult> RestoreManagerAsync(string id, int companyId, CancellationToken cancellationToken = default);
         Task<ServiceResult> ChangePasswordAsync(string userId, ChangePasswordDto dto, CancellationToken cancellationToken = default);
         Task<ServiceResult> UpdateUserDepartmentAsync(string id, int? departmentId, int companyId, CancellationToken cancellationToken = default);
     }

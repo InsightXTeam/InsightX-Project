@@ -8,7 +8,7 @@ namespace InsightX.Application.DTOs
         [Required, MinLength(8)] string Password,
         [Required, Range(1, int.MaxValue, ErrorMessage = "A valid department is required.")] int DepartmentId
     );
-    public record UserResponseDto(string Id, string Name, string Email, string Role, int? DepartmentId, string? DepartmentName);
+    public record UserResponseDto(string Id, string Name, string Email, string Role, int? DepartmentId, string? DepartmentName, bool IsDeleted);
     public record OwnerManagementDto(
         string UserId,
         string OwnerName,

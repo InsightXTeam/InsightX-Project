@@ -88,6 +88,38 @@
 .save-btn { background: var(--btn-primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
 .save-btn:hover:not(:disabled) { background: var(--btn-hover); }
 
+/* Tabs */
+.tabs-wrapper {
+  display: flex;
+  margin-bottom: 20px;
+}
+.tabs-container {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+.tab-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tab-btn:hover {
+  color: white;
+}
+.tab-btn.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
 /* Users Table */
 .table-container {
   background: var(--bg-card);
@@ -138,4 +170,15 @@
 .edit-btn:hover {
   background: rgba(59, 130, 246, 0.1);
   color: #60a5fa;
+}
+.deleted-user {
+  opacity: 0.6;
+  background-color: rgba(239, 68, 68, 0.02);
+}
+.deleted-user td {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.2);
+}
+.deleted-user td:last-child {
+  text-decoration: none;
 }

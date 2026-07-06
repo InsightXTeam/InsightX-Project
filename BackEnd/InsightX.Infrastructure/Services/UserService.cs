@@ -90,6 +90,7 @@ namespace InsightX.Infrastructure.Services
         public async Task<ServiceResult<List<UserResponseDto>>> GetUsersAsync(int companyId, string role, string? departmentIdClaim, CancellationToken cancellationToken = default)
         {
             IQueryable<ApplicationUser> query = _context.Users
+                .IgnoreQueryFilters()
                 .Where(u => u.CompanyId == companyId)
                 .Include(u => u.Department);
 
@@ -99,7 +100,7 @@ namespace InsightX.Infrastructure.Services
                 {
                     return ServiceResult<List<UserResponseDto>>.Fail(403, "Forbidden");
                 }
-                query = query.Where(u => u.DepartmentId == deptId);
+                query = query.Where(u => u.DepartmentId == deptId && !u.IsDeleted);
             }
             else if (role != "Owner")
             {
@@ -125,7 +126,8 @@ namespace InsightX.Infrastructure.Services
                 u.Email ?? string.Empty,
                 rolesDict.TryGetValue(u.Id, out var roleName) ? roleName : string.Empty,
                 u.DepartmentId,
-                u.Department != null ? u.Department.Name : null
+                u.Department != null ? u.Department.Name : null,
+                u.IsDeleted
             )).ToList();
 
             return ServiceResult<List<UserResponseDto>>.Success(dtos);
@@ -174,6 +176,23 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, errors);
             }
 
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("Owner"))
+            {
+                var managersInCompany = await _context.Users
+                    .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+                    .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, RoleName = r.Name })
+                    .Where(x => x.u.CompanyId == user.CompanyId && x.RoleName == "Manager")
+                    .Select(x => x.u)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var manager in managersInCompany)
+                {
+                    manager.IsActivated = isActivated;
+                    await _userManager.UpdateAsync(manager);
+                }
+            }
+
             return ServiceResult.Success();
         }
 
@@ -201,10 +220,49 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult.Fail(400, "Only users with the Manager role can be deleted.");
             }
 
-            var deleteResult = await _userManager.DeleteAsync(user);
-            if (!deleteResult.Succeeded)
+            user.IsDeleted = true;
+            user.IsActivated = false;
+            user.DepartmentId = null;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
             {
-                var errors = string.Join(", ", deleteResult.Errors.Select(e => e.Description));
+                var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
+                return ServiceResult.Fail(400, errors);
+            }
+
+            return ServiceResult.Success();
+        }
+
+        public async Task<ServiceResult> RestoreManagerAsync(string id, int companyId, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return ServiceResult.Fail(400, "Invalid user ID.");
+            }
+
+            var user = await _context.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+            if (user == null)
+            {
+                return ServiceResult.Fail(404, "User not found.");
+            }
+
+            if (user.CompanyId != companyId)
+            {
+                return ServiceResult.Fail(403, "You do not have permission to restore this user.");
+            }
+
+            var isManager = await _userManager.IsInRoleAsync(user, "Manager");
+            if (!isManager)
+            {
+                return ServiceResult.Fail(400, "Only users with the Manager role can be restored.");
+            }
+
+            user.IsDeleted = false;
+            user.IsActivated = true;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
                 return ServiceResult.Fail(400, errors);
             }
 

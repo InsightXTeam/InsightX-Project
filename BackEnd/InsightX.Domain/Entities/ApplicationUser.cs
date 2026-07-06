@@ -11,6 +11,7 @@ namespace InsightX.Domain.Entities
 
         public bool IsActivated { get; set; } = false;
         public bool MustChangePassword { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
 
         public Company Company { get; set; } = null!;
         public Department? Department { get; set; }

@@ -9,6 +9,7 @@ export interface UserResponse {
   role: string;
   departmentId: number | null;
   departmentName: string | null;
+  isDeleted: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -26,6 +27,10 @@ export class UserService {
 
   deleteUser(id: string) {
     return this.http.delete(`${this.apiBase}/users/${id}`);
+  }
+
+  restoreUser(id: string) {
+    return this.http.post(`${this.apiBase}/users/${id}/restore`, {});
   }
 
   updateUserDepartment(id: string, departmentId: number | null) {
