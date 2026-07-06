@@ -32,8 +32,16 @@ namespace InsightX.Infrastructure.AI
             json = Regex.Replace(json, @"^```[a-zA-Z]*\s*", "").TrimStart();
             json = Regex.Replace(json, @"```\s*$", "").TrimEnd();
 
-            var parsed = JsonSerializer.Deserialize<AlertJsonResult>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            AlertJsonResult? parsed = null;
+            try
+            {
+                parsed = JsonSerializer.Deserialize<AlertJsonResult>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            }
+            catch (JsonException)
+            {
+                // Fallback if LLM generated malformed JSON
+            }
 
             return (parsed?.message ?? "Anomaly detected.", parsed?.recommendation ?? "Please review the KPI.");
         }
