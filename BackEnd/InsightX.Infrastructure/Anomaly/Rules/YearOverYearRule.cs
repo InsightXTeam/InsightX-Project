@@ -1,24 +1,21 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.DTOs;
+using InsightX.Application.Interfaces;
 using InsightX.Domain.Enums;
 using InsightX.Domain.ValueObjects;
 
 namespace InsightX.Infrastructure.Anomaly.Rules
 {
-    public class ZScoreRule : IAnomalyRule
+    public class YearOverYearRule : IAnomalyRule
     {
         private readonly IMetricsRepository _metricsRepository;
 
-        public ZScoreRule(IMetricsRepository metricsRepository)
+        public YearOverYearRule(IMetricsRepository metricsRepository)
         {
             _metricsRepository = metricsRepository;
         }
 
-        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue)
+        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue, KPIConfig config)
         {
-            var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
-
-            if (config == null) return AnomalyResult.None();
-
             var lastYearValue = await _metricsRepository
                 .GetSameMonthLastYearAsync(companyId, kpiName, DateTime.UtcNow.Month);
 
@@ -31,7 +28,7 @@ namespace InsightX.Infrastructure.Anomaly.Rules
                 return new AnomalyResult
                 {
                     IsAnomaly = true,
-                    Level = AnomalyLevel.ZScore,
+                    Level = AnomalyLevel.YearOverYear,
                     KPIName = kpiName,
                     CurrentValue = currentValue,
                     Threshold = lyv

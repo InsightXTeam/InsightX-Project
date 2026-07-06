@@ -1,10 +1,10 @@
-﻿namespace InsightX.Domain.Enums
+namespace InsightX.Domain.Enums
 {
     public enum AnomalyLevel
     {
         None,
         Threshold,
-        ZScore,
+        YearOverYear,
         Trend
     }
 }

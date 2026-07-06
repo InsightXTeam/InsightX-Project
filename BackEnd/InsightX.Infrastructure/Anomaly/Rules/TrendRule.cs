@@ -1,3 +1,4 @@
+using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Enums;
 using InsightX.Domain.ValueObjects;
@@ -13,28 +14,36 @@ namespace InsightX.Infrastructure.Anomaly.Rules
             _metricsRepository = metricsRepository;
         }
 
-        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue)
+        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue, KPIConfig config)
         {
-            var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
-            if (config == null) return AnomalyResult.None();
-
             var lastMonths = await _metricsRepository.GetLastNMonthsAsync(companyId, kpiName, config.TrendMonthsCount);
             if (lastMonths.Count < config.TrendMonthsCount) return AnomalyResult.None();
 
-            // GetLastNMonthsAsync returns DESC; reverse to chronological order for trend check.
             lastMonths.Reverse();
 
+            // Include current value to see if trend continues
+            var allValues = new List<decimal>(lastMonths) { currentValue };
+
             var isDownwardTrend = true;
-            for (int i = 0; i < lastMonths.Count - 1; i++)
+            var isUpwardTrend = true;
+
+            for (int i = 0; i < allValues.Count - 1; i++)
             {
-                if (lastMonths[i] <= lastMonths[i + 1])
+                if (allValues[i] <= allValues[i + 1])
                 {
                     isDownwardTrend = false;
-                    break;
+                }
+                if (allValues[i] >= allValues[i + 1])
+                {
+                    isUpwardTrend = false;
                 }
             }
 
-            if (isDownwardTrend)
+            var isAnomaly = config.ThresholdDirection == ThresholdDirection.Below
+                ? isDownwardTrend
+                : isUpwardTrend;
+
+            if (isAnomaly)
                 return new AnomalyResult
                 {
                     IsAnomaly = true,

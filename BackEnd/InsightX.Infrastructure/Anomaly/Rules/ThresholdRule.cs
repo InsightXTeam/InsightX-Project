@@ -1,3 +1,4 @@
+using InsightX.Application.DTOs;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Enums;
 using InsightX.Domain.ValueObjects;
@@ -6,18 +7,8 @@ namespace InsightX.Infrastructure.Anomaly.Rules
 {
     public class ThresholdRule : IAnomalyRule
     {
-        private readonly IMetricsRepository _metricsRepository;
-
-        public ThresholdRule(IMetricsRepository metricsRepository)
+        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue, KPIConfig config)
         {
-            _metricsRepository = metricsRepository;
-        }
-
-        public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue)
-        {
-            var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
-            if (config == null) return AnomalyResult.None();
-
             var breached = config.ThresholdDirection == ThresholdDirection.Below
                 ? currentValue < config.Threshold
                 : currentValue > config.Threshold;
