@@ -3,10 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Alert } from '../models/alert.model';
 
+import { environment } from '../../../../environments/environment';
+
 @Injectable({ providedIn: 'root' })
 export class AlertsApiService {
   private readonly http = inject(HttpClient);
-  private readonly BASE = '/api/alerts';
+  private readonly BASE = `${environment.apiBaseUrl}/alerts`;
 
   /**
    * GET /api/alerts?seen=true|false
