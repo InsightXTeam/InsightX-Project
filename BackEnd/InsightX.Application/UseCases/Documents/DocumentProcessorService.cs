@@ -43,7 +43,6 @@ namespace InsightX.Application.UseCases.Documents
 
             try
             {
-                // 1. Text Extraction
                 var extension = Path.GetExtension(report.FilePath);
                 var reader = _readers.FirstOrDefault(x => x.CanRead(extension));
 
@@ -51,13 +50,38 @@ namespace InsightX.Application.UseCases.Documents
                     return ServiceResult.Fail(400, "No reader found for this file type");
 
                 var text = await reader.ExtractTextAsync(report.FilePath);
-                report.ExtractedText = text;
-                
-                // Set status to indicate AI is running
-                report.Status = ReportStatus.ProcessingAI.ToString();
-                await _repository.UpdateAsync(report, cancellationToken);
 
-                // 2. AI Extraction
+                report.ExtractedText = text;
+                report.Status = ReportStatus.PendingConfirmation.ToString();
+                await _repository.UpdateAsync(report, cancellationToken);
+                return ServiceResult.Success();
+            }
+            catch (Exception ex)
+            {
+                report.Status = ReportStatus.Failed.ToString();
+                await _repository.UpdateAsync(report, cancellationToken);
+                return ServiceResult.Fail(500, ex.Message);
+            }
+        }
+
+        public async Task<ServiceResult> ExtractKpisAsync(int reportId, int companyId, string role, string userName, CancellationToken cancellationToken = default)
+        {
+            var report = await _repository.GetByIdForCompanyAsync(reportId, companyId, cancellationToken);
+
+            if (report == null)
+                return ServiceResult.Fail(404, "Report not found");
+                
+            if (role != "Owner" && report.UploadedById != userName)
+                return ServiceResult.Fail(403, "You do not have permission to extract KPIs for this report.");
+
+            if (string.IsNullOrEmpty(report.ExtractedText))
+                return ServiceResult.Fail(400, "No text available to extract KPIs from");
+
+            report.Status = ReportStatus.ProcessingAI.ToString();
+            await _repository.UpdateAsync(report, cancellationToken);
+
+            try
+            {
                 var kpisResult = await _kpiService.GetAllAsync(companyId);
                 var kpis = kpisResult.Data?.Select(k => k.Name).ToList() ?? new List<string>();
                 if (!kpis.Any())
@@ -65,7 +89,7 @@ namespace InsightX.Application.UseCases.Documents
                     return ServiceResult.Fail(400, "No KPIs configured for this company. Please add KPIs first.");
                 }
 
-                var metricsJson = await _ai.ExtractMetricsAsync(text, kpis);
+                var metricsJson = await _ai.ExtractMetricsAsync(report.ExtractedText, kpis);
 
                 var match = System.Text.RegularExpressions.Regex.Match(metricsJson, @"\[.*\]", System.Text.RegularExpressions.RegexOptions.Singleline);
                 if (match.Success)
@@ -94,19 +118,17 @@ namespace InsightX.Application.UseCases.Documents
                         Month = x.Month ?? report.UploadedAt.Month,
                         Year = x.Year ?? report.UploadedAt.Year,
                         CompanyId = report.CompanyId,
-                        ConfirmedByManager = false // Initially unconfirmed
+                        ConfirmedByManager = true
                     }).ToList();
                 }
 
-                // 3. Complete processing and wait for confirmation
-                report.Status = ReportStatus.PendingConfirmation.ToString();
+                report.Status = ReportStatus.Done.ToString();
                 await _repository.UpdateAsync(report, cancellationToken);
-                
                 return ServiceResult.Success();
             }
             catch (Exception ex)
             {
-                report.Status = ReportStatus.Failed.ToString();
+                report.Status = ReportStatus.FailedAI.ToString();
                 await _repository.UpdateAsync(report, cancellationToken);
                 return ServiceResult.Fail(500, ex.Message);
             }

@@ -4,6 +4,6 @@ namespace InsightX.Application.DTOs.Reports
 {
     public class ConfirmReportDto
     {
-        public required List<ExtractedMetricDto> Metrics { get; set; }
+        public required string ExtractedText { get; set; }
     }
 }
