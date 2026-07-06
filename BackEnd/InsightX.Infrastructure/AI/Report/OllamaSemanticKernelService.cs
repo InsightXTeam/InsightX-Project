@@ -10,18 +10,21 @@ namespace InsightX.Infrastructure.AI.Report
     public class OllamaSemanticKernelService : IAIExtractionService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _apiUrl;
+        private readonly string _chatApiUrl;
+        private readonly string _imageApiUrl;
         private readonly string _apiKey;
         private readonly string _model;
         private readonly string _imageModel;
 
         public OllamaSemanticKernelService(HttpClient httpClient, IConfiguration configuration)
         {
+            var reportAiConfig = configuration.GetSection("ReportAI");
             _httpClient = httpClient;
-            _apiUrl = configuration["ITI_API_URL"] ?? configuration["AI_API_URL"] ?? throw new ArgumentNullException(nameof(configuration), "ITI_API_URL or AI_API_URL is required");
-            _apiKey = configuration["ITI_API_KEY"] ?? configuration["AI_API_KEY"] ?? throw new ArgumentNullException(nameof(configuration), "ITI_API_KEY or AI_API_KEY is required");
-            _model = configuration["ITI_MODEL_ID"] ?? configuration["AI_MODEL"] ?? throw new ArgumentNullException(nameof(configuration), "ITI_MODEL_ID or AI_MODEL is required");
-            _imageModel = configuration["ITI_IMAGE_MODEL_ID"] ?? _model;
+            _chatApiUrl = reportAiConfig["ChatEndpoint"] ?? configuration["ITI_API_URL"] ?? configuration["AI_API_URL"] ?? throw new ArgumentNullException("ReportAI:ChatEndpoint is required");
+            _imageApiUrl = reportAiConfig["ImagesEndpoint"] ?? configuration["ITI_IMAGE_API_URL"] ?? _chatApiUrl;
+            _apiKey = reportAiConfig["ApiKey"] ?? configuration["ITI_API_KEY"] ?? configuration["AI_API_KEY"] ?? throw new ArgumentNullException("ReportAI:ApiKey is required");
+            _model = reportAiConfig["ModelId"] ?? configuration["ITI_MODEL_ID"] ?? configuration["AI_MODEL"] ?? throw new ArgumentNullException("ReportAI:ModelId is required");
+            _imageModel = reportAiConfig["ModelId"] ?? configuration["ITI_IMAGE_MODEL_ID"] ?? _model;
         }
 
         public async Task<string> ExtractMetricsAsync(string text, IEnumerable<string> predefinedKPIs)
@@ -58,7 +61,7 @@ Document:
                 Messages: new[] { new Message(Role: "user", Content: prompt) },
                 MaxTokens: 1000);
 
-            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _apiUrl)
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _chatApiUrl)
             {
                 Content = JsonContent.Create(request)
             };
@@ -92,7 +95,7 @@ Document:
                 InputImage: new[] { new ImageInput(Image: imageDataUri) },
                 MaxTokens: 2000);
 
-            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _apiUrl)
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, _imageApiUrl)
             {
                 Content = JsonContent.Create(request)
             };
