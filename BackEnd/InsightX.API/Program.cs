@@ -2,6 +2,7 @@ using Asp.Versioning;
 using InsightX.API.Middleware;
 using InsightX.Domain.Entities;
 using InsightX.Infrastructure;
+using InsightX.Infrastructure.Configuration;
 using InsightX.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -136,6 +137,7 @@ namespace InsightX.API
 
             app.UseHttpsRedirection();
 
+            app.UseCors(CorsSettings.SectionName);
 
             app.UseAuthentication();
             app.UseAuthorization();

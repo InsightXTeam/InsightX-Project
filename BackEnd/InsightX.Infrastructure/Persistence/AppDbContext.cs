@@ -57,7 +57,7 @@ namespace InsightX.Infrastructure.Persistence
                 .HasOne(r => r.Company)
                 .WithMany()
                 .HasForeignKey(r => r.CompanyId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             builder.Entity<Report>()
                 .HasOne(r => r.UploadedBy)
