@@ -1,0 +1,9 @@
+<div class="toast-container" *ngIf="open">
+  <div
+    class="toast-card"
+    [class.toast-error]="type === 'error'"
+    [class.toast-info]="type === 'info'"
+  >
+    <span>{{ message }}</span>
+  </div>
+</div>

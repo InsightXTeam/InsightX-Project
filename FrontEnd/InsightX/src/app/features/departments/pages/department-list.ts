@@ -6,6 +6,7 @@ import { UserService } from '../../../core/services/user.service';
 import { ConfirmDialogComponent } from '../../../shared/components/dialog/confirm-dialog';
 import { ToastService } from '../../../core/services/toast.service';
 import { extractErrorMessage } from '../../../shared/utils/error.utils';
+import { AuthService } from '../../../core/services/auth.service';
 
 
 @Component({

@@ -43,6 +43,11 @@ export const routes: Routes = [
     component: ProfileComponent,
     canActivate: [isAuthenticatedGuard]
   },
+  {
+    path: 'reports',
+    loadChildren: () => import('./features/reports/reports.routes').then(m => m.routes),
+    canActivate: [isAuthenticatedGuard]
+  },
   
   // Wildcards & Default Redirects
   {

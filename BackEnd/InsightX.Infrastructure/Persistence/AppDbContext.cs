@@ -1,4 +1,5 @@
 using InsightX.Domain.Entities;
+using InsightX.Domain.Entities.Reports;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,8 @@ namespace InsightX.Infrastructure.Persistence
         public DbSet<Department> Departments => Set<Department>();
         public DbSet<KPI> KPIs => Set<KPI>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<Report> Reports => Set<Report>();
+        public DbSet<ExtractedMetric> ExtractedMetrics => Set<ExtractedMetric>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -49,6 +52,30 @@ namespace InsightX.Infrastructure.Persistence
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Report>()
+                .HasOne(r => r.Company)
+                .WithMany()
+                .HasForeignKey(r => r.CompanyId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Report>()
+                .HasOne(r => r.UploadedBy)
+                .WithMany()
+                .HasForeignKey(r => r.UploadedById)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            builder.Entity<Report>()
+                .HasOne(r => r.Department)
+                .WithMany()
+                .HasForeignKey(r => r.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            builder.Entity<ExtractedMetric>()
+                .HasOne(e => e.Company)
+                .WithMany()
+                .HasForeignKey(e => e.CompanyId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }
