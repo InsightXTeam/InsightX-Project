@@ -52,6 +52,24 @@ export class ReportResults implements OnInit {
       },
     });
   }
+
+  downloadReport() {
+    this.service.download(this.reportId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `report_${this.reportId}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        alert('Failed to download the report.');
+      }
+    });
+  }
 }
 
 

@@ -7,6 +7,8 @@ namespace InsightX.Domain.Entities.Reports
     {
         public int Id { get; set; }
 
+        public string ReportName { get; set; } = string.Empty;
+
         public string FileName { get; set; } = string.Empty;
 
         public string FilePath { get; set; } = string.Empty;

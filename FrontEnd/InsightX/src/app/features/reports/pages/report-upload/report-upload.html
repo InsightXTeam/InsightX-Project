@@ -23,6 +23,18 @@
   </div>
 
   <div class="upload-card">
+    <div class="form-group mb-4">
+      <label for="reportName" class="form-label">Report Name (Optional)</label>
+      <input
+        type="text"
+        id="reportName"
+        class="form-control"
+        placeholder="Enter a custom name for this report"
+        [value]="reportName()"
+        (input)="reportName.set($any($event.target).value)"
+      />
+    </div>
+
     <div
       class="upload-drop-zone"
       [class.drag-over]="isDragging()"
@@ -107,14 +119,12 @@
           <span class="progress-text">{{
             isProcessing() ? 'AI Processing...' : 'Uploading Document...'
           }}</span>
-          <span class="progress-percent">{{
-            isProcessing() ? '100%' : uploadProgress() + '%'
-          }}</span>
+          <span class="progress-percent">{{ uploadProgress() + '%' }}</span>
         </div>
         <div class="progress-bar-container">
           <div
             class="progress-bar-fill"
-            [style.width]="isProcessing() ? '100%' : uploadProgress() + '%'"
+            [style.width]="uploadProgress() + '%'"
           ></div>
         </div>
         @if (isProcessing()) {

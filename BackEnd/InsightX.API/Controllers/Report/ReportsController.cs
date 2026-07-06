@@ -102,5 +102,17 @@ namespace InsightX.API.Controllers.Report
             var result = await _processor.ProcessAsync(id, User.GetCompanyId(), role, User.GetUserId(), cancellationToken);
             return result.IsSuccess ? Ok(new { message = "Processing finished" }) : StatusCode(result.StatusCode, result.Error);
         }
+
+        [HttpGet("{id}/download")]
+        public async Task<IActionResult> Download(int id, CancellationToken cancellationToken)
+        {
+            var result = await _service.DownloadAsync(id, User.GetCompanyId(), cancellationToken);
+            if (!result.IsSuccess || result.Data == null)
+            {
+                return StatusCode(result.StatusCode, result.Error);
+            }
+
+            return File(result.Data.FileContent, result.Data.ContentType, result.Data.FileName);
+        }
     }
 }

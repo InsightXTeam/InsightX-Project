@@ -25,6 +25,9 @@ namespace InsightX.Infrastructure.Persistence
             base.OnModelCreating(builder); // Required for Identity tables
 
             builder.Entity<ApplicationUser>()
+                .HasQueryFilter(u => !u.IsDeleted);
+
+            builder.Entity<ApplicationUser>()
                 .HasOne(u => u.Company)
                 .WithMany(c => c.Users)
                 .HasForeignKey(u => u.CompanyId)

@@ -14,9 +14,12 @@ export class ReportService {
   private apiUrl = `${environment.apiBaseUrl}/Reports`;
 
   // POST /api/Reports/upload
-  upload(file: File): Observable<any> {
+  upload(file: File, reportName: string): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
+    if (reportName) {
+      formData.append('reportName', reportName);
+    }
 
     return this.http.post(
       `${this.apiUrl}/upload`,
@@ -65,5 +68,10 @@ export class ReportService {
   // POST /api/Reports/{id}/process
   process(id: number): Observable<any> {
     return this.http.post(`${this.apiUrl}/${id}/process`, {});
+  }
+
+  // GET /api/Reports/{id}/download
+  download(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/download`, { responseType: 'blob' });
   }
 }

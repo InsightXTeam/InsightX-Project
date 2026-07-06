@@ -22,6 +22,15 @@ namespace InsightX.Infrastructure.FileStorage
             return path;
         }
 
+        public async Task<byte[]> GetFileAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                return Array.Empty<byte>();
+            }
+            return await File.ReadAllBytesAsync(filePath);
+        }
+
         public void DeleteFile(string filePath)
         {
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))

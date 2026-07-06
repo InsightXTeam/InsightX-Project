@@ -29,7 +29,12 @@
   font-weight: 400;
 }
 
-.back-btn {
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.back-btn, .download-btn {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -45,14 +50,25 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.back-btn:hover {
+.back-btn:hover, .download-btn:hover {
   background-color: var(--bg-sidebar);
   color: var(--text-primary);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
   transform: translateY(-1px);
 }
 
-.back-btn svg {
+.download-btn {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.download-btn:hover {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.back-btn svg, .download-btn svg {
   width: 18px;
   height: 18px;
 }

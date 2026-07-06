@@ -21,5 +21,7 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult> ConfirmTextAsync(int id, ConfirmReportDto dto, int companyId, string role, string userName, CancellationToken cancellationToken = default);
 
         Task<ServiceResult> DeleteAsync(int id, int companyId, string role, string userName, CancellationToken cancellationToken = default);
+
+        Task<ServiceResult<ReportDownloadDto>> DownloadAsync(int id, int companyId, CancellationToken cancellationToken = default);
     }
 }

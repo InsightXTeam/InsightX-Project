@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
 import { Report } from '../../../../core/models/report.model';
@@ -9,7 +10,7 @@ import { ToastNotificationComponent } from '../../../../shared/components/toast-
 @Component({
   selector: 'app-report-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmDialogComponent, ToastNotificationComponent],
+  imports: [CommonModule, RouterModule, ConfirmDialogComponent, ToastNotificationComponent, FormsModule],
   templateUrl: './report-list.html',
   styleUrl: './report-list.css',
 })
@@ -18,6 +19,17 @@ export class ReportList implements OnInit {
   private router = inject(Router);
 
   reports = signal<Report[]>([]);
+  searchQuery = signal('');
+  
+  filteredReports = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const all = this.reports();
+    if (!query) return all;
+    return all.filter(r => 
+      (r.reportName || r.fileName || '').toLowerCase().includes(query)
+    );
+  });
+
   processingIds = signal<Set<number>>(new Set());
   showDeleteDialog = signal(false);
   deleteReportId = signal<number | null>(null);
@@ -112,6 +124,24 @@ export class ReportList implements OnInit {
   cancelDelete() {
     this.showDeleteDialog.set(false);
     this.deleteReportId.set(null);
+  }
+
+  downloadReport(report: Report) {
+    this.service.download(report.id).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = report.fileName || `report_${report.id}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => {
+        this.showToast('Failed to download the report.', 'error');
+      }
+    });
   }
 
   private showToast(message: string, type: 'success' | 'error' | 'info' = 'success') {

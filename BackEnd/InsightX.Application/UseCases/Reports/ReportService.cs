@@ -28,6 +28,7 @@ namespace InsightX.Application.UseCases.Reports
             var path = await _storage.SaveFileAsync(dto.File);
             var report = new Report
             {
+                ReportName = string.IsNullOrWhiteSpace(dto.ReportName) ? dto.File.FileName : dto.ReportName,
                 FileName = dto.File.FileName,
                 FilePath = path,
                 UploadedAt = DateTime.UtcNow,
@@ -40,10 +41,12 @@ namespace InsightX.Application.UseCases.Reports
             return ServiceResult<ReportResponseDto>.Success(new ReportResponseDto
             {
                 Id = report.Id,
+                ReportName = report.ReportName,
                 FileName = report.FileName,
                 Status = report.Status,
                 UploadedAt = report.UploadedAt,
-                UploadedById = report.UploadedById
+                UploadedById = report.UploadedById,
+                UploadedByName = "Me" // Temporary until list reload
             });
         }
 
@@ -54,10 +57,12 @@ namespace InsightX.Application.UseCases.Reports
             return ServiceResult<List<ReportResponseDto>>.Success(reports.Select(x => new ReportResponseDto
             {
                 Id = x.Id,
+                ReportName = x.ReportName,
                 FileName = x.FileName,
                 Status = x.Status,
                 UploadedAt = x.UploadedAt,
-                UploadedById = x.UploadedById
+                UploadedById = x.UploadedById,
+                UploadedByName = x.UploadedBy?.Name ?? string.Empty
             }).ToList());
         }
 
@@ -131,6 +136,40 @@ namespace InsightX.Application.UseCases.Reports
             await _repository.DeleteAsync(report, cancellationToken);
             _storage.DeleteFile(report.FilePath);
             return ServiceResult.Success();
+        }
+
+        public async Task<ServiceResult<ReportDownloadDto>> DownloadAsync(int id, int companyId, CancellationToken cancellationToken = default)
+        {
+            var report = await _repository.GetByIdForCompanyAsync(id, companyId, cancellationToken);
+            if (report == null) return ServiceResult<ReportDownloadDto>.Fail(404, "Report not found");
+
+            var fileContent = await _storage.GetFileAsync(report.FilePath);
+            if (fileContent == null || fileContent.Length == 0) return ServiceResult<ReportDownloadDto>.Fail(404, "File not found on disk");
+
+            string ext = Path.GetExtension(report.FileName).ToLowerInvariant();
+            string contentType = ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".png" => "image/png",
+                ".jpg" => "image/jpeg",
+                ".jpeg" => "image/jpeg",
+                ".doc" => "application/msword",
+                ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                ".xls" => "application/vnd.ms-excel",
+                ".xlsx" => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ".csv" => "text/csv",
+                ".txt" => "text/plain",
+                _ => "application/octet-stream",
+            };
+
+            var dto = new ReportDownloadDto
+            {
+                FileContent = fileContent,
+                ContentType = contentType,
+                FileName = report.FileName
+            };
+
+            return ServiceResult<ReportDownloadDto>.Success(dto);
         }
     }
 }
