@@ -32,6 +32,16 @@ namespace InsightX.Infrastructure.Persistence
                 entity.Property(a => a.CurrentValue).HasPrecision(18, 2);
                 entity.Property(a => a.Threshold).HasPrecision(18, 2);
                 entity.Property(a => a.AlertType).HasConversion<int>();
+
+                entity.HasOne(a => a.Company)
+                      .WithMany()
+                      .HasForeignKey(a => a.CompanyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(a => a.Department)
+                      .WithMany()
+                      .HasForeignKey(a => a.DepartmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
 

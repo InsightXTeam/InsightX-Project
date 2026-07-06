@@ -1,0 +1,21 @@
+@if (isOpen) {
+  <div class="modal-backdrop" (click)="onCancel()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3 class="modal-title">{{ title }}</h3>
+        <button class="modal-close" (click)="onCancel()" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 18px; height: 18px;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">{{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="onCancel()" type="button">{{ cancelText }}</button>
+        <button class="btn-danger" (click)="onConfirm()" type="button">{{ confirmText }}</button>
+      </div>
+    </div>
+  </div>
+}

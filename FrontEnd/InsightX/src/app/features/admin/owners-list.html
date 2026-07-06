@@ -1,0 +1,61 @@
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Platform Owners</h1>
+      <p class="page-subtitle">Super Admin control panel to manage company owner registrations and system access.</p>
+    </div>
+  </div>
+
+  <!-- Error Alerts -->
+  @if (error()) {
+    <div class="alert-error" role="alert">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Owners Grid Table -->
+  <div class="table-container">
+    <table class="owners-table">
+      <thead>
+        <tr>
+          <th>Owner Name</th>
+          <th>Email</th>
+          <th>Company</th>
+          <th>Registered At</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (owner of owners(); track owner.userId) {
+          <tr>
+            <td style="font-weight: 600;">{{ owner.ownerName }}</td>
+            <td style="color: #64748b;">{{ owner.ownerEmail }}</td>
+            <td style="font-weight: 500; color: #4f46e5;">{{ owner.companyName }} </td>
+            <td>{{ owner.companyCreatedAt | date:'shortDate' }}</td>
+            <td>
+              <span class="status-badge" [class.active]="owner.isActivated" [class.inactive]="!owner.isActivated">
+                {{ owner.isActivated ? 'Activated' : 'Deactivated' }}
+              </span>
+            </td>
+            <td>
+              @if (owner.isActivated) {
+                <button class="action-btn deactivate" (click)="toggleActivation(owner)" [disabled]="isLoading()">
+                  Deactivate
+                </button>
+              } @else {
+                <button class="action-btn activate" (click)="toggleActivation(owner)" [disabled]="isLoading()">
+                  Activate
+                </button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" style="text-align: center; color: #94a3b8; padding: 40px;">No platform owners registered.</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

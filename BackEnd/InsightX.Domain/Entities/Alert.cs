@@ -15,5 +15,8 @@ namespace InsightX.Domain.Entities
         public bool SeenByOwner { get; set; }
         public DateTime CreatedAt { get; set; }
         public AlertType AlertType { get; set; } = AlertType.Anomaly;
+
+        public virtual Company Company { get; set; }
+        public virtual Department Department { get; set; }
     }
 }
