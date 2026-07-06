@@ -1,68 +1,75 @@
 using InsightX.Application.Extensions;
 using InsightXAI.Application.DTOs;
-using InsightXAI.Application.UseCases.Rag;
+using InsightXAI.Application.Interfaces.Rag;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asp.Versioning;
 
 namespace InsightXAI.API.Controllers.Rag
 {
-    /// <summary>
-    /// Endpoints for report indexing and vector retrieval operations.
-    /// </summary>
     [ApiController]
-    [Route("rag")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [Authorize]
     public class RagController : ControllerBase
     {
-        private readonly IndexReportUseCase _indexReportUseCase;
-        private readonly RetrieveChunksUseCase _retrieveChunksUseCase;
-        private readonly DeleteReportChunksUseCase _deleteReportChunksUseCase;
+        private readonly IIndexReportUseCase _indexReportUseCase;
+        private readonly IRetrieveChunksUseCase _retrieveChunksUseCase;
+        private readonly IDeleteReportChunksUseCase _deleteReportChunksUseCase;
 
         public RagController(
-            IndexReportUseCase indexReportUseCase,
-            RetrieveChunksUseCase retrieveChunksUseCase,
-            DeleteReportChunksUseCase deleteReportChunksUseCase)
+            IIndexReportUseCase indexReportUseCase,
+            IRetrieveChunksUseCase retrieveChunksUseCase,
+            IDeleteReportChunksUseCase deleteReportChunksUseCase)
         {
             _indexReportUseCase = indexReportUseCase;
             _retrieveChunksUseCase = retrieveChunksUseCase;
             _deleteReportChunksUseCase = deleteReportChunksUseCase;
         }
 
-        //Indexes a report into the vector store.
         [HttpPost("index")]
-        public async Task<ActionResult<IndexReportResponseDto>> IndexReport(
+        public async Task<IActionResult> IndexReport(
             [FromBody] IndexReportRequestDto request,
             CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
             var departmentId = User.GetDepartmentId();
+            var userId = User.GetUserId();
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? string.Empty;
 
-            var result = await _indexReportUseCase.ExecuteAsync(request,
-                companyId,
-                departmentId, cancellationToken);
+            var result = await _indexReportUseCase.ExecuteAsync(request, companyId, departmentId, userId, role, cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest(result.Error);
 
-            return Ok(result);
+            return Ok(result.Data);
         }
 
-        // Retrieves relevant chunks for a question.
         [HttpPost("retrieve")]
-        public async Task<ActionResult<RetrieveResponseDto>> RetrieveChunks(
+        public async Task<IActionResult> RetrieveChunks(
             [FromBody] RetrieveRequestDto request,
             CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
+            var departmentId = User.GetDepartmentId(); // From develop merge, returns int?
 
-            var result = await _retrieveChunksUseCase.ExecuteAsync(request, companyId, cancellationToken);
-            return Ok(result);
+            var result = await _retrieveChunksUseCase.ExecuteAsync(request, companyId, departmentId, cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest(result.Error);
+
+            return Ok(result.Data);
         }
 
-        // Deletes all indexed chunks for a report.
         [HttpDelete("{reportId:int}")]
         public async Task<IActionResult> DeleteReportChunks(int reportId, CancellationToken cancellationToken)
         {
             var companyId = User.GetCompanyId();
+            var userId = User.GetUserId();
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? string.Empty;
 
-            await _deleteReportChunksUseCase.ExecuteAsync(companyId, reportId, cancellationToken);
+            var result = await _deleteReportChunksUseCase.ExecuteAsync(companyId, reportId, userId, role, cancellationToken);
+            if (!result.IsSuccess)
+                return BadRequest(result.Error);
+
             return NoContent();
         }
     }

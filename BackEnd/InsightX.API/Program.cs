@@ -145,15 +145,6 @@ namespace InsightX.API
 
             var app = builder.Build();
 
-            // Ensure the Qdrant collection exists before serving requests.
-            using (var scope = app.Services.CreateScope())
-            {
-                var qdrant = scope.ServiceProvider.GetRequiredService<QdrantClient>();
-                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-
-                await QdrantInitializer.InitializeAsync(qdrant, configuration);
-            }
-
             // Configure the HTTP request pipeline.
             // Fail-fast guard: prevent production startup with placeholder secrets
             if (!app.Environment.IsDevelopment())
@@ -192,6 +183,8 @@ namespace InsightX.API
                 await DbInitializer.SeedAsync(
                     scope.ServiceProvider,
                     builder.Configuration);
+
+                await scope.ServiceProvider.InitializeRagInfrastructureAsync();
             }
 
             await app.RunAsync();

@@ -1,8 +1,10 @@
-﻿using InsightX.Infrastructure.AI.Rag;
+using InsightX.Infrastructure.AI.Rag;
 using InsightXAI.Application.Interfaces;
+using InsightXAI.Application.Interfaces.Rag;
 using InsightXAI.Application.UseCases.Rag;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel.Embeddings;
 using Qdrant.Client;
 using InsightX.Application.Common;
@@ -58,9 +60,32 @@ namespace InsightX.Infrastructure
             services.AddScoped<IEmbeddingService, EmbeddingService>();
             services.AddScoped<IVectorStore, QdrantVectorStore>();
 
-            services.AddScoped<IndexReportUseCase>();
-            services.AddScoped<RetrieveChunksUseCase>();
-            services.AddScoped<DeleteReportChunksUseCase>();
+            services.AddScoped<IIndexReportUseCase, IndexReportUseCase>();
+            services.AddScoped<IRetrieveChunksUseCase, RetrieveChunksUseCase>();
+            services.AddScoped<IDeleteReportChunksUseCase, DeleteReportChunksUseCase>();
+
+            return services;
+        }
+
+        public static async Task InitializeRagInfrastructureAsync(this IServiceProvider provider)
+        {
+            try
+            {
+                var qdrant = provider.GetRequiredService<QdrantClient>();
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                await QdrantInitializer.InitializeAsync(qdrant, configuration);
+            }
+            catch (Exception ex)
+            {
+                // Log and swallow the exception to prevent crash loops
+                var logger = provider.GetService<Microsoft.Extensions.Logging.ILoggerFactory>()?.CreateLogger("RagInfrastructure");
+                if (logger != null)
+                {
+                    logger.LogError(ex, "Failed to initialize Qdrant: {Message}", ex.Message);
+                }
+            }
+        }
+
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             var corsSettings = configuration
