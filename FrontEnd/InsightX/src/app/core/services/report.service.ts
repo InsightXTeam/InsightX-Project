@@ -11,7 +11,7 @@ export class ReportService {
 
   private http = inject(HttpClient);
 
-  private apiUrl = `${environment.apiBaseUrl}/api/Reports`;
+  private apiUrl = `${environment.apiBaseUrl}/api/v1.0/Reports`;
 
   // POST /api/Reports/upload
   upload(file: File): Observable<any> {
