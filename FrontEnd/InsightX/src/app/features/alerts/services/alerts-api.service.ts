@@ -34,7 +34,6 @@ export class AlertsApiService {
    * Manually triggers anomaly detection (used by Person 2 after report confirm).
    */
   runDetection(payload: {
-    companyId: number;
     departmentId: number;
     kpiName: string;
     currentValue: number;
