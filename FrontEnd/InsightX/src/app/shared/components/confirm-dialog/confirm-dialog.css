@@ -1,0 +1,53 @@
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.dialog-panel {
+  width: min(500px, calc(100% - 2rem));
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  padding: 1.5rem;
+}
+
+.dialog-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.dialog-body {
+  margin: 1.25rem 0;
+  color: #333;
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.cancel-btn,
+.confirm-btn {
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cancel-btn {
+  background: #f1f1f1;
+  color: #333;
+}
+
+.confirm-btn {
+  background: #1d4ed8;
+  color: #fff;
+}

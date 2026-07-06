@@ -1,0 +1,11 @@
+using Microsoft.AspNetCore.Http;
+
+namespace InsightX.Application.Interfaces
+{
+    public interface IFileStorageService
+    {
+        Task<string> SaveFileAsync(IFormFile file);
+        Task<byte[]> GetFileAsync(string filePath);
+        void DeleteFile(string filePath);
+    }
+}
