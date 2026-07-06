@@ -1,4 +1,4 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +19,12 @@ namespace InsightX.Infrastructure.Persistence.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddRangeAsync(IEnumerable<Alert> alerts, CancellationToken cancellationToken = default)
+        {
+            await _context.Alerts.AddRangeAsync(alerts, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
         public async Task<List<Alert>> GetByCompanyAsync(int companyId, bool? seenFilter)
         {
             var alerts = _context.Alerts.Where(a => a.CompanyId == companyId);
@@ -36,13 +42,13 @@ namespace InsightX.Infrastructure.Persistence.Repositories
             return alert;
         }
 
-        public async Task MarkAsSeenAsync(int id)
+        public async Task MarkAsSeenAsync(int id, CancellationToken cancellationToken = default)
         {
-            var alert = await _context.Alerts.FindAsync(id);
+            var alert = await _context.Alerts.FindAsync(new object[] { id }, cancellationToken);
             if (alert != null)
             {
                 alert.SeenByOwner = true;
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cancellationToken);
             }
         }
     }
