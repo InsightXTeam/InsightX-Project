@@ -3,7 +3,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
 import { Report } from '../../../../core/models/report.model';
-import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { ConfirmDialogComponent } from '../../../../shared/components/dialog/confirm-dialog';
 import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
 
 @Component({
