@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
 import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
-import { AlertsApiService } from '../../alerts/services/alerts-api.service';
+import { AlertsApiService } from '../../../alerts/services/alerts-api.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialog/confirm-dialog';
 
 @Component({
