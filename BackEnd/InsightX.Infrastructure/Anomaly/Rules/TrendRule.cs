@@ -40,8 +40,8 @@ namespace InsightX.Infrastructure.Anomaly.Rules
             }
 
             var isAnomaly = config.ThresholdDirection == ThresholdDirection.Below
-                ? isDownwardTrend
-                : isUpwardTrend;
+                ? isUpwardTrend
+                : isDownwardTrend;
 
             if (isAnomaly)
                 return new AnomalyResult

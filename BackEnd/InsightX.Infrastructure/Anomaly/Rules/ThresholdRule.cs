@@ -10,8 +10,8 @@ namespace InsightX.Infrastructure.Anomaly.Rules
         public async Task<AnomalyResult> CheckAsync(int companyId, string kpiName, decimal currentValue, KPIConfig config)
         {
             var breached = config.ThresholdDirection == ThresholdDirection.Below
-                ? currentValue < config.Threshold
-                : currentValue > config.Threshold;
+                ? currentValue > config.Threshold
+                : currentValue < config.Threshold;
 
             if (breached)
                 return new AnomalyResult
