@@ -26,10 +26,12 @@
           <span class="info-value">{{ email() }}</span>
         </div>
 
-        <div class="info-item">
-          <span class="info-label">Company</span>
-          <span class="info-value">{{ companyName() }}</span>
-        </div>
+        @if (role() !== 'SuperAdmin') {
+          <div class="info-item">
+            <span class="info-label">Company</span>
+            <span class="info-value">{{ companyName() }}</span>
+          </div>
+        }
 
         @if (departmentName()) {
           <div class="info-item">
