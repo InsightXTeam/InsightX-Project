@@ -14,7 +14,7 @@ namespace InsightX.Infrastructure.Anomaly
             _metricsRepository = metricsRepository;
         }
 
-        public async Task<AnomalyResult> CheckAsync(int companyId, int departmentId, string kpiName, decimal currentValue)
+        public async Task<AnomalyResult> CheckAsync(int companyId, int? departmentId, string kpiName, decimal currentValue)
         {
             var config = await _metricsRepository.GetKPIConfigAsync(companyId, kpiName);
             if (config == null) return AnomalyResult.None();

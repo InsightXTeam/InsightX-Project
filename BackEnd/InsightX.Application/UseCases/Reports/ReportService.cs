@@ -14,11 +14,13 @@ namespace InsightX.Application.UseCases.Reports
     {
         private readonly IReportRepository _repository;
         private readonly IFileStorageService _storage;
+        private readonly IReportConfirmedHandler _reportConfirmedHandler;
 
-        public ReportService(IReportRepository repository, IFileStorageService storage)
+        public ReportService(IReportRepository repository, IFileStorageService storage, IReportConfirmedHandler reportConfirmedHandler)
         {
             _repository = repository;
             _storage = storage;
+            _reportConfirmedHandler = reportConfirmedHandler;
         }
 
         public async Task<ServiceResult<ReportResponseDto>> UploadAsync(UploadReportDto dto, int companyId, int? departmentId, string uploadedBy, CancellationToken cancellationToken = default)
@@ -99,7 +101,22 @@ namespace InsightX.Application.UseCases.Reports
             if (report.Status != ReportStatus.PendingConfirmation.ToString())
                 return ServiceResult.Fail(400, "Report is not pending confirmation");
 
-            report.ExtractedText = dto.ExtractedText;
+            if (report.ExtractedMetrics != null && dto.Metrics != null)
+            {
+                foreach (var metricDto in dto.Metrics)
+                {
+                    var existingMetric = report.ExtractedMetrics.FirstOrDefault(m => m.KPIName == metricDto.KPIName);
+                    if (existingMetric != null)
+                    {
+                        existingMetric.Value = metricDto.Value;
+                        existingMetric.ConfirmedByManager = true;
+                        
+                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0));
+                    }
+                }
+            }
+
+            report.Status = ReportStatus.Done.ToString();
             await _repository.UpdateAsync(report, cancellationToken);
             return ServiceResult.Success();
         }

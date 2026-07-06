@@ -1,4 +1,4 @@
-﻿using InsightX.Domain.ValueObjects;
+using InsightX.Domain.ValueObjects;
 
 namespace InsightX.Application.Interfaces
 {
@@ -6,7 +6,7 @@ namespace InsightX.Application.Interfaces
     {
         Task<AnomalyResult> CheckAsync(
             int companyId,
-            int departmentId,
+            int? departmentId,
             string kpiName,
             decimal currentValue);
     }

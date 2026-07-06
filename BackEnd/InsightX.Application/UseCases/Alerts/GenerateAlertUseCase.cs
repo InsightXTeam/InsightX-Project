@@ -23,7 +23,7 @@ namespace InsightX.Application.UseCases.Alerts
 
         public async Task ExecuteAsync(
             int companyId,
-            int departmentId,
+            int? departmentId,
             string kpiName,
             decimal currentValue,
             CancellationToken cancellationToken = default)

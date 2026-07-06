@@ -6,7 +6,7 @@ namespace InsightX.Domain.Entities
     {
         public int Id { get; set; }
         public int CompanyId { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
         public string KPIName { get; set; }
         public decimal CurrentValue { get; set; }
         public decimal Threshold { get; set; }
@@ -17,6 +17,6 @@ namespace InsightX.Domain.Entities
         public AlertType AlertType { get; set; } = AlertType.Anomaly;
 
         public virtual Company Company { get; set; }
-        public virtual Department Department { get; set; }
+        public virtual Department? Department { get; set; }
     }
 }
