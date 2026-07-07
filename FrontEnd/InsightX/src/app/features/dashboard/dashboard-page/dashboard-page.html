@@ -1,0 +1,43 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h2>Dashboard Overview</h2>
+    <div class="header-actions" *ngIf="!isLoading && !errorMessage">
+      <div class="bell-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bell-icon">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notification-badge" *ngIf="alerts && alerts.length > 0">{{ alerts.length }}</span>
+        
+        <div class="alerts-dropdown">
+          <app-recent-alerts [alerts]="alerts"></app-recent-alerts>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Loading dashboard data...</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-state">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
+    <app-kpi-cards [kpis]="kpis"></app-kpi-cards>
+
+    <div class="dashboard-grid">
+      <div class="main-column">
+        <app-trend-chart [trends]="trends"></app-trend-chart>
+        <app-department-table [departments]="departments"></app-department-table>
+      </div>
+    </div>
+  </div>
+</div>

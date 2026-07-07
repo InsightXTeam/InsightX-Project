@@ -1,0 +1,44 @@
+<div class="card premium-card table-card">
+  <div class="card-header premium-header">
+    <div class="header-content">
+      <h3 class="card-title">Department Performance</h3>
+    </div>
+    <div class="header-actions">
+      <button class="export-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Export
+      </button>
+    </div>
+  </div>
+  
+  <div class="table-responsive">
+    <table class="premium-table" *ngIf="departments && departments.length > 0; else noDepts">
+      <thead>
+        <tr>
+          <th>DEPARTMENT</th>
+          <th class="text-center">GOOD KPIS</th>
+          <th class="text-center">WARNING KPIS</th>
+          <th class="text-center">CRITICAL KPIS</th>
+          <th class="text-right">STATUS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dept of departments">
+          <td class="fw-semibold text-white">{{ dept.departmentName }}</td>
+          <td class="text-center" [ngClass]="{'text-good': dept.goodKPIsCount > 0}">{{ dept.goodKPIsCount }}</td>
+          <td class="text-center" [ngClass]="{'text-warning': dept.warningKPIsCount > 0}">{{ dept.warningKPIsCount }}</td>
+          <td class="text-center" [ngClass]="{'text-critical': dept.criticalKPIsCount > 0}">{{ dept.criticalKPIsCount }}</td>
+          <td class="text-right status-cell">
+            {{ dept.overallStatus | uppercase }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <ng-template #noDepts>
+      <div class="empty-state">
+        <p>No department data available.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="card premium-card trend-card">
+  <div class="card-header premium-header">
+    <div class="header-content">
+      <h3 class="card-title">Trend Analysis</h3>
+      <p class="card-subtitle">Last 6 Months KPI Performance</p>
+    </div>
+    
+    <div class="header-actions" *ngIf="trends && trends.length > 0">
+      <select class="premium-select" [(ngModel)]="selectedKpiName" (change)="onKpiSelectChange()">
+        <option *ngFor="let trend of trends" [value]="trend.kpiName">{{ trend.kpiName }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="chart-container" *ngIf="trends && trends.length > 0; else noData">
+      <apx-chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [stroke]="chartOptions.stroke"
+        [dataLabels]="chartOptions.dataLabels"
+        [colors]="chartOptions.colors"
+        [markers]="chartOptions.markers"
+        [tooltip]="chartOptions.tooltip"
+        [grid]="chartOptions.grid"
+        [yaxis]="chartOptions.yaxis"
+        [fill]="chartOptions.fill"
+      ></apx-chart>
+    </div>
+    <ng-template #noData>
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        <p>No trend data available to display.</p>
+      </div>
+    </ng-template>
+  </div>
+</div>
