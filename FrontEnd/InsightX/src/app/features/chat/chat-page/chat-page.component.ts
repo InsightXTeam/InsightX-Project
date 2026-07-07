@@ -1,0 +1,197 @@
+import { Component, ElementRef, ViewChild, AfterViewChecked, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AgentService, ChatSessionDto } from '../../../core/services/agent.service';
+
+interface ChatMessage {
+  id: number;
+  text: string;
+  sender: 'user' | 'ai';
+  timestamp: Date;
+}
+
+@Component({
+  selector: 'app-chat-page',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './chat-page.component.html',
+  styleUrl: './chat-page.component.css'
+})
+export class ChatPageComponent implements OnInit, AfterViewChecked {
+  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+
+  private agentService = inject(AgentService);
+  private cdr = inject(ChangeDetectorRef);
+  sessionId: string = crypto.randomUUID(); // Public so HTML can bind to it
+  sessions: ChatSessionDto[] = [];
+
+  messages: ChatMessage[] = [];
+
+  newMessage: string = '';
+  isTyping: boolean = false;
+  
+  showDeleteModal: boolean = false;
+  sessionToDelete: string | null = null;
+
+  ngOnInit() {
+    this.loadSessions();
+    this.newChat(); // Initialize a new chat by default
+  }
+
+  loadSessions() {
+    this.agentService.getSessions().subscribe({
+      next: (data: any) => {
+        const dataArray = Array.isArray(data) ? data : (data.value || data.data || []);
+
+        this.sessions = dataArray.map((s: any) => {
+          let dateStr = s.createdAt || s.CreatedAt;
+          if (dateStr && typeof dateStr === 'string' && !dateStr.endsWith('Z')) dateStr += 'Z';
+          return {
+            sessionId: s.sessionId || s.SessionId,
+            title: s.title || s.Title,
+            createdAt: dateStr
+          };
+        });
+
+        // Force Angular to update the UI
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error("Error loading sessions:", err)
+    });
+  }
+
+  newChat() {
+    this.sessionId = crypto.randomUUID();
+    this.messages = [
+      {
+        id: 1,
+        text: 'Hello! I am InsightX AI, your enterprise business intelligence assistant. How can I help you analyze your data today?',
+        sender: 'ai',
+        timestamp: new Date()
+      }
+    ];
+  }
+
+  selectSession(id: string) {
+    if (!id) return;
+    this.sessionId = id;
+    this.messages = [];
+    this.agentService.getHistory(id).subscribe({
+      next: (data: any[]) => {
+        this.messages = data.map((d, index) => {
+          const senderString = (d.sender || d.Sender || 'ai').toLowerCase();
+          let dateStr = d.createdAt || d.CreatedAt;
+          if (dateStr && typeof dateStr === 'string' && !dateStr.endsWith('Z')) dateStr += 'Z';
+
+          return {
+            id: index,
+            text: d.message || d.Message || '',
+            sender: senderString.includes('user') ? 'user' : 'ai',
+            timestamp: new Date(dateStr || Date.now())
+          };
+        });
+        this.scrollToBottom();
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error fetching history:', err)
+    });
+  }
+
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      this.scrollContainer.nativeElement.scrollTop = this.scrollContainer.nativeElement.scrollHeight;
+    } catch (err) { }
+  }
+
+  sendMessage() {
+    if (!this.newMessage.trim()) return;
+
+    // Add user message
+    this.messages.push({
+      id: Date.now(),
+      text: this.newMessage.trim(),
+      sender: 'user',
+      timestamp: new Date()
+    });
+
+    const userMessage = this.newMessage;
+    this.newMessage = '';
+    this.isTyping = true;
+
+    // Call backend API
+    this.agentService.sendMessage({
+      sessionId: this.sessionId,
+      message: userMessage
+    }).subscribe({
+      next: (response: any) => {
+        this.isTyping = false;
+
+        let dateStr = response.createdAt || response.CreatedAt;
+        if (dateStr && typeof dateStr === 'string' && !dateStr.endsWith('Z')) dateStr += 'Z';
+
+        this.messages.push({
+          id: Date.now() + 1,
+          text: response.message || response.Message || '',
+          sender: 'ai',
+          timestamp: new Date(dateStr || Date.now())
+        });
+
+        // Refresh sessions list in case this was the first message
+        this.loadSessions();
+        this.scrollToBottom();
+        this.cdr.detectChanges();
+      },
+      error: (err: any) => {
+        this.isTyping = false;
+        this.messages.push({
+          id: Date.now() + 1,
+          text: "I'm sorry, I encountered an error communicating with the server.",
+          sender: 'ai',
+          timestamp: new Date()
+        });
+        this.scrollToBottom();
+      }
+    });
+  }
+
+  deleteSession(id: string, event: Event) {
+    event.stopPropagation();
+    this.sessionToDelete = id;
+    this.showDeleteModal = true;
+  }
+
+  confirmDelete() {
+    if (!this.sessionToDelete) return;
+    
+    const id = this.sessionToDelete;
+    this.agentService.deleteSession(id).subscribe({
+      next: () => {
+        if (this.sessionId === id) {
+          this.newChat();
+        }
+        this.loadSessions();
+        this.closeDeleteModal();
+      },
+      error: (err) => {
+        console.error('Error deleting session:', err);
+        this.closeDeleteModal();
+      }
+    });
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+    this.sessionToDelete = null;
+  }
+
+  handleKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.sendMessage();
+    }
+  }
+}

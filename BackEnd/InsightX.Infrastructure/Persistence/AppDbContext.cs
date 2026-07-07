@@ -19,6 +19,7 @@ namespace InsightX.Infrastructure.Persistence
         public DbSet<ExtractedMetric> ExtractedMetrics => Set<ExtractedMetric>();
         public DbSet<Alert> Alerts => Set<Alert>();
         public DbSet<HistoricalMetric> HistoricalMetrics => Set<HistoricalMetric>();
+        public DbSet<Conversation> Conversations => Set<Conversation>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -109,6 +110,24 @@ namespace InsightX.Infrastructure.Persistence
                 entity.HasKey(h => h.Id);
                 entity.Property(h => h.KPIName).IsRequired().HasMaxLength(100);
                 entity.Property(h => h.Value).HasPrecision(18, 2);
+            });
+
+            builder.Entity<Conversation>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.SessionId).IsRequired();
+                entity.Property(c => c.Question).IsRequired();
+                entity.Property(c => c.Answer).IsRequired();
+
+                entity.HasOne(c => c.Company)
+                      .WithMany()
+                      .HasForeignKey(c => c.CompanyId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(c => c.User)
+                      .WithMany()
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }
