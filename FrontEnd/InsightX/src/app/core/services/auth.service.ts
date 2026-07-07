@@ -116,8 +116,6 @@ export class AuthService {
       const user = this.decodeToken(token, email);
       if (user) {
         this.currentUser.set(user);
-      } else {
-        this.logout();
       }
     }
   }

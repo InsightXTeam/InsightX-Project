@@ -178,7 +178,7 @@ export class OnboardingComponent {
   }
 
   skipOnboarding(): void {
-    this.router.navigate(['/departments']);
+    this.router.navigate(['/dashboard']);
   }
 
   private submitKpis(): void {
@@ -262,8 +262,8 @@ export class OnboardingComponent {
   }
 
   private finishOnboarding(): void {
-    // Navigate to departments — the Owner's primary landing page
-    this.router.navigate(['/departments']);
+    // Navigate to dashboard — the Owner's primary landing page
+    this.router.navigate(['/dashboard']);
   }
 
 }

@@ -139,6 +139,8 @@ namespace InsightX.API
             builder.Services.AddScoped<IMarkAlertSeenUseCase, MarkAlertSeenUseCase>();
             builder.Services.AddScoped<ICreateMonthlyReminderUseCase, CreateMonthlyReminderUseCase>();
 
+            builder.Services.AddScoped<InsightX.Application.Interfaces.IDashboardService, InsightX.Infrastructure.Services.DashboardService>();
+
             builder.Services.AddHostedService<MonthlyReminderBackgroundService>();
 
             builder.Services.AddRagInfrastructure(builder.Configuration);

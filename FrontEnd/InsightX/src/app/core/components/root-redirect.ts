@@ -30,14 +30,14 @@ export class RootRedirectComponent implements OnInit {
         catchError(() => of(null))
       ).subscribe(company => {
         if (company && company.departments && company.departments.length > 0) {
-          this.router.navigate(['/departments']);
+          this.router.navigate(['/dashboard']);
         } else {
           this.router.navigate(['/auth/onboarding']);
         }
       });
     } else {
       // Manager redirect
-      this.router.navigate(['/profile']);
+      this.router.navigate(['/dashboard']);
     }
   }
 }

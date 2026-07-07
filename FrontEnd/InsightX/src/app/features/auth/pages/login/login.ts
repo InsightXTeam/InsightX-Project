@@ -88,7 +88,7 @@ export class LoginComponent {
           ).subscribe(company => {
             this.isLoading.set(false);
             if (company && company.departments && company.departments.length > 0) {
-              this.router.navigate(['/departments']);
+              this.router.navigate(['/dashboard']);
             } else {
               this.router.navigate(['/auth/onboarding']);
             }
@@ -96,7 +96,7 @@ export class LoginComponent {
         } else {
           // Manager or other roles
           this.isLoading.set(false);
-          this.router.navigate(['/profile']);
+          this.router.navigate(['/dashboard']);
         }
       },
       error: (error) => {

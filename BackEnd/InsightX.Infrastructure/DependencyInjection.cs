@@ -21,6 +21,8 @@ using InsightX.Infrastructure.Repositories;
 using InsightX.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel.ChatCompletion;
+using InsightX.Infrastructure.AI.Agent;
 
 namespace InsightX.Infrastructure
 {
@@ -130,6 +132,23 @@ namespace InsightX.Infrastructure
             services.AddScoped<IDocumentReader, PdfDocumentReader>();
             services.AddScoped<IDocumentReader, WordReader>();
             services.AddScoped<IDocumentReader, ImageReader>();
+
+            // Register AI Agent Services
+            services.AddHttpClient<IChatCompletionService, ItiChatCompletionService>((sp, client) => { });
+            services.AddScoped<IChatCompletionService, ItiChatCompletionService>(sp =>
+            {
+                var config = sp.GetRequiredService<IConfiguration>();
+                var httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
+                var alertAiConfig = config.GetSection("AlertAI");
+                
+                var chatApiUrl = alertAiConfig["ChatEndpoint"] ?? throw new ArgumentNullException("AlertAI:ChatEndpoint is required");
+                var apiKey = alertAiConfig["ApiKey"] ?? throw new ArgumentNullException("AlertAI:ApiKey is required");
+                var modelId = alertAiConfig["ModelId"] ?? throw new ArgumentNullException("AlertAI:ModelId is required");
+                
+                var httpClient = httpClientFactory.CreateClient();
+                return new ItiChatCompletionService(httpClient, chatApiUrl, apiKey, modelId);
+            });
+            services.AddScoped<IAgentService, AgentService>();
 
             return services;
         }

@@ -19,6 +19,11 @@ export const routes: Routes = [
     canActivate: [isAuthenticatedGuard]
   },
   {
+    path: 'dashboard',
+    loadComponent: () => import('./features/dashboard/dashboard-page/dashboard-page').then(m => m.DashboardPage),
+    canActivate: [isAuthenticatedGuard, roleGuard(['Owner', 'Manager'])]
+  },
+  {
     path: 'departments',
     loadChildren: () => import('./features/departments/departments.routes').then(m => m.routes),
     canActivate: [isAuthenticatedGuard, roleGuard(['Owner'])]
@@ -52,6 +57,11 @@ export const routes: Routes = [
     path: 'alerts',
     loadChildren: () => import('./features/alerts/alerts.routes').then(m => m.routes),
     canActivate: [isAuthenticatedGuard, roleGuard(['Owner', 'Manager'])]
+  },
+  {
+    path: 'chat',
+    loadComponent: () => import('./features/chat/chat-page/chat-page.component').then(m => m.ChatPageComponent),
+    canActivate: [isAuthenticatedGuard]
   },
   
   // Wildcards & Default Redirects
