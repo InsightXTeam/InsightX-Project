@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using InsightX.Application.DTOs;
+using InsightX.Application.Extensions;
 using InsightX.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -39,11 +40,7 @@ namespace InsightX.API.Controllers
             var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
             if (role == "Manager")
             {
-                var deptIdClaim = User.FindFirst("departmentId")?.Value;
-                if (int.TryParse(deptIdClaim, out var dId))
-                {
-                    departmentId = dId;
-                }
+                departmentId = User.GetDepartmentId();
             }
 
             var alerts = await _getAlerts.ExecuteAsync(companyId, seen, departmentId, cancellationToken);
