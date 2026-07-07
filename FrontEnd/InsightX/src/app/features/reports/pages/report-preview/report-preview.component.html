@@ -1,0 +1,160 @@
+<div class="reports-container preview-container">
+  <div class="preview-header">
+    <div class="breadcrumb">
+      <a routerLink="/reports">Reports</a>
+      <span class="separator">›</span>
+      <span>Preview & Confirm</span>
+    </div>
+  </div>
+
+  <div class="dual-pane-layout">
+    <!-- Left Pane: Source Document -->
+    <div class="pane left-pane">
+      <div class="premium-card document-card">
+        <div class="document-header">
+          <div class="title-with-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="doc-icon"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <h3>Source Document</h3>
+          </div>
+          <span class="status-badge complete">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            AI EXTRACTION COMPLETE
+          </span>
+        </div>
+        
+        <div class="document-meta">
+          <div class="meta-row">
+            <span class="meta-label">File:</span>
+            <span class="meta-value">January_Production_Report.pdf</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Dept:</span>
+            <span class="meta-value">Production</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">User:</span>
+            <span class="meta-value">Mohamed Ali</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="premium-card raw-text-card">
+        <div class="raw-header">
+          <span>RAW EXTRACTED TEXT</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        </div>
+        <div class="raw-content">
+[OCR PROCESS START]
+Document_Type: Monthly_Summary
+Target_Period: Jan_2024
+Facility: Plant_Alpha_4
+
+... scanning section 1 ...
+"Daily Production average was logged at 847 units, 
+representing a slight uptick from previous 
+period."
+
+... scanning section 2 ...
+"Quality control flagged a Defect Rate of 3.2%
+across all assembly lines."
+
+... scanning section 3 ...
+"HR reports 5 Absent Employees on average per 
+shift."
+
+... scanning section 4 ...
+"Preliminary Revenue figures calculate to $142000
+prior to deductions."
+
+[OCR PROCESS END]
+Data_Confidence: 98.4%
+Time_Elapsed: 1.2s
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Pane: Extracted Values -->
+    <div class="pane right-pane">
+      <div class="ai-notice">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sparkle-icon"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        <div class="notice-text">
+          <h4>Values extracted by InsightX AI.</h4>
+          <p>Please verify before saving.</p>
+        </div>
+      </div>
+
+      <div class="premium-card extracted-values-card">
+        <div class="values-header">
+          <div>
+            <h3>Extracted KPI Values</h3>
+            <p>AI extracted the following metrics from the source document:</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="filter-icon"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+        </div>
+        
+        <div class="values-list">
+          <div class="value-item">
+            <div class="item-icon-title">
+              <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              </div>
+              <span>Daily Production</span>
+            </div>
+            <div class="item-input-wrapper">
+              <input type="text" value="847" class="premium-input text-right" />
+              <span class="unit-label">units</span>
+            </div>
+          </div>
+          
+          <div class="value-item">
+            <div class="item-icon-title">
+              <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <span>Defect Rate</span>
+            </div>
+            <div class="item-input-wrapper">
+              <input type="text" value="3.2" class="premium-input text-right" />
+              <span class="unit-label">%</span>
+            </div>
+          </div>
+          
+          <div class="value-item">
+            <div class="item-icon-title">
+              <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+              </div>
+              <span>Absent Employees</span>
+            </div>
+            <div class="item-input-wrapper">
+              <input type="text" value="5" class="premium-input text-right" />
+              <span class="unit-label">staff</span>
+            </div>
+          </div>
+          
+          <div class="value-item">
+            <div class="item-icon-title">
+              <div class="metric-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+              <span>Revenue</span>
+            </div>
+            <div class="item-input-wrapper">
+              <span class="currency-label">$</span>
+              <input type="text" value="142000" class="premium-input text-right" />
+              <span class="unit-label">USD</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn-discard">Discard</button>
+        <button class="btn-confirm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+          Confirm & Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
