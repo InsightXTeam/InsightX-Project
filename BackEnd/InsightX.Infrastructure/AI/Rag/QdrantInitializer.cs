@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Qdrant.Client;
 using Qdrant.Client.Grpc;
 
@@ -23,14 +23,19 @@ public static class QdrantInitializer
                     Size = vectorSize,
                     Distance = Distance.Cosine
                 });
-
-            await qdrant.CreatePayloadIndexAsync(
-                CollectionName,
-                "company_id", PayloadSchemaType.Integer);
-
-            await qdrant.CreatePayloadIndexAsync(
-                CollectionName,
-                "report_id", PayloadSchemaType.Integer);
         }
+
+        // Always ensure payload indexes exist (idempotent)
+        await qdrant.CreatePayloadIndexAsync(
+            CollectionName,
+            "companyId", PayloadSchemaType.Integer);
+
+        await qdrant.CreatePayloadIndexAsync(
+            CollectionName,
+            "departmentId", PayloadSchemaType.Integer);
+
+        await qdrant.CreatePayloadIndexAsync(
+            CollectionName,
+            "reportId", PayloadSchemaType.Integer);
     }
 }
