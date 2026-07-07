@@ -18,7 +18,7 @@ namespace InsightX.Infrastructure.Persistence
         public DbSet<Report> Reports => Set<Report>();
         public DbSet<ExtractedMetric> ExtractedMetrics => Set<ExtractedMetric>();
         public DbSet<Alert> Alerts => Set<Alert>();
-        public DbSet<HistoricalMetric> HistoricalMetrics => Set<HistoricalMetric>();
+
         public DbSet<Conversation> Conversations => Set<Conversation>();
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -104,13 +104,6 @@ namespace InsightX.Infrastructure.Persistence
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // HistoricalMetric Table Config (TEMP)
-            builder.Entity<HistoricalMetric>(entity =>
-            {
-                entity.HasKey(h => h.Id);
-                entity.Property(h => h.KPIName).IsRequired().HasMaxLength(100);
-                entity.Property(h => h.Value).HasPrecision(18, 2);
-            });
 
             builder.Entity<Conversation>(entity =>
             {

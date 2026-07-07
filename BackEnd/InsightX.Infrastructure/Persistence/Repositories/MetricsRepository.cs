@@ -29,24 +29,28 @@ namespace InsightX.Infrastructure.Persistence.Repositories
 
         public async Task<List<decimal>> GetLastNMonthsAsync(int companyId, string kpiName, int n)
         {
-            return await _context.HistoricalMetrics
+            return await _context.ExtractedMetrics
                 .Where(m => m.CompanyId == companyId
-                && m.KPIName == kpiName)
+                && m.KPIName == kpiName
+                && m.ConfirmedByManager
+                && m.Value != null)
                 .OrderByDescending(m => m.Year)
                 .ThenByDescending(m => m.Month)
                 .Take(n)
-                .Select(m => m.Value)
+                .Select(m => (decimal)m.Value!)
                 .ToListAsync();
         }
 
         public async Task<decimal?> GetSameMonthLastYearAsync(int companyId, string kpiName, int month)
         {
             var lastYear = DateTime.UtcNow.Year - 1;
-            return await _context.HistoricalMetrics
+            return await _context.ExtractedMetrics
                 .Where(m => m.CompanyId == companyId
                 && m.KPIName == kpiName
                 && m.Month == month
-                && m.Year == lastYear)
+                && m.Year == lastYear
+                && m.ConfirmedByManager
+                && m.Value != null)
                 .Select(m => (decimal?)m.Value)
                 .FirstOrDefaultAsync();
         }

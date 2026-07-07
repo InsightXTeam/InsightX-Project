@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Asp.Versioning;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 
 namespace InsightX.API.Controllers
 {
@@ -43,6 +44,29 @@ namespace InsightX.API.Controllers
 
             var response = await _agentService.SendMessageAsync(companyId, userId, request);
             return Ok(response);
+        }
+
+        [HttpPost("stream")]
+        public async Task StreamMessage([FromBody] ChatRequestDto request)
+        {
+            var companyId = GetCompanyId();
+            var userId = GetUserId();
+            
+            if (companyId == 0 || string.IsNullOrEmpty(userId))
+            {
+                Response.StatusCode = 401;
+                return;
+            }
+
+            Response.ContentType = "text/event-stream";
+
+            await foreach (var chunk in _agentService.SendMessageStreamAsync(companyId, userId, request))
+            {
+                // Format the string for SSE
+                var data = $"data: {chunk.Replace("\n", "\\n")}\n\n";
+                await Response.WriteAsync(data);
+                await Response.Body.FlushAsync();
+            }
         }
 
         [HttpGet("chat/{sessionId:guid}")]

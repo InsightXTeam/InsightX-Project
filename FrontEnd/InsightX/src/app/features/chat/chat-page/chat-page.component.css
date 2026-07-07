@@ -470,3 +470,81 @@
 .btn-delete:hover {
   background: #dc2626;
 }
+
+/* Markdown Styling for Dynamic Content */
+::ng-deep .message-bubble p {
+  margin: 0 0 8px 0;
+}
+
+::ng-deep .message-bubble p:last-child {
+  margin-bottom: 0;
+}
+
+::ng-deep .message-bubble pre {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 12px 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::ng-deep .message-bubble code {
+  font-family: 'Consolas', 'Monaco', monospace;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+::ng-deep .message-bubble pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+::ng-deep .message-bubble ul, 
+::ng-deep .message-bubble ol {
+  margin: 8px 0 8px 24px;
+  padding: 0;
+}
+
+::ng-deep .message-bubble a {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+::ng-deep .message-bubble a:hover {
+  text-decoration: underline;
+}
+
+/* Spinner Styles */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.btn-delete:disabled {
+  background: #f87171;
+  cursor: not-allowed;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cancel:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

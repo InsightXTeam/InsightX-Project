@@ -50,9 +50,7 @@
         </div>
         
         <div class="message-content">
-          <div class="message-bubble">
-            {{ msg.text }}
-          </div>
+          <div class="message-bubble" [innerHTML]="msg.text | markdown"></div>
           <span class="message-time">{{ msg.timestamp | date:'shortTime' }}</span>
         </div>
         
@@ -103,8 +101,11 @@
     <h3>Delete Conversation?</h3>
     <p>Are you sure you want to permanently delete this chat? This action cannot be undone.</p>
     <div class="modal-actions">
-      <button class="btn-cancel" (click)="closeDeleteModal()">Cancel</button>
-      <button class="btn-delete" (click)="confirmDelete()">Delete</button>
+      <button class="btn-cancel" [disabled]="isDeleting" (click)="closeDeleteModal()">Cancel</button>
+      <button class="btn-delete" [disabled]="isDeleting" (click)="confirmDelete()">
+        <span class="spinner" *ngIf="isDeleting"></span>
+        {{ isDeleting ? 'Deleting...' : 'Delete' }}
+      </button>
     </div>
   </div>
 </div>

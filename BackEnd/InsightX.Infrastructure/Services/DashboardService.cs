@@ -23,12 +23,13 @@ namespace InsightX.Infrastructure.Services
         {
             var kpisQuery = _context.KPIs.Where(k => k.CompanyId == companyId);
             
-            var metricsQuery = _context.HistoricalMetrics
-                .Where(m => m.CompanyId == companyId);
+            var metricsQuery = _context.ExtractedMetrics
+                .Include(m => m.Report)
+                .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null);
                 
             if (departmentId.HasValue)
             {
-                metricsQuery = metricsQuery.Where(m => m.DepartmentId == departmentId.Value);
+                metricsQuery = metricsQuery.Where(m => m.Report.DepartmentId == departmentId.Value);
             }
 
             var kpis = await kpisQuery.ToListAsync();
@@ -41,7 +42,7 @@ namespace InsightX.Infrastructure.Services
             foreach (var kpi in kpis)
             {
                 var metric = latestMetrics.FirstOrDefault(m => m?.KPIName == kpi.Name);
-                decimal currentValue = metric?.Value ?? 0;
+                decimal currentValue = (decimal)(metric?.Value ?? 0);
                 
                 string status = "Good";
                 if (kpi.ThresholdDirection == ThresholdDirection.Below)
@@ -73,12 +74,13 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<List<DashboardTrendDto>> GetTrendsAsync(int companyId, int? departmentId)
         {
-            var metricsQuery = _context.HistoricalMetrics
-                .Where(m => m.CompanyId == companyId);
+            var metricsQuery = _context.ExtractedMetrics
+                .Include(m => m.Report)
+                .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null);
                 
             if (departmentId.HasValue)
             {
-                metricsQuery = metricsQuery.Where(m => m.DepartmentId == departmentId.Value);
+                metricsQuery = metricsQuery.Where(m => m.Report.DepartmentId == departmentId.Value);
             }
             
             // Get last 6 months
@@ -103,7 +105,7 @@ namespace InsightX.Infrastructure.Services
                     .Select(g => new { 
                         g.Key.Year, 
                         g.Key.Month, 
-                        Value = g.Average(m => m.Value) 
+                        Value = (decimal)(g.Average(m => m.Value!) ?? 0) 
                     })
                     .OrderBy(g => g.Year).ThenBy(g => g.Month)
                     .ToList();
@@ -126,15 +128,16 @@ namespace InsightX.Infrastructure.Services
                 .ToListAsync();
 
             var kpis = await _context.KPIs.Where(k => k.CompanyId == companyId).ToListAsync();
-            var metrics = await _context.HistoricalMetrics
-                .Where(m => m.CompanyId == companyId)
+            var metrics = await _context.ExtractedMetrics
+                .Include(m => m.Report)
+                .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null)
                 .ToListAsync();
 
             var result = new List<DashboardDepartmentPerformanceDto>();
 
             foreach(var dept in departments)
             {
-                var deptMetrics = metrics.Where(m => m.DepartmentId == dept.Id)
+                var deptMetrics = metrics.Where(m => m.Report.DepartmentId == dept.Id)
                     .GroupBy(m => m.KPIName)
                     .Select(g => g.OrderByDescending(m => m.Year).ThenByDescending(m => m.Month).FirstOrDefault())
                     .ToList();
@@ -146,7 +149,7 @@ namespace InsightX.Infrastructure.Services
                     var metric = deptMetrics.FirstOrDefault(m => m?.KPIName == kpi.Name);
                     if (metric == null) continue;
 
-                    decimal val = metric.Value;
+                    decimal val = (decimal)metric.Value!;
                     if (kpi.ThresholdDirection == ThresholdDirection.Below)
                     {
                         // Lower is better

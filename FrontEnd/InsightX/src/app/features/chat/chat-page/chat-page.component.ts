@@ -9,11 +9,12 @@ interface ChatMessage {
   sender: 'user' | 'ai';
   timestamp: Date;
 }
+import { MarkdownPipe } from '../../../shared/pipes/markdown.pipe';
 
 @Component({
   selector: 'app-chat-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MarkdownPipe],
   templateUrl: './chat-page.component.html',
   styleUrl: './chat-page.component.css'
 })
@@ -32,6 +33,7 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   
   showDeleteModal: boolean = false;
   sessionToDelete: string | null = null;
+  isDeleting: boolean = false;
 
   ngOnInit() {
     this.loadSessions();
@@ -110,45 +112,38 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   sendMessage() {
     if (!this.newMessage.trim()) return;
 
-    // Add user message
+    const userMessage = this.newMessage.trim();
     this.messages.push({
       id: Date.now(),
-      text: this.newMessage.trim(),
+      text: userMessage,
       sender: 'user',
       timestamp: new Date()
     });
 
-    const userMessage = this.newMessage;
     this.newMessage = '';
     this.isTyping = true;
+    this.scrollToBottom();
 
-    // Call backend API
     this.agentService.sendMessage({
       sessionId: this.sessionId,
       message: userMessage
     }).subscribe({
-      next: (response: any) => {
+      next: (response) => {
         this.isTyping = false;
-
-        let dateStr = response.createdAt || response.CreatedAt;
-        if (dateStr && typeof dateStr === 'string' && !dateStr.endsWith('Z')) dateStr += 'Z';
-
         this.messages.push({
-          id: Date.now() + 1,
-          text: response.message || response.Message || '',
+          id: Date.now(),
+          text: response.message,
           sender: 'ai',
-          timestamp: new Date(dateStr || Date.now())
+          timestamp: new Date(response.createdAt)
         });
-
-        // Refresh sessions list in case this was the first message
         this.loadSessions();
         this.scrollToBottom();
-        this.cdr.detectChanges();
       },
-      error: (err: any) => {
+      error: (err) => {
+        console.error('Error sending message:', err);
         this.isTyping = false;
         this.messages.push({
-          id: Date.now() + 1,
+          id: Date.now(),
           text: "I'm sorry, I encountered an error communicating with the server.",
           sender: 'ai',
           timestamp: new Date()
@@ -166,6 +161,9 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
 
   confirmDelete() {
     if (!this.sessionToDelete) return;
+    
+    this.isDeleting = true;
+    this.cdr.detectChanges();
     
     const id = this.sessionToDelete;
     this.agentService.deleteSession(id).subscribe({
@@ -186,6 +184,8 @@ export class ChatPageComponent implements OnInit, AfterViewChecked {
   closeDeleteModal() {
     this.showDeleteModal = false;
     this.sessionToDelete = null;
+    this.isDeleting = false;
+    this.cdr.detectChanges();
   }
 
   handleKeyDown(event: KeyboardEvent) {

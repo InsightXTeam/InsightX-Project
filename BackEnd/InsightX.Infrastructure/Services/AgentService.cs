@@ -102,10 +102,13 @@ namespace InsightX.Infrastructure.Services
             // 2. Build Chat History
             var chatHistory = new ChatHistory();
             chatHistory.AddSystemMessage($@"
-You are InsightX AI, an expert business analyst assistant.
-Use the following live dashboard data for the user's company to answer their questions.
-If the answer is not in the data, state that clearly. Be concise and professional.
-DATA CONTEXT:
+You are InsightX AI, a friendly and expert business analyst assistant.
+Your goal is to help the user understand their business performance by answering their questions in a natural, conversational, and user-friendly way.
+Do NOT mention technical terms like 'JSON', 'arrays', 'data context', or 'dashboard data objects'. Simply speak about the metrics, departments, and alerts as if you are a human analyst presenting a report to a business user.
+If the answer is not provided in the context below, state that clearly and politely without making up information.
+Use Markdown formatting (like bolding and lists) to make your response easy to read.
+
+BUSINESS CONTEXT:
 {contextJson}
 ");
 
@@ -150,6 +153,78 @@ DATA CONTEXT:
                 Sender = "AI",
                 CreatedAt = conversation.CreatedAt
             };
+        }
+
+        public async IAsyncEnumerable<string> SendMessageStreamAsync(int companyId, string userId, ChatRequestDto request)
+        {
+            var kpis = await _dashboardService.GetKpisSummaryAsync(companyId, null);
+            var alerts = await _dashboardService.GetRecentAlertsAsync(companyId, null);
+            var depts = await _dashboardService.GetDepartmentsPerformanceAsync(companyId);
+
+            var contextData = new
+            {
+                CompanyKPIs = kpis,
+                RecentAlerts = alerts,
+                Departments = depts
+            };
+            var contextJson = JsonSerializer.Serialize(contextData, new JsonSerializerOptions { WriteIndented = true });
+
+            var chatHistory = new ChatHistory();
+            chatHistory.AddSystemMessage($@"
+You are InsightX AI, a friendly and expert business analyst assistant.
+Your goal is to help the user understand their business performance by answering their questions in a natural, conversational, and user-friendly way.
+Do NOT mention technical terms like 'JSON', 'arrays', 'data context', or 'dashboard data objects'. Simply speak about the metrics, departments, and alerts as if you are a human analyst presenting a report to a business user.
+If the answer is not provided in the context below, state that clearly and politely without making up information.
+Use Markdown formatting (like bolding and lists) to make your response easy to read.
+
+BUSINESS CONTEXT:
+{contextJson}
+");
+
+            var pastConversations = await _context.Conversations
+                .Where(c => c.SessionId == request.SessionId && c.CompanyId == companyId)
+                .OrderBy(c => c.CreatedAt)
+                .Take(10)
+                .ToListAsync();
+
+            foreach(var conv in pastConversations)
+            {
+                chatHistory.AddUserMessage(conv.Question);
+                chatHistory.AddAssistantMessage(conv.Answer);
+            }
+
+            chatHistory.AddUserMessage(request.Message);
+
+            var fullResponse = new System.Text.StringBuilder();
+
+            await foreach (var chunk in _chatService.GetStreamingChatMessageContentsAsync(chatHistory))
+            {
+                if (!string.IsNullOrEmpty(chunk.Content))
+                {
+                    fullResponse.Append(chunk.Content);
+                    yield return chunk.Content;
+                }
+            }
+
+            var aiResponse = fullResponse.ToString();
+            if (string.IsNullOrWhiteSpace(aiResponse))
+            {
+                aiResponse = "I'm sorry, I couldn't generate a response.";
+                yield return aiResponse;
+            }
+
+            var conversation = new Conversation
+            {
+                SessionId = request.SessionId,
+                CompanyId = companyId,
+                UserId = userId,
+                Question = request.Message,
+                Answer = aiResponse,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Conversations.Add(conversation);
+            await _context.SaveChangesAsync();
         }
     }
 }
