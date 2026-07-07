@@ -65,21 +65,27 @@ export class TrendChart implements OnChanges {
     
     // Select the specified KPI or default to the first one
     let target = this.trends.find(t => t.kpiName === this.selectedKpiName);
-    if (!target) target = this.trends[0];
+    if (!target) {
+        target = this.trends[0];
+        this.selectedKpiName = target.kpiName;
+    }
     if (!target) return;
 
-    this.chartOptions.series = [{
-      name: target.kpiName,
-      data: target.values
-    }];
-    
-    this.chartOptions.xaxis = {
-      categories: target.labels
-    };
-    
-    this.chartOptions.title = {
-      text: `${target.kpiName} Trend (Last 6 Months)`,
-      align: 'left'
+    this.chartOptions = {
+      ...this.chartOptions,
+      series: [{
+        name: target.kpiName,
+        data: target.values
+      }],
+      xaxis: {
+        ...this.chartOptions.xaxis,
+        categories: target.labels
+      },
+      title: {
+        ...this.chartOptions.title,
+        text: `${target.kpiName} Trend (Last 6 Months)`,
+        align: 'left'
+      }
     };
   }
 }
