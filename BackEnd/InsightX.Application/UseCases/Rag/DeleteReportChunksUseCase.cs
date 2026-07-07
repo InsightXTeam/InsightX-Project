@@ -31,7 +31,16 @@ namespace InsightXAI.Application.UseCases.Rag
             if (role != "Owner" && report.UploadedById != userId)
                 return ServiceResult.Fail(403, "Only the owner or the uploader can delete this report's chunks.");
 
-            await _vectorStore.DeleteByReportIdAsync(companyId, reportId, cancellationToken);
+            try
+            {
+                await _vectorStore.DeleteByReportIdAsync(companyId, reportId, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // We return success or a specific warning so the caller can still proceed 
+                // to delete the relational DB record. A vector DB failure shouldn't block the UI.
+                return ServiceResult.Fail(500, $"Vector DB Error: {ex.Message}");
+            }
             return ServiceResult.Success();
         }
     }

@@ -2,6 +2,8 @@ using InsightX.Application.Common;
 using InsightX.Application.DTOs.Reports;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities.Reports;
+using InsightXAI.Application.DTOs;
+using InsightXAI.Application.Interfaces.Rag;
 using InsightX.Domain.Enums;
 using System.Text.Json;
 using System.Linq;
@@ -19,13 +21,15 @@ namespace InsightX.Application.UseCases.Documents
         private readonly IEnumerable<IDocumentReader> _readers;
         private readonly IAIExtractionService _ai;
         private readonly IKpiService _kpiService;
+        private readonly IIndexReportUseCase _indexReportUseCase;
 
-        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai, IKpiService kpiService)
+        public DocumentProcessorService(IReportRepository repository, IEnumerable<IDocumentReader> readers, IAIExtractionService ai, IKpiService kpiService, IIndexReportUseCase indexReportUseCase)
         {
             _repository = repository;
             _readers = readers;
             _ai = ai;
             _kpiService = kpiService;
+            _indexReportUseCase = indexReportUseCase;
         }
 
         public async Task<ServiceResult> ProcessAsync(int reportId, int companyId, string role, string userName, CancellationToken cancellationToken = default)
@@ -58,6 +62,15 @@ namespace InsightX.Application.UseCases.Documents
 
                 report.Status = ReportStatus.ProcessingAI.ToString();
                 await _repository.UpdateAsync(report, cancellationToken);
+
+                var indexRequest = new IndexReportRequestDto
+                {
+                    ReportId = report.Id,
+                    Month = report.UploadedAt.ToString("MMMM"),
+                    Year = report.UploadedAt.Year,
+                    FullText = text
+                };
+                await _indexReportUseCase.ExecuteAsync(indexRequest, companyId, report.DepartmentId, userName, role, cancellationToken);
 
                 var kpisResult = await _kpiService.GetAllAsync(companyId);
                 var kpis = kpisResult.Data?.Select(k => k.Name).ToList() ?? new List<string>();
