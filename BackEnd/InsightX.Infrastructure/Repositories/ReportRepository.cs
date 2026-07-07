@@ -21,11 +21,22 @@ namespace InsightX.Infrastructure.Repositories
                 .ToListAsync(cancellationToken);
         }
 
-        public async Task<List<Report>> GetByCompanyAndUserAsync(int companyId, string role, string userId, CancellationToken cancellationToken = default)
+        public async Task<List<Report>> GetByCompanyAndUserAsync(int companyId, int? departmentId, string role, string userId, CancellationToken cancellationToken = default)
         {
             var query = _context.Reports.IgnoreQueryFilters().Where(r => r.CompanyId == companyId);
 
-            if (role != "Owner")
+            if (role == "Manager")
+            {
+                if (departmentId.HasValue)
+                {
+                    query = query.Where(r => r.DepartmentId == departmentId.Value);
+                }
+                else
+                {
+                    query = query.Where(r => false);
+                }
+            }
+            else if (role != "Owner")
             {
                 query = query.Where(r => r.UploadedById == userId);
             }

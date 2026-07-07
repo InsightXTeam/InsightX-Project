@@ -61,9 +61,9 @@ namespace InsightX.Application.UseCases.Reports
             });
         }
 
-        public async Task<ServiceResult<List<ReportResponseDto>>> GetReportsAsync(int companyId, string role, string userName, CancellationToken cancellationToken = default)
+        public async Task<ServiceResult<List<ReportResponseDto>>> GetReportsAsync(int companyId, int? departmentId, string role, string userName, CancellationToken cancellationToken = default)
         {
-            var reports = await _repository.GetByCompanyAndUserAsync(companyId, role, userName, cancellationToken);
+            var reports = await _repository.GetByCompanyAndUserAsync(companyId, departmentId, role, userName, cancellationToken);
 
             return ServiceResult<List<ReportResponseDto>>.Success(reports.Select(x => new ReportResponseDto
             {

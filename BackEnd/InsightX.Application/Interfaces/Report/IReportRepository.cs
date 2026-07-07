@@ -10,7 +10,7 @@ namespace InsightX.Application.Interfaces
 
         Task<Report?> GetByIdForCompanyAsync(int id, int companyId, CancellationToken cancellationToken = default);
 
-        Task<List<Report>> GetByCompanyAndUserAsync(int companyId, string role, string userName, CancellationToken cancellationToken = default);
+        Task<List<Report>> GetByCompanyAndUserAsync(int companyId, int? departmentId, string role, string userName, CancellationToken cancellationToken = default);
 
         Task AddAsync(Report report, CancellationToken cancellationToken = default);
 

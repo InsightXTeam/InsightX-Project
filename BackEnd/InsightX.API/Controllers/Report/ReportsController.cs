@@ -48,8 +48,9 @@ namespace InsightX.API.Controllers.Report
             var companyId = User.GetCompanyId();
             var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
             var userName = User.GetUserId();
+            var departmentId = User.GetDepartmentId();
 
-            var result = await _service.GetReportsAsync(companyId, role, userName, cancellationToken);
+            var result = await _service.GetReportsAsync(companyId, departmentId, role, userName, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 
