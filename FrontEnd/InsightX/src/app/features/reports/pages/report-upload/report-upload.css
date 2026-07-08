@@ -85,6 +85,26 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background: rgba(15, 23, 42, 0.6) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 16px center/12px 12px;
+  padding-right: 40px;
+}
+
+.form-select option {
+  background-color: #1e293b;
+  color: #f3f4f6;
+  padding: 10px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: block;
+}
+
 .upload-drop-zone {
   border: 2px dashed rgba(255, 255, 255, 0.15);
   border-radius: 12px;

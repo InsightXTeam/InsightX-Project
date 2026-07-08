@@ -1,6 +1,8 @@
-import { Component, inject, signal, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReportService } from '../../../../core/services/report.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { DepartmentService, DepartmentResponse } from '../../../../core/services/department.service';
 import { HttpEventType } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
@@ -12,12 +14,18 @@ import { ToastNotificationComponent } from '../../../../shared/components/toast-
   templateUrl: './report-upload.html',
   styleUrl: './report-upload.css',
 })
-export class ReportUpload {
+export class ReportUpload implements OnInit, OnDestroy {
   private service = inject(ReportService);
+  private authService = inject(AuthService);
+  private deptService = inject(DepartmentService);
   private router = inject(Router);
 
   selectedFile = signal<File | undefined>(undefined);
   reportName = signal<string>('');
+  selectedDepartmentId = signal<number | null>(null);
+  departments = signal<DepartmentResponse[]>([]);
+  isOwner = computed(() => this.authService.currentUser()?.role === 'Owner');
+
   isDragging = signal<boolean>(false);
   isUploading = signal<boolean>(false);
   isProcessing = signal<boolean>(false);
@@ -27,9 +35,31 @@ export class ReportUpload {
   toastType = signal<'success' | 'error' | 'info'>('success');
   private processingInterval: any;
 
+  ngOnInit() {
+    if (this.isOwner()) {
+      this.deptService.getDepartments().subscribe({
+        next: (depts) => {
+          this.departments.set(depts);
+        },
+        error: (err) => {
+          console.error('Failed to load departments', err);
+        }
+      });
+    }
+  }
+
   ngOnDestroy() {
     if (this.processingInterval) {
       clearInterval(this.processingInterval);
+    }
+  }
+
+  onDepartmentChange(event: any) {
+    const val = event.target.value;
+    if (!val || val === '') {
+      this.selectedDepartmentId.set(null);
+    } else {
+      this.selectedDepartmentId.set(Number(val));
     }
   }
 
@@ -60,6 +90,7 @@ export class ReportUpload {
   removeFile() {
     this.selectedFile.set(undefined);
     this.reportName.set('');
+    this.selectedDepartmentId.set(null);
     this.uploadProgress.set(0);
   }
 
@@ -70,7 +101,7 @@ export class ReportUpload {
     this.isUploading.set(true);
     this.uploadProgress.set(0);
 
-    this.service.upload(file, this.reportName()).subscribe({
+    this.service.upload(file, this.reportName(), this.selectedDepartmentId()).subscribe({
       next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           if (event.total) {

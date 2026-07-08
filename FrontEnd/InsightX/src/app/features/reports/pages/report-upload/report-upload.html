@@ -35,6 +35,23 @@
       />
     </div>
 
+    @if (isOwner()) {
+      <div class="form-group mb-4">
+        <label for="departmentSelect" class="form-label">Assign to Department (Owner Only)</label>
+        <select
+          id="departmentSelect"
+          class="form-control form-select"
+          [value]="selectedDepartmentId() ?? ''"
+          (change)="onDepartmentChange($event)"
+          [disabled]="isUploading() || isProcessing()"
+        >
+          <option [value]="''">None (Company-Wide / No Department Assigned)</option>
+          <option *ngFor="let dept of departments()" [value]="dept.id">{{ dept.name }}</option>
+        </select>
+        <small class="form-hint">Choose which department this report applies to, or leave as None for company-wide metrics.</small>
+      </div>
+    }
+
     <div
       class="upload-drop-zone"
       [class.drag-over]="isDragging()"

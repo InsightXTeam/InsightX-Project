@@ -14,11 +14,14 @@ export class ReportService {
   private apiUrl = `${environment.apiBaseUrl}/Reports`;
 
   // POST /api/Reports/upload
-  upload(file: File, reportName: string): Observable<any> {
+  upload(file: File, reportName: string, departmentId?: number | null): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     if (reportName) {
       formData.append('reportName', reportName);
+    }
+    if (departmentId !== undefined && departmentId !== null) {
+      formData.append('departmentId', departmentId.toString());
     }
 
     return this.http.post(
