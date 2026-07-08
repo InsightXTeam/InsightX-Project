@@ -50,10 +50,15 @@
     <!-- Tier 2: Action & Analytics Split Grid -->
     <section class="dashboard-tier tier-split-grid">
       <div class="split-column left-col">
-        <app-recent-alerts [alerts]="alerts"></app-recent-alerts>
+        <app-recent-alerts [alerts]="alerts" (deleteAlert)="onDeleteAlert($event)"></app-recent-alerts>
       </div>
       <div class="split-column right-col">
-        <app-trend-chart [trends]="trends"></app-trend-chart>
+        <app-trend-chart
+          [trends]="trends"
+          [months]="selectedMonths"
+          [isLoading]="isTrendsLoading"
+          (monthsChange)="onMonthsChange($event)">
+        </app-trend-chart>
       </div>
     </section>
 

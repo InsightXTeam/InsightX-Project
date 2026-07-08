@@ -45,12 +45,12 @@ namespace InsightX.API.Controllers
         }
 
         [HttpGet("trends")]
-        public async Task<IActionResult> GetTrends()
+        public async Task<IActionResult> GetTrends([FromQuery] int months = 6)
         {
             var companyId = GetCompanyId();
             if (companyId == 0) return Unauthorized();
 
-            var result = await _dashboardService.GetTrendsAsync(companyId, GetDepartmentId());
+            var result = await _dashboardService.GetTrendsAsync(companyId, GetDepartmentId(), months);
             return Ok(result);
         }
 

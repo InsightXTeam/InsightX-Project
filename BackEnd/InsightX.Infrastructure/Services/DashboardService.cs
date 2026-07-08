@@ -22,15 +22,14 @@ namespace InsightX.Infrastructure.Services
         public async Task<List<DashboardKpiDto>> GetKpisSummaryAsync(int companyId, int? departmentId)
         {
             var kpisQuery = _context.KPIs.Where(k => k.CompanyId == companyId);
+            if (departmentId.HasValue)
+            {
+                kpisQuery = kpisQuery.Where(k => k.DepartmentId == null || k.DepartmentId == departmentId.Value);
+            }
             
             var metricsQuery = _context.ExtractedMetrics
                 .Include(m => m.Report)
                 .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null);
-                
-            if (departmentId.HasValue)
-            {
-                metricsQuery = metricsQuery.Where(m => m.Report.DepartmentId == departmentId.Value);
-            }
 
             var kpis = await kpisQuery.ToListAsync();
             var latestMetrics = await metricsQuery
@@ -42,7 +41,11 @@ namespace InsightX.Infrastructure.Services
             foreach (var kpi in kpis)
             {
                 var metric = latestMetrics.FirstOrDefault(m => m?.KPIName == kpi.Name);
-                decimal currentValue = (decimal)(metric?.Value ?? 0);
+                if (metric == null)
+                {
+                    continue; // Skip KPIs that do not have an uploaded report yet
+                }
+                decimal currentValue = (decimal)metric.Value!;
                 
                 string status = "Good";
                 if (kpi.ThresholdDirection == ThresholdDirection.Below)
@@ -65,28 +68,33 @@ namespace InsightX.Infrastructure.Services
                     Threshold = kpi.Threshold,
                     Unit = kpi.Unit,
                     Status = status,
-                    ThresholdDirection = kpi.ThresholdDirection.ToString()
+                    ThresholdDirection = kpi.ThresholdDirection.ToString(),
+                    Description = kpi.Description
                 });
             }
 
             return result;
         }
 
-        public async Task<List<DashboardTrendDto>> GetTrendsAsync(int companyId, int? departmentId)
+        public async Task<List<DashboardTrendDto>> GetTrendsAsync(int companyId, int? departmentId, int months = 6)
         {
-            var metricsQuery = _context.ExtractedMetrics
-                .Include(m => m.Report)
-                .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null);
-                
+            var activeKpisQuery = _context.KPIs
+                .Where(k => k.CompanyId == companyId);
             if (departmentId.HasValue)
             {
-                metricsQuery = metricsQuery.Where(m => m.Report.DepartmentId == departmentId.Value);
+                activeKpisQuery = activeKpisQuery.Where(k => k.DepartmentId == null || k.DepartmentId == departmentId.Value);
             }
+            var activeKpiNames = activeKpisQuery.Select(k => k.Name);
+
+            var metricsQuery = _context.ExtractedMetrics
+                .Include(m => m.Report)
+                .Where(m => m.CompanyId == companyId && m.ConfirmedByManager && m.Value != null && activeKpiNames.Contains(m.KPIName));
             
-            // Get last 6 months
-            var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6);
-            var targetYear = sixMonthsAgo.Year;
-            var targetMonth = sixMonthsAgo.Month;
+            // Get last X months (default 6)
+            if (months < 1) months = 6;
+            var targetDate = DateTime.UtcNow.AddMonths(-months);
+            var targetYear = targetDate.Year;
+            var targetMonth = targetDate.Month;
             
             var metrics = await metricsQuery
                 .Where(m => m.Year > targetYear || (m.Year == targetYear && m.Month >= targetMonth))
@@ -137,14 +145,17 @@ namespace InsightX.Infrastructure.Services
 
             foreach(var dept in departments)
             {
-                var deptMetrics = metrics.Where(m => m.Report.DepartmentId == dept.Id)
+                var deptKpis = kpis.Where(k => k.DepartmentId == null || k.DepartmentId == dept.Id).ToList();
+                var deptKpiNames = deptKpis.Select(k => k.Name).ToHashSet();
+
+                var deptMetrics = metrics.Where(m => deptKpiNames.Contains(m.KPIName))
                     .GroupBy(m => m.KPIName)
                     .Select(g => g.OrderByDescending(m => m.Year).ThenByDescending(m => m.Month).FirstOrDefault())
                     .ToList();
 
                 int good = 0, warning = 0, critical = 0;
 
-                foreach(var kpi in kpis)
+                foreach(var kpi in deptKpis)
                 {
                     var metric = deptMetrics.FirstOrDefault(m => m?.KPIName == kpi.Name);
                     if (metric == null) continue;
@@ -182,13 +193,16 @@ namespace InsightX.Infrastructure.Services
 
         public async Task<List<AlertDto>> GetRecentAlertsAsync(int companyId, int? departmentId)
         {
-            var query = _context.Alerts
-                .Where(a => a.CompanyId == companyId && !a.SeenByOwner);
-
+            var activeKpisQuery = _context.KPIs
+                .Where(k => k.CompanyId == companyId);
             if (departmentId.HasValue)
             {
-                query = query.Where(a => a.DepartmentId == departmentId.Value);
+                activeKpisQuery = activeKpisQuery.Where(k => k.DepartmentId == null || k.DepartmentId == departmentId.Value);
             }
+            var activeKpiNames = activeKpisQuery.Select(k => k.Name);
+
+            var query = _context.Alerts
+                .Where(a => a.CompanyId == companyId && !a.SeenByOwner && activeKpiNames.Contains(a.KPIName));
 
             var alerts = await query
                 .OrderByDescending(a => a.CreatedAt)

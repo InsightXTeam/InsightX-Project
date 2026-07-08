@@ -49,8 +49,8 @@ export class DashboardService {
     return this.http.get<DashboardKpiDto[]>(`${this.apiUrl}/kpis`);
   }
 
-  getTrends() {
-    return this.http.get<DashboardTrendDto[]>(`${this.apiUrl}/trends`);
+  getTrends(months: number = 6) {
+    return this.http.get<DashboardTrendDto[]>(`${this.apiUrl}/trends?months=${months}`);
   }
 
   getDepartmentsPerformance() {

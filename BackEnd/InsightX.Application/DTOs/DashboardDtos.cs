@@ -18,6 +18,8 @@ namespace InsightX.Application.DTOs
         public string Status { get; set; }
         [JsonPropertyName("thresholdDirection")]
         public string ThresholdDirection { get; set; }
+        [JsonPropertyName("description")]
+        public string? Description { get; set; }
     }
 
     public class DashboardTrendDto
