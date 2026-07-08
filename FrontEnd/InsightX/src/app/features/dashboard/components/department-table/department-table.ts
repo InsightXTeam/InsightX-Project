@@ -14,46 +14,28 @@ export class DepartmentTable {
   exportToFile() {
     if (!this.departments || this.departments.length === 0) return;
 
-    // Determine column widths
-    const colWidths = [
-      Math.max(20, ...this.departments.map(d => d.departmentName.length)), // Department
-      15, // Good KPIs
-      15, // Warning KPIs
-      15, // Critical KPIs
-      15  // Status
-    ];
-
-    const pad = (text: string | number, width: number) => String(text).padEnd(width, ' ');
-
-    let txtContent = '================================================================================\n';
-    txtContent += '                            DEPARTMENT PERFORMANCE REPORT\n';
-    txtContent += '================================================================================\n\n';
-
-    // Headers
-    txtContent += pad('DEPARTMENT', colWidths[0]) + ' | ' + 
-                  pad('GOOD KPIs', colWidths[1]) + ' | ' + 
-                  pad('WARNING KPIs', colWidths[2]) + ' | ' + 
-                  pad('CRITICAL KPIs', colWidths[3]) + ' | ' + 
-                  pad('STATUS', colWidths[4]) + '\n';
+    // CSV Header
+    const headers = ['Department', 'Good KPIs', 'Warning KPIs', 'Critical KPIs', 'Overall Status'];
     
-    txtContent += '-'.repeat(colWidths.reduce((a, b) => a + b, 0) + 12) + '\n';
+    // CSV Rows
+    const rows = this.departments.map(d => [
+      `"${d.departmentName.replace(/"/g, '""')}"`,
+      d.goodKPIsCount,
+      d.warningKPIsCount,
+      d.criticalKPIsCount,
+      `"${d.overallStatus.toUpperCase()}"`
+    ]);
 
-    // Rows
-    this.departments.forEach(d => {
-      txtContent += pad(d.departmentName, colWidths[0]) + ' | ' + 
-                    pad(d.goodKPIsCount, colWidths[1]) + ' | ' + 
-                    pad(d.warningKPIsCount, colWidths[2]) + ' | ' + 
-                    pad(d.criticalKPIsCount, colWidths[3]) + ' | ' + 
-                    pad(d.overallStatus.toUpperCase(), colWidths[4]) + '\n';
-    });
-    
-    txtContent += '\n================================================================================\n';
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(e => e.join(','))
+    ].join('\n');
 
-    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', 'department_performance_report.txt');
+    link.setAttribute('download', `department_performance_report_${new Date().toISOString().slice(0, 10)}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
