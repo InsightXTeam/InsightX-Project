@@ -193,6 +193,31 @@ namespace InsightX.Infrastructure.Services
                 }
             }
 
+            if (!isActivated)
+            {
+                var userIdsToRevoke = new List<string> { user.Id };
+                if (roles.Contains("Owner"))
+                {
+                    var managerIds = await _context.Users
+                        .Join(_context.UserRoles, u => u.Id, ur => ur.UserId, (u, ur) => new { u, ur })
+                        .Join(_context.Roles, x => x.ur.RoleId, r => r.Id, (x, r) => new { x.u, RoleName = r.Name })
+                        .Where(x => x.u.CompanyId == user.CompanyId && x.RoleName == "Manager")
+                        .Select(x => x.u.Id)
+                        .ToListAsync(cancellationToken);
+                    userIdsToRevoke.AddRange(managerIds);
+                }
+
+                var activeTokens = await _context.RefreshTokens
+                    .Where(r => userIdsToRevoke.Contains(r.UserId) && !r.IsRevoked)
+                    .ToListAsync(cancellationToken);
+
+                foreach (var token in activeTokens)
+                {
+                    token.IsRevoked = true;
+                }
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+
             return ServiceResult.Success();
         }
 
@@ -229,6 +254,16 @@ namespace InsightX.Infrastructure.Services
                 var errors = string.Join(", ", updateResult.Errors.Select(e => e.Description));
                 return ServiceResult.Fail(400, errors);
             }
+
+            var activeTokens = await _context.RefreshTokens
+                .Where(r => r.UserId == id && !r.IsRevoked)
+                .ToListAsync(cancellationToken);
+
+            foreach (var token in activeTokens)
+            {
+                token.IsRevoked = true;
+            }
+            await _context.SaveChangesAsync(cancellationToken);
 
             return ServiceResult.Success();
         }

@@ -94,9 +94,9 @@ namespace InsightX.Infrastructure.Services
                 return ServiceResult<AuthResponseDto>.Fail(401, "Invalid credentials.");
             }
 
-            if (!user.IsActivated)
+            if (!user.IsActivated || user.IsDeleted)
             {
-                return ServiceResult<AuthResponseDto>.Fail(400, "Your account is not activated yet. Please wait for Super Admin activation.");
+                return ServiceResult<AuthResponseDto>.Fail(400, "Your account is not activated or has been deactivated.");
             }
 
             var oldTokens = await _context.RefreshTokens
@@ -160,9 +160,14 @@ namespace InsightX.Infrastructure.Services
             stored.IsRevoked = true;
 
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
+            if (user == null || !user.IsActivated || user.IsDeleted)
             {
-                return ServiceResult<AuthResponseDto>.Fail(404, "User not found.");
+                if (stored != null)
+                {
+                    stored.IsRevoked = true;
+                    await _context.SaveChangesAsync(cancellationToken);
+                }
+                return ServiceResult<AuthResponseDto>.Fail(401, "User account is deactivated or deleted.");
             }
 
             var roles = await _userManager.GetRolesAsync(user);

@@ -4,11 +4,11 @@
     <div class="stepper-header">
       <div class="step-indicator" [class.active]="currentStep() === 1" [class.completed]="currentStep() > 1">
         <div class="step-bubble">1</div>
-        <span class="step-label">KPIs</span>
+        <span class="step-label">Departments</span>
       </div>
       <div class="step-indicator" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
         <div class="step-bubble">2</div>
-        <span class="step-label">Departments</span>
+        <span class="step-label">KPIs</span>
       </div>
       <div class="step-indicator" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3">
         <div class="step-bubble">3</div>
@@ -24,20 +24,87 @@
         </div>
       }
       
-      <!-- STEP 1: CONFIGURE COMPANY KPIS -->
+      <!-- STEP 1: CREATE DEPARTMENTS -->
       @if (currentStep() === 1) {
         <div>
+          <h3 class="step-title">Create Departments</h3>
+          <p class="step-desc">Create structural departments for your company. You need at least one department before inviting managers.</p>
+
+          <!-- Dept Presets -->
+          <div class="presets-section">
+            <h4 class="presets-title">Popular Departments</h4>
+            <div class="presets-container">
+              <button type="button" class="preset-chip" (click)="addDeptPreset('Engineering')">+ Engineering</button>
+              <button type="button" class="preset-chip" (click)="addDeptPreset('Quality Assurance')">+ QA</button>
+              <button type="button" class="preset-chip" (click)="addDeptPreset('Sales & Marketing')">+ Sales</button>
+              <button type="button" class="preset-chip" (click)="addDeptPreset('Human Resources')">+ HR</button>
+            </div>
+          </div>
+
+          <!-- Added Depts List -->
+          <div class="depts-list">
+            @if (departments().length === 0) {
+              <div style="text-align: center; color: #64748b; padding: 20px; font-size: 14px;">No departments added yet. Please add at least one department.</div>
+            }
+            @for (dept of departments(); track $index) {
+              <div class="dept-row">
+                <div class="row-info">
+                  <span class="row-name">{{ dept.name }}</span>
+                  @if (dept.id) {
+                    <span class="row-meta" style="color: #10b981;">Successfully Created (ID: {{ dept.id }})</span>
+                  } @else {
+                    <span class="row-meta">Pending Creation</span>
+                  }
+                </div>
+                <button type="button" class="delete-btn" (click)="removeDept($index)" title="Remove Department">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+
+          <!-- Add Dept Form Grid -->
+          <div class="input-grid-dept">
+            <div class="form-group-onboard">
+              <label class="label-onboard">
+                <span>Department Name</span>
+                <app-help-tooltip
+                  title="Department Name"
+                  description="The name of an organizational division or functional unit within your company."
+                  expectedType="Text"
+                  example="Engineering, Quality Assurance, Sales & Marketing, Human Resources">
+                </app-help-tooltip>
+              </label>
+              <input type="text" [(ngModel)]="newDeptName" class="input-onboard" placeholder="Enter department name" (keyup.enter)="addDept()" />
+            </div>
+            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+              <button type="button" class="add-btn" (click)="addDept()" [disabled]="!newDeptName.trim()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Department
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- STEP 2: CONFIGURE COMPANY KPIS -->
+      @if (currentStep() === 2) {
+        <div>
           <h3 class="step-title">Configure Company KPIs</h3>
-          <p class="step-desc">Define the key performance indicators and targets for your company. These benchmarks help track organization metrics.</p>
+          <p class="step-desc">Define the key performance indicators and targets for your company. You can link metrics to specific departments or keep them company-wide.</p>
 
           <!-- KPI Presets -->
           <div class="presets-section">
             <h4 class="presets-title">Quick Add Presets</h4>
             <div class="presets-container">
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%', 2, 6, 1)">Server Uptime (99.9%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points', 10, 3, 1)">Sprint Velocity (80pts)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%', 5, 6, 1)">Retention Rate (95.5%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%', 2, 3, 1)">QA Pass Rate (98%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%', 2, 6, 1, null, 'Measures the percentage of total operational time that servers are online and available without unplanned downtime.')">Server Uptime (99.9%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points', 10, 3, 1, null, 'Measures the total number of story points completed by the engineering team during a sprint cycle.')">Sprint Velocity (80pts)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%', 5, 6, 1, null, 'Measures the percentage of customers who continue their subscription or contract over a specified period.')">Retention Rate (95.5%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%', 2, 3, 1, null, 'Measures the percentage of software test cases and automated quality checks that pass without critical defects.')">QA Pass Rate (98%)</button>
             </div>
           </div>
 
@@ -50,7 +117,12 @@
               <div class="kpi-row">
                 <div class="row-info">
                   <span class="row-name">{{ kpi.name }}</span>
-                   <span class="row-meta">Target: {{ kpi.threshold }}{{ kpi.unit }} | Type: {{ kpi.thresholdDirection === 1 ? 'Minimum Target' : 'Maximum Limit' }} | Alert Diff: {{ kpi.alertPercentageDiff }}% | Trend: {{ kpi.trendMonthsCount }}m</span>
+                   <span class="row-meta">
+                     Target: {{ kpi.threshold }}{{ kpi.unit }} | Type: {{ kpi.thresholdDirection === 1 ? 'Minimum Target' : 'Maximum Limit' }} | Dept: {{ getDepartmentName(kpi.departmentId) }} | Alert Diff: {{ kpi.alertPercentageDiff }}% | Trend: {{ kpi.trendMonthsCount }}m
+                     @if (kpi.description) {
+                       <br><span style="color: #818cf8; font-style: italic; display: inline-block; margin-top: 4px;">ℹ️ {{ kpi.description }}</span>
+                     }
+                   </span>
                 </div>
                 <button type="button" class="delete-btn" (click)="removeKpi($index)" title="Remove KPI">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
@@ -116,6 +188,23 @@
             </div>
             <div class="form-group-onboard">
               <label class="label-onboard">
+                <span>Department</span>
+                <app-help-tooltip
+                  title="Linked Department"
+                  description="The specific department responsible for this KPI, or Company-Wide for all departments."
+                  expectedType="Selection"
+                  example="Company-Wide, Engineering, or Sales">
+                </app-help-tooltip>
+              </label>
+              <select [(ngModel)]="newKpi.departmentId" class="input-onboard select-onboard">
+                <option [ngValue]="null">🏢 Company-Wide (All Departments)</option>
+                @for (dept of createdDepartments(); track dept.id) {
+                  <option [value]="dept.id">📁 {{ dept.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group-onboard">
+              <label class="label-onboard">
                 <span>Alert Diff %</span>
                 <app-help-tooltip
                   title="Alert Diff %"
@@ -138,79 +227,29 @@
               </label>
               <input type="number" [(ngModel)]="newKpi.trendMonthsCount" class="input-onboard" placeholder="Enter months count" />
             </div>
+            <div class="form-group-onboard" style="grid-column: span 3;">
+              <label class="label-onboard">
+                <span>Description / Meaning (Optional)</span>
+                <app-help-tooltip
+                  title="KPI Description"
+                  description="Detailed explanation of what this KPI measures. Helpful for the AI Assistant when analyzing uploaded reports."
+                  expectedType="Text (up to 500 characters)"
+                  example="Measures the percentage of time servers are operational without unplanned downtime.">
+                </app-help-tooltip>
+              </label>
+              <textarea 
+                [(ngModel)]="newKpi.description" 
+                class="input-onboard" 
+                placeholder="Describe what this KPI represents or how it should be extracted from reports..." 
+                style="min-height: 60px; resize: vertical; font-family: inherit; line-height: 1.4;"
+              ></textarea>
+            </div>
             <div style="grid-column: span 3; display: flex; justify-content: flex-end; margin-top: 8px;">
               <button type="button" class="add-btn" (click)="addKpi()" [disabled]="!newKpi.name || newKpi.threshold === null || newKpi.alertPercentageDiff === null || newKpi.trendMonthsCount === null">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 Add KPI Metric
-              </button>
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- STEP 2: CREATE DEPARTMENTS -->
-      @if (currentStep() === 2) {
-        <div>
-          <h3 class="step-title">Create Departments</h3>
-          <p class="step-desc">Create structural departments for your company. You need at least one department before inviting managers.</p>
-
-          <!-- Dept Presets -->
-          <div class="presets-section">
-            <h4 class="presets-title">Popular Departments</h4>
-            <div class="presets-container">
-              <button type="button" class="preset-chip" (click)="addDeptPreset('Engineering')">+ Engineering</button>
-              <button type="button" class="preset-chip" (click)="addDeptPreset('Quality Assurance')">+ QA</button>
-              <button type="button" class="preset-chip" (click)="addDeptPreset('Sales & Marketing')">+ Sales</button>
-              <button type="button" class="preset-chip" (click)="addDeptPreset('Human Resources')">+ HR</button>
-            </div>
-          </div>
-
-          <!-- Added Depts List -->
-          <div class="depts-list">
-            @if (departments().length === 0) {
-              <div style="text-align: center; color: #64748b; padding: 20px; font-size: 14px;">No departments added yet. Please add at least one department.</div>
-            }
-            @for (dept of departments(); track $index) {
-              <div class="dept-row">
-                <div class="row-info">
-                  <span class="row-name">{{ dept.name }}</span>
-                  @if (dept.id) {
-                    <span class="row-meta" style="color: #10b981;">Successfully Created (ID: {{ dept.id }})</span>
-                  } @else {
-                    <span class="row-meta">Pending Creation</span>
-                  }
-                </div>
-                <button type="button" class="delete-btn" (click)="removeDept($index)" title="Remove Department">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                  </svg>
-                </button>
-              </div>
-            }
-          </div>
-
-          <!-- Add Dept Form Grid -->
-          <div class="input-grid-dept">
-            <div class="form-group-onboard">
-              <label class="label-onboard">
-                <span>Department Name</span>
-                <app-help-tooltip
-                  title="Department Name"
-                  description="The name of an organizational division or functional unit within your company."
-                  expectedType="Text"
-                  example="Engineering, Quality Assurance, Sales & Marketing, Human Resources">
-                </app-help-tooltip>
-              </label>
-              <input type="text" [(ngModel)]="newDeptName" class="input-onboard" placeholder="Enter department name" (keyup.enter)="addDept()" />
-            </div>
-            <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
-              <button type="button" class="add-btn" (click)="addDept()" [disabled]="!newDeptName.trim()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Add Department
               </button>
             </div>
           </div>
@@ -334,7 +373,7 @@
           <a class="skip-link" (click)="skipOnboarding()">Skip onboarding</a>
         }
         
-        <button type="button" class="next-btn" (click)="nextStep()" [disabled]="isSubmitting() || (currentStep() === 2 && departments().length === 0)">
+        <button type="button" class="next-btn" (click)="nextStep()" [disabled]="isSubmitting() || (currentStep() === 1 && departments().length === 0)">
           @if (isSubmitting()) {
             <span class="spinner"></span>
             <span>Processing...</span>

@@ -22,6 +22,7 @@ namespace InsightX.Infrastructure.Services
             var company = await _context.Companies
                 .Include(c => c.Departments)
                 .Include(c => c.KPIs)
+                    .ThenInclude(k => k.Department)
                 .FirstOrDefaultAsync(c => c.Id == companyId, cancellationToken);
 
             if (company == null)
@@ -34,7 +35,7 @@ namespace InsightX.Infrastructure.Services
                 company.Name,
                 company.CreatedAt,
                 company.Departments.Select(d => new DepartmentProfileDto(d.Id, d.Name)).ToList(),
-                company.KPIs.Select(k => new KpiProfileDto(k.Id, k.Name, k.Threshold, k.Unit, k.AlertPercentageDiff, k.TrendMonthsCount, k.ThresholdDirection)).ToList()
+                company.KPIs.Select(k => new KpiProfileDto(k.Id, k.Name, k.Threshold, k.Unit, k.AlertPercentageDiff, k.TrendMonthsCount, k.ThresholdDirection, k.DepartmentId, k.Department?.Name, k.Description)).ToList()
             );
 
             return ServiceResult<CompanyProfileDto>.Success(dto);
@@ -61,6 +62,8 @@ namespace InsightX.Infrastructure.Services
                     existingKpi.AlertPercentageDiff = kpiDto.AlertPercentageDiff;
                     existingKpi.TrendMonthsCount = kpiDto.TrendMonthsCount;
                     existingKpi.ThresholdDirection = kpiDto.ThresholdDirection;
+                    existingKpi.DepartmentId = kpiDto.DepartmentId;
+                    existingKpi.Description = kpiDto.Description;
                 }
                 else
                 {
@@ -72,7 +75,9 @@ namespace InsightX.Infrastructure.Services
                         AlertPercentageDiff = kpiDto.AlertPercentageDiff,
                         TrendMonthsCount = kpiDto.TrendMonthsCount,
                         ThresholdDirection = kpiDto.ThresholdDirection,
-                        CompanyId = companyId
+                        CompanyId = companyId,
+                        DepartmentId = kpiDto.DepartmentId,
+                        Description = kpiDto.Description
                     });
                 }
             }

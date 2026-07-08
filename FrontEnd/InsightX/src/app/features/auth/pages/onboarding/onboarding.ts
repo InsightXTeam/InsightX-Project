@@ -17,6 +17,8 @@ interface KpiItem {
   alertPercentageDiff: number;
   trendMonthsCount: number;
   thresholdDirection: number;
+  departmentId?: number | null;
+  description?: string | null;
 }
 
 interface DepartmentItem {
@@ -56,7 +58,7 @@ export class OnboardingComponent {
   readonly managers = signal<ManagerItem[]>([]);
 
   // Input bindings
-  newKpi = { name: '', threshold: null as number | null, unit: '%', alertPercentageDiff: null as number | null, trendMonthsCount: null as number | null, thresholdDirection: 1 };
+  newKpi = { name: '', threshold: null as number | null, unit: '%', alertPercentageDiff: null as number | null, trendMonthsCount: null as number | null, thresholdDirection: 1, departmentId: null as number | null, description: null as string | null };
   newDeptName = '';
   newManager = { name: '', email: '', password: '', departmentId: 0 };
 
@@ -66,14 +68,16 @@ export class OnboardingComponent {
   );
 
   // KPI Actions
-  addKpiPreset(name: string, threshold: number, unit: string, alertPercentageDiff: number = 10, trendMonthsCount: number = 3, thresholdDirection: number = 1): void {
+  addKpiPreset(name: string, threshold: number, unit: string, alertPercentageDiff: number = 10, trendMonthsCount: number = 3, thresholdDirection: number = 1, departmentId: number | null = null, description: string | null = null): void {
     this.newKpi = {
       name,
       threshold,
       unit,
       alertPercentageDiff,
       trendMonthsCount,
-      thresholdDirection
+      thresholdDirection,
+      departmentId,
+      description
     };
   }
 
@@ -82,18 +86,21 @@ export class OnboardingComponent {
 
     const exists = this.kpis().some(k => k.name.toLowerCase() === this.newKpi.name.trim().toLowerCase());
     if (!exists) {
+      const departmentId = (this.newKpi.departmentId === null || this.newKpi.departmentId === undefined || String(this.newKpi.departmentId) === 'null' || String(this.newKpi.departmentId) === '') ? null : Number(this.newKpi.departmentId);
       this.kpis.update(list => [...list, {
         name: this.newKpi.name.trim(),
         threshold: this.newKpi.threshold!,
         unit: this.newKpi.unit.trim(),
         alertPercentageDiff: this.newKpi.alertPercentageDiff!,
         trendMonthsCount: this.newKpi.trendMonthsCount!,
-        thresholdDirection: Number(this.newKpi.thresholdDirection)
+        thresholdDirection: Number(this.newKpi.thresholdDirection),
+        departmentId,
+        description: this.newKpi.description?.trim() || null
       }]);
     }
 
     // Clear inputs
-    this.newKpi = { name: '', threshold: null, unit: '%', alertPercentageDiff: null, trendMonthsCount: null, thresholdDirection: 1 };
+    this.newKpi = { name: '', threshold: null, unit: '%', alertPercentageDiff: null, trendMonthsCount: null, thresholdDirection: 1, departmentId: null, description: null };
   }
 
   removeKpi(index: number): void {
@@ -127,6 +134,12 @@ export class OnboardingComponent {
   getDeptNameById(id: number): string {
     const dept = this.departments().find(d => d.id === id);
     return dept ? dept.name : 'Unknown';
+  }
+
+  getDepartmentName(id?: number | null): string {
+    if (!id) return 'Company-Wide';
+    const dept = this.departments().find(d => d.id === id);
+    return dept ? dept.name : 'Company-Wide';
   }
 
   // Manager Actions
@@ -174,9 +187,9 @@ export class OnboardingComponent {
     this.errorMessage.set(null); // Clear previous errors on step transition
     const step = this.currentStep();
     if (step === 1) {
-      this.submitKpis();
-    } else if (step === 2) {
       this.submitDepartments();
+    } else if (step === 2) {
+      this.submitKpis();
     } else if (step === 3) {
       this.finishOnboarding();
     }
@@ -189,7 +202,7 @@ export class OnboardingComponent {
   private submitKpis(): void {
     if (this.kpis().length === 0) {
       // Allow moving next without KPIs (or alert)
-      this.currentStep.set(2);
+      this.currentStep.set(3);
       return;
     }
 
@@ -202,14 +215,16 @@ export class OnboardingComponent {
         unit: k.unit,
         alertPercentageDiff: k.alertPercentageDiff,
         trendMonthsCount: k.trendMonthsCount,
-        thresholdDirection: Number(k.thresholdDirection)
+        thresholdDirection: Number(k.thresholdDirection),
+        departmentId: k.departmentId ?? null,
+        description: k.description ?? null
       }))
     };
 
     this.companyService.setupCompany(payload.kpis).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.currentStep.set(2);
+        this.currentStep.set(3);
       },
       error: (err) => {
         this.isSubmitting.set(false);
@@ -223,7 +238,7 @@ export class OnboardingComponent {
 
     if (pendingDepts.length === 0) {
       if (this.createdDepartments().length > 0) {
-        this.currentStep.set(3);
+        this.currentStep.set(2);
       } else {
         this.errorMessage.set('Please create at least one department to proceed.');
       }
@@ -254,7 +269,7 @@ export class OnboardingComponent {
         if (this.createdDepartments().length > 0) {
           // Auto-select the first department in the manager setup select dropdown
           this.newManager.departmentId = this.createdDepartments()[0].id!;
-          this.currentStep.set(3);
+          this.currentStep.set(2);
         } else {
           this.errorMessage.set('Failed to create departments. Please verify connection and try again.');
         }

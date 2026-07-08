@@ -2,17 +2,17 @@
   <div class="auth-wrapper">
     <!-- Header Area -->
     <div class="auth-header">
-      <div class="brand-title">
-        <!-- Upward Trending Graph Icon -->
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="header-icon">
-          <rect x="3" y="14" width="3" height="6" rx="0.5" fill="#3b82f6" />
-          <rect x="9" y="10" width="3" height="10" rx="0.5" fill="#3b82f6" />
-          <rect x="15" y="6" width="3" height="14" rx="0.5" fill="#3b82f6" />
-          <path d="M3 15 L9 11 L15 7 L21 3" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M16 3 H21 V8" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <span>InsightX AI</span>
-      </div>
+      <a routerLink="/home" class="brand-title" style="text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 8px;">
+        <div class="brand-logo" style="width: 36px; height: 36px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(59, 130, 246, 0.25); flex-shrink: 0;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor" style="width: 22px; height: 22px;">
+            <rect x="3" y="14" width="3" height="6" rx="0.5" fill="#3b82f6" />
+            <rect x="9" y="10" width="3" height="10" rx="0.5" fill="#3b82f6" />
+            <rect x="15" y="6" width="3" height="14" rx="0.5" fill="#3b82f6" />
+            <path d="M3 15 L9 11 L15 7 L21 3" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <span style="font-size: 22px; font-weight: 800; color: white; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;">InsightX <span style="font-size: 11px; font-weight: 700; color: #38bdf8; background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(59, 130, 246, 0.25)); border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 8px; border-radius: 6px;">AI</span></span>
+      </a>
       <div class="badge-subtitle">Business Intelligence, Powered by AI</div>
     </div>
 
@@ -102,10 +102,10 @@
 
     <!-- Footer Area -->
     <footer class="login-footer">
-      <p class="footer-copy">&copy; 2024 InsightX AI. All rights reserved.</p>
+      <p class="footer-copy">&copy; 2026 InsightX AI. All rights reserved.</p>
       <div class="footer-links">
-        <a href="javascript:void(0)">Privacy Policy</a>
-        <a href="javascript:void(0)">Terms of Service</a>
+        <a routerLink="/privacy">Privacy Policy</a>
+        <a routerLink="/terms">Terms of Service</a>
       </div>
     </footer>
   </div>
