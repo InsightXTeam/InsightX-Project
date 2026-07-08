@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService, DashboardKpiDto, DashboardTrendDto, DashboardDepartmentPerformanceDto, AlertDto } from '../dashboard.service';
 import { KpiCards } from '../components/kpi-cards/kpi-cards';
@@ -27,6 +27,21 @@ export class DashboardPage implements OnInit {
   private loadedCount = 0;
   private totalEndpoints = 4;
   private cdr = inject(ChangeDetectorRef);
+
+  isDropdownOpen = false;
+
+  toggleDropdown(event: Event): void {
+    event.stopPropagation();
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.bell-icon-wrapper')) {
+      this.isDropdownOpen = false;
+    }
+  }
 
   ngOnInit(): void {
     this.loadDashboardData();

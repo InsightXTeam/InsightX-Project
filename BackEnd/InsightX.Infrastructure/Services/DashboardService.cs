@@ -192,7 +192,7 @@ namespace InsightX.Infrastructure.Services
 
             var alerts = await query
                 .OrderByDescending(a => a.CreatedAt)
-                .Take(5)
+                .Take(30)
                 .ToListAsync();
 
             return alerts.Select(a => new AlertDto
