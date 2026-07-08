@@ -11,6 +11,9 @@ export interface KpiResponse {
   alertPercentageDiff: number;
   trendMonthsCount: number;
   thresholdDirection: number;
+  departmentId?: number | null;
+  departmentName?: string | null;
+  description?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

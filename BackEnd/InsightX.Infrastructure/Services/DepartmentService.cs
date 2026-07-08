@@ -11,10 +11,12 @@ namespace InsightX.Infrastructure.Services
     public class DepartmentService : IDepartmentService
     {
         private readonly AppDbContext _context;
+        private readonly IKpiService _kpiService;
 
-        public DepartmentService(AppDbContext context)
+        public DepartmentService(AppDbContext context, IKpiService kpiService)
         {
             _context = context;
+            _kpiService = kpiService;
         }
 
         public async Task<ServiceResult<DepartmentResponseDto>> CreateAsync(CreateDepartmentDto dto, int companyId, CancellationToken cancellationToken = default)
@@ -164,6 +166,18 @@ namespace InsightX.Infrastructure.Services
             if (dept == null)
             {
                 return ServiceResult.Fail(404, "Department not found.");
+            }
+
+            var kpis = await _context.KPIs.Where(k => k.DepartmentId == id).ToListAsync(cancellationToken);
+            foreach (var kpi in kpis)
+            {
+                await _kpiService.DeleteAsync(kpi.Id, companyId, cancellationToken);
+            }
+
+            var remainingAlerts = await _context.Alerts.Where(a => a.DepartmentId == id).ToListAsync(cancellationToken);
+            if (remainingAlerts.Any())
+            {
+                _context.Alerts.RemoveRange(remainingAlerts);
             }
 
             _context.Departments.Remove(dept);

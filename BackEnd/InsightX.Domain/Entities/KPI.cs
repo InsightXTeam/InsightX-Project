@@ -10,7 +10,10 @@ namespace InsightX.Domain.Entities
         public decimal AlertPercentageDiff { get; set; }
         public int TrendMonthsCount { get; set; }
         public ThresholdDirection ThresholdDirection { get; set; }
+        public string? Description { get; set; }
         public int CompanyId { get; set; }
         public Company Company { get; set; } = null!;
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
     }
 }

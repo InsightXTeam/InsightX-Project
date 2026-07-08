@@ -8,5 +8,6 @@ namespace InsightX.Domain.Entities
         public int CompanyId { get; set; }
         public Company Company { get; set; } = null!;
         public ApplicationUser? User { get; set; }
+        public ICollection<KPI> KPIs { get; set; } = new List<KPI>();
     }
 }
