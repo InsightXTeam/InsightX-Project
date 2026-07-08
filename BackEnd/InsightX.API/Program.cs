@@ -1,4 +1,4 @@
-
+using System.Security.Claims;
 using InsightX.Infrastructure;
 using InsightX.Infrastructure.AI.Rag;
 using Asp.Versioning;
@@ -67,6 +67,25 @@ namespace InsightX.API
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
                     ClockSkew = TimeSpan.Zero
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                        var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                        if (string.IsNullOrEmpty(userId))
+                        {
+                            context.Fail("Unauthorized");
+                            return;
+                        }
+
+                        var user = await userManager.FindByIdAsync(userId);
+                        if (user == null || !user.IsActivated || user.IsDeleted)
+                        {
+                            context.Fail("Account is deactivated or deleted.");
+                        }
+                    }
                 };
             });
 
@@ -137,6 +156,8 @@ namespace InsightX.API
             builder.Services.AddScoped<IGenerateAlertUseCase, GenerateAlertUseCase>();
             builder.Services.AddScoped<IGetAlertsUseCase, GetAlertsUseCase>();
             builder.Services.AddScoped<IMarkAlertSeenUseCase, MarkAlertSeenUseCase>();
+            builder.Services.AddScoped<IMarkAllAlertsSeenUseCase, MarkAllAlertsSeenUseCase>();
+            builder.Services.AddScoped<IDeleteAlertUseCase, DeleteAlertUseCase>();
             builder.Services.AddScoped<ICreateMonthlyReminderUseCase, CreateMonthlyReminderUseCase>();
 
             builder.Services.AddScoped<InsightX.Application.Interfaces.IDashboardService, InsightX.Infrastructure.Services.DashboardService>();

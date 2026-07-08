@@ -16,6 +16,7 @@ using InsightX.Infrastructure.Configuration;
 using InsightX.Infrastructure.DocumentReaders;
 using InsightX.Infrastructure.DocumentReaders.Image;
 using InsightX.Infrastructure.DocumentReaders.WordReader;
+using CsvReaderNs = InsightX.Infrastructure.DocumentReaders.CsvReader;
 using InsightX.Infrastructure.FileStorage;
 using InsightX.Infrastructure.Repositories;
 using InsightX.Infrastructure.Services;
@@ -132,6 +133,7 @@ namespace InsightX.Infrastructure
             services.AddScoped<IDocumentReader, PdfDocumentReader>();
             services.AddScoped<IDocumentReader, WordReader>();
             services.AddScoped<IDocumentReader, ImageReader>();
+            services.AddScoped<IDocumentReader, CsvReaderNs.CsvReader>();
 
             // Register AI Agent Services
             services.AddHttpClient<IChatCompletionService, ItiChatCompletionService>((sp, client) => { });

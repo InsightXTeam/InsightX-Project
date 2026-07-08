@@ -3,7 +3,7 @@ import { isAuthenticatedGuard, roleGuard } from './core/guards/auth.guard';
 import { UserListComponent } from './features/users/pages/user-list';
 import { OwnersListComponent } from './features/admin/owners-list';
 import { ProfileComponent } from './features/profile/pages/profile';
-import { RootRedirectComponent } from './core/components/root-redirect';
+import { LandingPageComponent } from './features/landing/pages/landing-page/landing-page';
 
 export const routes: Routes = [
   // Public auth routes (login, register, onboarding)
@@ -12,11 +12,10 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.routes)
   },
   
-  // Authenticated application routes
+  // Guest landing page & smart auth redirect
   {
     path: 'home',
-    component: RootRedirectComponent,
-    canActivate: [isAuthenticatedGuard]
+    component: LandingPageComponent
   },
   {
     path: 'dashboard',
@@ -61,7 +60,15 @@ export const routes: Routes = [
   {
     path: 'chat',
     loadComponent: () => import('./features/chat/chat-page/chat-page.component').then(m => m.ChatPageComponent),
-    canActivate: [isAuthenticatedGuard]
+    canActivate: [isAuthenticatedGuard, roleGuard(['Owner', 'Manager'])]
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./features/legal/pages/privacy-policy/privacy-policy').then(m => m.PrivacyPolicyComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/legal/pages/terms-of-service/terms-of-service').then(m => m.TermsOfServiceComponent)
   },
   
   // Wildcards & Default Redirects

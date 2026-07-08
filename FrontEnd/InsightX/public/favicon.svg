@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Rounded Square Background with Gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="barGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="32" height="32" rx="8" fill="url(#bgGrad)" stroke="#3b82f6" stroke-width="1.5" stroke-opacity="0.4"/>
+
+  <!-- Graph Bars -->
+  <rect x="6" y="18" width="4" height="8" rx="1" fill="url(#barGrad)" />
+  <rect x="14" y="13" width="4" height="13" rx="1" fill="url(#barGrad)" />
+  <rect x="22" y="8" width="4" height="18" rx="1" fill="url(#barGrad)" />
+
+  <!-- Upward Trend Line and Arrow -->
+  <path d="M6 19 L14 14 L22 9" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M24 4 H29 V9" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M21 10 L28.5 2.5" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,135 @@
+<div class="legal-container">
+  @if (!authService.isAuthenticated()) {
+    <!-- Guest Top Navbar -->
+    <header class="legal-nav">
+      <a routerLink="/home" class="nav-brand">
+        <div class="brand-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+            <rect x="3" y="14" width="3" height="6" rx="0.5" fill="#3b82f6" />
+            <rect x="9" y="10" width="3" height="10" rx="0.5" fill="#3b82f6" />
+            <rect x="15" y="6" width="3" height="14" rx="0.5" fill="#3b82f6" />
+            <path d="M3 15 L9 11 L15 7 L21 3" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <span class="brand-name">InsightX <span class="ai-tag">AI</span></span>
+      </a>
+
+      <div class="nav-actions">
+        <a routerLink="/home" class="btn-back">&larr; Back to Home</a>
+        <a routerLink="/auth/login" class="btn-signin">Sign In</a>
+      </div>
+    </header>
+  }
+
+  <main class="legal-content">
+    <div class="legal-header">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/dashboard" class="back-link">&larr; Back to Dashboard</a>
+      }
+      <div class="badge-pill">LEGAL &amp; COMPLIANCE</div>
+      <h1 class="legal-title">Privacy Policy</h1>
+      <p class="legal-meta">Last Updated: July 8, 2026 &bull; Effective Date: July 8, 2026</p>
+    </div>
+
+    <div class="legal-card">
+      <section class="policy-section">
+        <h2>1. Introduction &amp; Scope</h2>
+        <p>
+          Welcome to InsightX AI ("we," "our," or "us"). We are committed to protecting the privacy and security of your enterprise data, departmental metrics, and personal information. This Privacy Policy explains how we collect, use, process, and safeguard data when your organization uses our business intelligence, automated KPI tracking, anomaly detection, and AI assistant services (collectively, the "Platform").
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>2. Information We Collect</h2>
+        <p>We collect information in three primary categories to provide and improve our enterprise analytics platform:</p>
+        <ul>
+          <li>
+            <strong>Account &amp; Identity Data:</strong> When an organization registers or when an Owner or Super Admin invites team members, we collect names, business email addresses, company names, role designations (SuperAdmin, Owner, Manager), and encrypted authentication credentials.
+          </li>
+          <li>
+            <strong>Departmental &amp; KPI Metric Data:</strong> To deliver real-time business intelligence, we store and process the key performance indicators (KPIs), metric targets, historical performance values, departmental hierarchy structures, and custom reporting formulas submitted to your company workspace.
+          </li>
+          <li>
+            <strong>System Usage &amp; Diagnostic Logs:</strong> We automatically collect telemetry data, such as IP addresses, browser types, session durations, anomaly alert triggers, and API response latencies, to monitor system reliability and security.
+          </li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>3. How We Use AI &amp; Automated Processing</h2>
+        <p>
+          InsightX AI utilizes advanced artificial intelligence and statistical machine learning algorithms to analyze your KPI data. Here is how our AI engine interacts with your data:
+        </p>
+        <div class="info-box">
+          <span class="info-title">🤖 AI Data Isolation Guarantee</span>
+          <p>
+            Your company's departmental data and KPI metrics are processed strictly within your isolated tenant workspace. <strong>We never use your confidential enterprise data, chat queries, or report summaries to train public AI models</strong> or share them with third-party organizations.
+          </p>
+        </div>
+        <ul>
+          <li><strong>Autonomous Anomaly Detection:</strong> Our AI algorithms scan metric trends in real time to identify abnormal spikes or drops and dispatch instant notifications to authorized Managers and Owners.</li>
+          <li><strong>Conversational AI Assistant:</strong> When you query our AI Chat, your prompt and relevant context metrics are processed in memory to generate natural-language root-cause explanations and strategic advice.</li>
+          <li><strong>Automated Report Accuracy Verification:</strong> Our system verifies monthly report summaries against raw metric logs to calculate an accuracy score and prevent AI hallucinations.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>4. Data Sharing &amp; Sub-Processors</h2>
+        <p>
+          We do not sell, rent, or trade your personal information or enterprise data. We only share information under the following strict circumstances:
+        </p>
+        <ul>
+          <li><strong>Within Your Organization:</strong> Data is accessible according to your role-based access permissions (e.g., Owners can view all departmental KPIs, while Managers access assigned areas).</li>
+          <li><strong>Cloud &amp; Infrastructure Providers:</strong> We use industry-leading, SOC-2 compliant cloud hosting and database providers (such as Amazon Web Services and Google Cloud) to securely host your data in encrypted environments.</li>
+          <li><strong>Legal &amp; Regulatory Requirements:</strong> We may disclose information if required by applicable law, subpoena, or government regulation, provided we notify your organization whenever legally permitted.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>5. Data Security &amp; Retention</h2>
+        <p>
+          We employ robust administrative, technical, and physical security controls:
+        </p>
+        <ul>
+          <li><strong>Encryption:</strong> All data is encrypted in transit using TLS 1.3 and at rest using AES-256 encryption.</li>
+          <li><strong>Token-Based Authentication:</strong> We utilize secure JSON Web Tokens (JWT) with short-lived access tokens and automatic refresh rotation to prevent unauthorized session access.</li>
+          <li><strong>Retention Policy:</strong> We retain enterprise KPI data and account logs for as long as your company workspace remains active. Upon account deactivation or formal deletion request, all tenant data is permanently purged from our active servers within 30 days.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>6. Your Rights &amp; Choices</h2>
+        <p>
+          Depending on your jurisdiction (such as GDPR in Europe or CCPA/CPRA in California), you and your organization possess specific rights regarding your data:
+        </p>
+        <ul>
+          <li><strong>Access &amp; Portability:</strong> You can export your company's KPI reports and historical data directly from the platform at any time.</li>
+          <li><strong>Correction &amp; Modification:</strong> Company Owners and Managers can modify departmental profiles, user roles, and metric entries directly through the dashboard.</li>
+          <li><strong>Account Deactivation &amp; Deletion:</strong> Owners may request complete workspace termination and data erasure by contacting our privacy team or via account settings.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>7. Contact Our Privacy Team</h2>
+        <p>
+          If you have any questions, concerns, or requests regarding this Privacy Policy or our enterprise data practices, please reach out to our dedicated Data Protection Officer:
+        </p>
+        <div class="contact-box">
+          <p><strong>InsightX AI Privacy &amp; Compliance Office</strong></p>
+          <p>Email: <a href="mailto:privacy@insightx.ai">privacy&#64;insightx.ai</a></p>
+          <p>Address: 100 Innovation Way, Suite 400, Tech District, CA 94105</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="legal-footer">
+    <div class="footer-links">
+      <a routerLink="/privacy">Privacy Policy</a>
+      <a routerLink="/terms">Terms of Service</a>
+      <a routerLink="/auth/login">Sign In</a>
+    </div>
+    <p>&copy; 2026 InsightX AI. All rights reserved.</p>
+  </footer>
+</div>

@@ -61,6 +61,9 @@ namespace InsightX.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("ReportId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("SeenByOwner")
                         .HasColumnType("bit");
 
@@ -73,6 +76,8 @@ namespace InsightX.Infrastructure.Migrations
                     b.HasIndex("CompanyId");
 
                     b.HasIndex("DepartmentId");
+
+                    b.HasIndex("ReportId");
 
                     b.ToTable("Alerts");
                 });
@@ -261,6 +266,12 @@ namespace InsightX.Infrastructure.Migrations
                     b.Property<int>("CompanyId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -281,6 +292,8 @@ namespace InsightX.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CompanyId");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("KPIs");
                 });
@@ -379,9 +392,15 @@ namespace InsightX.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("ReportMonth")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReportName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ReportYear")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -552,9 +571,16 @@ namespace InsightX.Infrastructure.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("InsightX.Domain.Entities.Reports.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
                     b.Navigation("Company");
 
                     b.Navigation("Department");
+
+                    b.Navigation("Report");
                 });
 
             modelBuilder.Entity("InsightX.Domain.Entities.ApplicationUser", b =>
@@ -613,7 +639,14 @@ namespace InsightX.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("InsightX.Domain.Entities.Department", "Department")
+                        .WithMany("KPIs")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Company");
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("InsightX.Domain.Entities.RefreshToken", b =>
@@ -739,6 +772,8 @@ namespace InsightX.Infrastructure.Migrations
 
             modelBuilder.Entity("InsightX.Domain.Entities.Department", b =>
                 {
+                    b.Navigation("KPIs");
+
                     b.Navigation("User");
                 });
 

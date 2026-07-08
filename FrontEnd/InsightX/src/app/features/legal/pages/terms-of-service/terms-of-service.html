@@ -1,0 +1,128 @@
+<div class="legal-container">
+  @if (!authService.isAuthenticated()) {
+    <!-- Guest Top Navbar -->
+    <header class="legal-nav">
+      <a routerLink="/home" class="nav-brand">
+        <div class="brand-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+            <rect x="3" y="14" width="3" height="6" rx="0.5" fill="#3b82f6" />
+            <rect x="9" y="10" width="3" height="10" rx="0.5" fill="#3b82f6" />
+            <rect x="15" y="6" width="3" height="14" rx="0.5" fill="#3b82f6" />
+            <path d="M3 15 L9 11 L15 7 L21 3" stroke="#60a5fa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <span class="brand-name">InsightX <span class="ai-tag">AI</span></span>
+      </a>
+
+      <div class="nav-actions">
+        <a routerLink="/home" class="btn-back">&larr; Back to Home</a>
+        <a routerLink="/auth/login" class="btn-signin">Sign In</a>
+      </div>
+    </header>
+  }
+
+  <main class="legal-content">
+    <div class="legal-header">
+      @if (authService.isAuthenticated()) {
+        <a routerLink="/dashboard" class="back-link">&larr; Back to Dashboard</a>
+      }
+      <div class="badge-pill">LEGAL &amp; COMPLIANCE</div>
+      <h1 class="legal-title">Terms of Service</h1>
+      <p class="legal-meta">Last Updated: July 8, 2026 &bull; Effective Date: July 8, 2026</p>
+    </div>
+
+    <div class="legal-card">
+      <section class="policy-section">
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          These Terms of Service ("Terms") constitute a legally binding agreement between your business entity or organization ("Customer," "you," or "your") and InsightX AI ("we," "us," or "our"). By registering a company workspace, accessing our dashboard, or utilizing our AI assistant, automated KPI tracking, and reporting tools (collectively, the "Service"), you agree to be bound by these Terms.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>2. Enterprise Workspace &amp; Role Roles</h2>
+        <p>
+          The Service is designed for multi-layered enterprise organizations. Your workspace operates under a strict role-based hierarchy:
+        </p>
+        <ul>
+          <li><strong>Super Admin:</strong> Oversees system-wide infrastructure and approves newly registered company workspaces.</li>
+          <li><strong>Company Owner:</strong> Holds ultimate administrative authority over the workspace, including defining top-level company targets, managing departmental structures, linking cascading KPIs, and billing.</li>
+          <li><strong>Department Manager:</strong> Assigned by Owners to manage specific departmental KPIs, input metric values, and review anomaly alerts within their scope.</li>
+        </ul>
+        <p>
+          You are responsible for maintaining the confidentiality of all login credentials and for all activities that occur under your organization's accounts.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>3. Artificial Intelligence &amp; Accuracy Disclaimer</h2>
+        <p>
+          InsightX AI integrates generative artificial intelligence, statistical anomaly detection, and automated data summarization to assist your business decision-making.
+        </p>
+        <div class="warning-box">
+          <span class="warning-title">⚠️ AI Decision Advisory</span>
+          <p>
+            While our AI Report Accuracy engine actively cross-references data logs to verify summaries and minimize errors, **AI-generated insights, recommendations, and anomaly alerts are provided for informational and advisory purposes only**. You and your executive team remain solely responsible for validating data citations and evaluating any business, financial, or operational decisions made based on platform outputs.
+          </p>
+        </div>
+      </section>
+
+      <section class="policy-section">
+        <h2>4. Acceptable Use Policy</h2>
+        <p>When accessing or using InsightX AI, you agree NOT to:</p>
+        <ul>
+          <li>Reverse engineer, decompile, or disassemble any aspect of our AI models, anomaly detection algorithms, or frontend codebase.</li>
+          <li>Upload malicious code, automated scraping bots, or artificial data payloads designed to disrupt service latency or overwhelm our API endpoints.</li>
+          <li>Use the platform to process unlawful data, infringe on third-party intellectual property rights, or violate applicable privacy laws.</li>
+          <li>Attempt to gain unauthorized access to other tenant workspaces, Super Admin controls, or underlying cloud infrastructure.</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <h2>5. Intellectual Property &amp; Data Ownership</h2>
+        <p>
+          <strong>Your Data:</strong> You retain all right, title, and interest in and to your company name, departmental metrics, historical KPI logs, and custom formulas ("Customer Data"). You grant us a limited, secure, tenant-isolated license to process Customer Data solely for the purpose of providing and maintaining the Service.
+        </p>
+        <p>
+          <strong>Our Platform:</strong> InsightX AI retains all rights, title, and ownership in the platform software, UI design aesthetics, AI prompt architectures, and analytical methodologies.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>6. Termination &amp; Suspension</h2>
+        <p>
+          We reserve the right to suspend or terminate workspace access immediately if we detect severe security violations, non-payment, or breach of our Acceptable Use Policy. Company Owners may cancel their subscription and terminate their workspace at any time through account settings, which initiates our standard 30-day data deletion cycle.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>7. Limitation of Liability</h2>
+        <p>
+          TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL INSIGHTX AI, ITS AFFILIATES, OR ITS LICENSORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, REVENUE, DATA, OR BUSINESS OPPORTUNITIES, ARISING OUT OF OR RELATED TO YOUR USE OF THE PLATFORM OR RELIANCE ON AI RECOMMENDATIONS.
+        </p>
+      </section>
+
+      <section class="policy-section">
+        <h2>8. Contact &amp; Legal Notices</h2>
+        <p>
+          For legal inquiries, contract modifications, or formal notices regarding these Terms, please contact our Legal Department:
+        </p>
+        <div class="contact-box">
+          <p><strong>InsightX AI Legal Department</strong></p>
+          <p>Email: <a href="mailto:legal@insightx.ai">legal&#64;insightx.ai</a></p>
+          <p>Address: 100 Innovation Way, Suite 400, Tech District, CA 94105</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="legal-footer">
+    <div class="footer-links">
+      <a routerLink="/privacy">Privacy Policy</a>
+      <a routerLink="/terms">Terms of Service</a>
+      <a routerLink="/auth/login">Sign In</a>
+    </div>
+    <p>&copy; 2026 InsightX AI. All rights reserved.</p>
+  </footer>
+</div>

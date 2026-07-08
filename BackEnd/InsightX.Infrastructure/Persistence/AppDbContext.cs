@@ -53,6 +53,13 @@ namespace InsightX.Infrastructure.Persistence
                 .HasForeignKey(k => k.CompanyId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<KPI>()
+                .HasOne(k => k.Department)
+                .WithMany(d => d.KPIs)
+                .HasForeignKey(k => k.DepartmentId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Entity<RefreshToken>()
                 .HasOne(r => r.User)
                 .WithMany(u => u.RefreshTokens)
@@ -102,6 +109,12 @@ namespace InsightX.Infrastructure.Persistence
                       .WithMany()
                       .HasForeignKey(a => a.DepartmentId)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.Report)
+                      .WithMany()
+                      .HasForeignKey(a => a.ReportId)
+                      .IsRequired(false)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
 
