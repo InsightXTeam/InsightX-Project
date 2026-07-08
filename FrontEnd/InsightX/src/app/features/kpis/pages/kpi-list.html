@@ -27,7 +27,15 @@
       <h3 class="form-title">New KPI Metric</h3>
       <div class="form-row">
         <div class="form-group flex-2">
-          <label class="form-label">KPI Name</label>
+          <label class="form-label">
+            <span>KPI Name</span>
+            <app-help-tooltip
+              title="KPI Name"
+              description="The name of the KPI you want to track."
+              expectedType="Text (up to 50 characters)"
+              example="Customer Satisfaction Score, Server Uptime">
+            </app-help-tooltip>
+          </label>
           <input 
             type="text" 
             [(ngModel)]="newKpiName" 
@@ -37,7 +45,15 @@
           />
         </div>
         <div class="form-group flex-1">
-          <label class="form-label">Threshold Value</label>
+          <label class="form-label">
+            <span>Threshold Value</span>
+            <app-help-tooltip
+              title="Threshold Value"
+              description="The numerical benchmark or goal you want this KPI to reach."
+              expectedType="Number (integer or decimal)"
+              example="95, 99.9, or 500">
+            </app-help-tooltip>
+          </label>
           <input 
             type="number" 
             [(ngModel)]="newKpiThreshold" 
@@ -48,7 +64,15 @@
           />
         </div>
         <div class="form-group flex-1">
-          <label class="form-label">Target Type</label>
+          <label class="form-label">
+            <span>Target Type</span>
+            <app-help-tooltip
+              title="Target Type"
+              description="Specifies whether higher values are better (Minimum Target) or lower values are better (Maximum Limit)."
+              expectedType="Selection"
+              example="Minimum Target (for Uptime) or Maximum Limit (for Response Time)">
+            </app-help-tooltip>
+          </label>
           <select 
             [(ngModel)]="newKpiThresholdDirection" 
             class="input-field"
@@ -60,7 +84,15 @@
           </select>
         </div>
         <div class="form-group flex-1">
-          <label class="form-label">Unit</label>
+          <label class="form-label">
+            <span>Unit</span>
+            <app-help-tooltip
+              title="Unit"
+              description="The unit of measurement used to quantify this KPI."
+              expectedType="Short text or symbol"
+              example="%, ms, points, $, or hrs">
+            </app-help-tooltip>
+          </label>
           <input 
             type="text" 
             [(ngModel)]="newKpiUnit" 
@@ -70,7 +102,15 @@
           />
         </div>
         <div class="form-group flex-1">
-          <label class="form-label">Alert Diff %</label>
+          <label class="form-label">
+            <span>Alert Diff %</span>
+            <app-help-tooltip
+              title="Alert Diff %"
+              description="The percentage deviation from the target threshold that will trigger an automated alert."
+              expectedType="Percentage number"
+              example="10 (triggers an alert if the metric deviates by 10% or more)">
+            </app-help-tooltip>
+          </label>
           <input 
             type="number" 
             [(ngModel)]="newKpiAlertPercentageDiff" 
@@ -81,7 +121,15 @@
           />
         </div>
         <div class="form-group flex-1">
-          <label class="form-label">Trend Months</label>
+          <label class="form-label">
+            <span>Trend Months</span>
+            <app-help-tooltip
+              title="Trend Months"
+              description="The historical time horizon (in months) evaluated for trend analysis and chart forecasting."
+              expectedType="Positive integer"
+              example="3, 6, or 12 months">
+            </app-help-tooltip>
+          </label>
           <input 
             type="number" 
             [(ngModel)]="newKpiTrendMonthsCount" 
@@ -109,7 +157,15 @@
           @if (editingId() === kpi.id) {
             <div class="edit-mode-container">
               <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;">
-                <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">KPI Name</label>
+                <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                  <span>KPI Name</span>
+                  <app-help-tooltip
+                    title="KPI Name"
+                    description="The name of the KPI you want to track."
+                    expectedType="Text (up to 50 characters)"
+                    example="Customer Satisfaction Score, Server Uptime">
+                  </app-help-tooltip>
+                </label>
                 <input 
                   type="text" 
                   [(ngModel)]="editKpiName" 
@@ -120,7 +176,15 @@
               </div>
               <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr 1.2fr; gap: 8px;">
                 <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Target Type</label>
+                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                    <span>Target Type</span>
+                    <app-help-tooltip
+                      title="Target Type"
+                      description="Specifies whether higher values are better (Minimum Target) or lower values are better (Maximum Limit)."
+                      expectedType="Selection"
+                      example="Minimum Target (for Uptime) or Maximum Limit (for Response Time)">
+                    </app-help-tooltip>
+                  </label>
                   <select 
                     [(ngModel)]="editKpiThresholdDirection" 
                     class="edit-input-field"
@@ -132,7 +196,15 @@
                   </select>
                 </div>
                 <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Threshold</label>
+                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                    <span>Threshold</span>
+                    <app-help-tooltip
+                      title="Threshold"
+                      description="The numerical benchmark or goal you want this KPI to reach."
+                      expectedType="Number (integer or decimal)"
+                      example="95, 99.9, or 500">
+                    </app-help-tooltip>
+                  </label>
                   <input 
                     type="number" 
                     [(ngModel)]="editKpiThreshold" 
@@ -143,7 +215,15 @@
                   />
                 </div>
                 <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Unit</label>
+                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                    <span>Unit</span>
+                    <app-help-tooltip
+                      title="Unit"
+                      description="The unit of measurement used to quantify this KPI."
+                      expectedType="Short text or symbol"
+                      example="%, ms, points, $, or hrs">
+                    </app-help-tooltip>
+                  </label>
                   <input 
                     type="text" 
                     [(ngModel)]="editKpiUnit" 
@@ -155,7 +235,15 @@
               </div>
               <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
                 <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Alert Diff %</label>
+                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                    <span>Alert Diff %</span>
+                    <app-help-tooltip
+                      title="Alert Diff %"
+                      description="The percentage deviation from the target threshold that will trigger an automated alert."
+                      expectedType="Percentage number"
+                      example="10 (triggers an alert if the metric deviates by 10% or more)">
+                    </app-help-tooltip>
+                  </label>
                   <input 
                     type="number" 
                     [(ngModel)]="editKpiAlertPercentageDiff" 
@@ -166,7 +254,15 @@
                   />
                 </div>
                 <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">Trend Months</label>
+                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+                    <span>Trend Months</span>
+                    <app-help-tooltip
+                      title="Trend Months"
+                      description="The historical time horizon (in months) evaluated for trend analysis and chart forecasting."
+                      expectedType="Positive integer"
+                      example="3, 6, or 12 months">
+                    </app-help-tooltip>
+                  </label>
                   <input 
                     type="number" 
                     [(ngModel)]="editKpiTrendMonthsCount" 

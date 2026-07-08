@@ -282,6 +282,9 @@
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .input-onboard {

@@ -6,13 +6,14 @@ import { ConfirmDialogComponent } from '../../../shared/components/dialog/confir
 import { ToastService } from '../../../core/services/toast.service';
 import { extractErrorMessage } from '../../../shared/utils/error.utils';
 import { AuthService } from '../../../core/services/auth.service';
+import { HelpTooltipComponent } from '../../../shared/components/help-tooltip/help-tooltip.component';
 
 
 
 @Component({
   selector: 'app-kpi-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, ConfirmDialogComponent, HelpTooltipComponent],
   templateUrl: './kpi-list.html',
   styleUrl: './kpi-list.css'
 })

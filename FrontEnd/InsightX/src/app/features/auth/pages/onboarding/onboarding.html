@@ -34,17 +34,17 @@
           <div class="presets-section">
             <h4 class="presets-title">Quick Add Presets</h4>
             <div class="presets-container">
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%', 0.5, 1)">Server Uptime (99.9%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points', 10, 3)">Sprint Velocity (80pts)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%', 5, 6)">Retention Rate (95.5%)</button>
-              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%', 2, 3)">QA Pass Rate (98%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Server Uptime', 99.9, '%', 2, 6, 1)">Server Uptime (99.9%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Sprint Velocity', 80, 'Points', 10, 3, 1)">Sprint Velocity (80pts)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('Customer Retention', 95.5, '%', 5, 6, 1)">Retention Rate (95.5%)</button>
+              <button type="button" class="preset-chip" (click)="addKpiPreset('QA Pass Rate', 98, '%', 2, 3, 1)">QA Pass Rate (98%)</button>
             </div>
           </div>
 
           <!-- Added KPIs List -->
           <div class="kpis-list">
             @if (kpis().length === 0) {
-              <div style="text-align: center; color: #64748b; padding: 20px; font-size: 14px;">No KPIs added yet. Click presets or use form below to add.</div>
+              <div style="text-align: center; color: #64748b; padding: 20px; font-size: 14px;">No KPIs added yet.</div>
             }
             @for (kpi of kpis(); track $index) {
               <div class="kpi-row">
@@ -64,30 +64,78 @@
           <!-- Add KPI Form Grid -->
           <div class="input-grid">
             <div class="form-group-onboard">
-              <label class="label-onboard">KPI Name</label>
+              <label class="label-onboard">
+                <span>KPI Name</span>
+                <app-help-tooltip
+                  title="KPI Name"
+                  description="The name of the KPI you want to track."
+                  expectedType="Text (up to 50 characters)"
+                  example="Customer Satisfaction Score, Server Uptime">
+                </app-help-tooltip>
+              </label>
               <input type="text" [(ngModel)]="newKpi.name" class="input-onboard" placeholder="Enter metric name" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Target Threshold</label>
+              <label class="label-onboard">
+                <span>Target Threshold</span>
+                <app-help-tooltip
+                  title="Target Threshold"
+                  description="The numerical benchmark or goal you want this KPI to reach."
+                  expectedType="Number (integer or decimal)"
+                  example="95, 99.9, or 500">
+                </app-help-tooltip>
+              </label>
               <input type="number" [(ngModel)]="newKpi.threshold" class="input-onboard" placeholder="Enter value" step="any" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Unit</label>
+              <label class="label-onboard">
+                <span>Unit</span>
+                <app-help-tooltip
+                  title="Unit"
+                  description="The unit of measurement used to quantify this KPI."
+                  expectedType="Short text or symbol"
+                  example="%, ms, points, $, or hrs">
+                </app-help-tooltip>
+              </label>
               <input type="text" [(ngModel)]="newKpi.unit" class="input-onboard" placeholder="e.g. %, ms, etc." />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Target Type</label>
+              <label class="label-onboard">
+                <span>Target Type</span>
+                <app-help-tooltip
+                  title="Target Type"
+                  description="Specifies whether higher values are better (Minimum Target) or lower values are better (Maximum Limit)."
+                  expectedType="Selection"
+                  example="Minimum Target (for Uptime) or Maximum Limit (for Response Time)">
+                </app-help-tooltip>
+              </label>
               <select [(ngModel)]="newKpi.thresholdDirection" class="input-onboard select-onboard">
                 <option [value]="1">Minimum Target</option>
                 <option [value]="0">Maximum Limit</option>
               </select>
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Alert Diff %</label>
+              <label class="label-onboard">
+                <span>Alert Diff %</span>
+                <app-help-tooltip
+                  title="Alert Diff %"
+                  description="The percentage deviation from the target threshold that will trigger an automated alert."
+                  expectedType="Percentage number"
+                  example="10 (triggers an alert if the metric deviates by 10% or more)">
+                </app-help-tooltip>
+              </label>
               <input type="number" [(ngModel)]="newKpi.alertPercentageDiff" class="input-onboard" placeholder="Enter percentage" step="any" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Trend Months</label>
+              <label class="label-onboard">
+                <span>Trend Months</span>
+                <app-help-tooltip
+                  title="Trend Months"
+                  description="The historical time horizon (in months) evaluated for trend analysis and chart forecasting."
+                  expectedType="Positive integer"
+                  example="3, 6, or 12 months">
+                </app-help-tooltip>
+              </label>
               <input type="number" [(ngModel)]="newKpi.trendMonthsCount" class="input-onboard" placeholder="Enter months count" />
             </div>
             <div style="grid-column: span 3; display: flex; justify-content: flex-end; margin-top: 8px;">
@@ -146,7 +194,15 @@
           <!-- Add Dept Form Grid -->
           <div class="input-grid-dept">
             <div class="form-group-onboard">
-              <label class="label-onboard">Department Name</label>
+              <label class="label-onboard">
+                <span>Department Name</span>
+                <app-help-tooltip
+                  title="Department Name"
+                  description="The name of an organizational division or functional unit within your company."
+                  expectedType="Text"
+                  example="Engineering, Quality Assurance, Sales & Marketing, Human Resources">
+                </app-help-tooltip>
+              </label>
               <input type="text" [(ngModel)]="newDeptName" class="input-onboard" placeholder="Enter department name" (keyup.enter)="addDept()" />
             </div>
             <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
@@ -196,19 +252,51 @@
           <!-- Add Manager Form Box -->
           <div class="input-grid-manager">
             <div class="form-group-onboard">
-              <label class="label-onboard">Full Name</label>
+              <label class="label-onboard">
+                <span>Full Name</span>
+                <app-help-tooltip
+                  title="Full Name"
+                  description="The full legal or professional name of the team manager being invited."
+                  expectedType="Text (first and last name)"
+                  example="Jane Doe, Alex Rivera">
+                </app-help-tooltip>
+              </label>
               <input type="text" [(ngModel)]="newManager.name" class="input-onboard" placeholder="Enter full name" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Email Address</label>
+              <label class="label-onboard">
+                <span>Email Address</span>
+                <app-help-tooltip
+                  title="Email Address"
+                  description="The professional email address where login credentials and system alerts will be sent."
+                  expectedType="Valid email address"
+                  example="alex.rivera&#64;company.com">
+                </app-help-tooltip>
+              </label>
               <input type="email" [(ngModel)]="newManager.email" class="input-onboard" placeholder="Enter email address" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Password</label>
+              <label class="label-onboard">
+                <span>Password</span>
+                <app-help-tooltip
+                  title="Password"
+                  description="The initial secure password for the manager's account (they can change it later)."
+                  expectedType="Alphanumeric string (min 6 characters)"
+                  example="P&#64;ssw0rd2026!, SecureKey99#">
+                </app-help-tooltip>
+              </label>
               <input type="password" [(ngModel)]="newManager.password" class="input-onboard" placeholder="Enter password" />
             </div>
             <div class="form-group-onboard">
-              <label class="label-onboard">Assign Department</label>
+              <label class="label-onboard">
+                <span>Assign Department</span>
+                <app-help-tooltip
+                  title="Assign Department"
+                  description="The department this manager will lead and oversee."
+                  expectedType="Selection from created departments"
+                  example="Engineering, Sales & Marketing">
+                </app-help-tooltip>
+              </label>
               <select [(ngModel)]="newManager.departmentId" class="input-onboard select-onboard">
                 <option [value]="0" disabled selected>Select Department</option>
                 @for (dept of createdDepartments(); track dept.id) {

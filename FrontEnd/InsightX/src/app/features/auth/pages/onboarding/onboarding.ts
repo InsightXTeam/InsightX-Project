@@ -8,6 +8,7 @@ import { extractErrorMessage } from '../../../../shared/utils/error.utils';
 import { UserService } from '../../../../core/services/user.service';
 import { DepartmentService } from '../../../../core/services/department.service';
 import { CompanyService } from '../../../../core/services/company.service';
+import { HelpTooltipComponent } from '../../../../shared/components/help-tooltip/help-tooltip.component';
 
 interface KpiItem {
   name: string;
@@ -34,7 +35,7 @@ interface ManagerItem {
 @Component({
   selector: 'app-onboarding',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HelpTooltipComponent],
   templateUrl: './onboarding.html',
   styleUrl: './onboarding.css'
 })
@@ -66,10 +67,14 @@ export class OnboardingComponent {
 
   // KPI Actions
   addKpiPreset(name: string, threshold: number, unit: string, alertPercentageDiff: number = 10, trendMonthsCount: number = 3, thresholdDirection: number = 1): void {
-    const exists = this.kpis().some(k => k.name.toLowerCase() === name.toLowerCase());
-    if (!exists) {
-      this.kpis.update(list => [...list, { name, threshold, unit, alertPercentageDiff, trendMonthsCount, thresholdDirection }]);
-    }
+    this.newKpi = {
+      name,
+      threshold,
+      unit,
+      alertPercentageDiff,
+      trendMonthsCount,
+      thresholdDirection
+    };
   }
 
   addKpi(): void {

@@ -1,0 +1,94 @@
+.help-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  cursor: help;
+  padding: 0;
+  margin-left: 4px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.help-icon-btn:hover {
+  background: rgba(99, 102, 241, 0.3);
+  color: #ffffff;
+  border-color: rgba(99, 102, 241, 0.65);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.help-icon-btn.active {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #818cf8;
+  transform: scale(1.05);
+}
+
+.question-icon {
+  width: 11px;
+  height: 11px;
+}
+
+.tooltip-hint {
+  position: fixed;
+  z-index: 100000;
+  width: max-content;
+  max-width: 240px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(99, 102, 241, 0.15);
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  padding: 8px 10px;
+  animation: tooltipFadeIn 0.15s ease-out forwards;
+  text-align: left;
+  line-height: 1.4;
+  transition: opacity 0.15s ease;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hint-desc {
+  font-size: 11.5px;
+  color: #e2e8f0;
+  font-weight: 400;
+  word-break: break-word;
+}
+
+.hint-meta {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10.5px;
+}
+
+.hint-type {
+  color: #38bdf8;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace, sans-serif;
+}
+
+.hint-example {
+  color: #94a3b8;
+  word-break: break-word;
+}
