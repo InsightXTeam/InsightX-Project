@@ -89,7 +89,7 @@ namespace InsightX.Infrastructure.Services
             }
         }
 
-        public async Task<ChatResponseDto> SendMessageAsync(int companyId, string userId, ChatRequestDto request)
+        public async Task<ChatResponseDto> SendMessageAsync(int companyId, string userId, int? departmentId, ChatRequestDto request)
         {
             var systemPrompt = @"
 You are InsightX AI, a friendly and expert business analyst assistant.
@@ -181,22 +181,26 @@ CRITICAL INSTRUCTIONS FOR YOUR FINAL ANSWER:
                         {
                             if (action == "GetKpisSummary")
                             {
-                                var data = await _dashboardService.GetKpisSummaryAsync(companyId, null);
+                                var data = await _dashboardService.GetKpisSummaryAsync(companyId, departmentId);
                                 observation = JsonSerializer.Serialize(data);
                             }
                             else if (action == "GetRecentAlerts")
                             {
-                                var data = await _dashboardService.GetRecentAlertsAsync(companyId, null);
+                                var data = await _dashboardService.GetRecentAlertsAsync(companyId, departmentId);
                                 observation = JsonSerializer.Serialize(data);
                             }
                             else if (action == "GetDepartmentsPerformance")
                             {
                                 var data = await _dashboardService.GetDepartmentsPerformanceAsync(companyId);
+                                if (departmentId.HasValue)
+                                {
+                                    data = data.Where(d => d.DepartmentId == departmentId.Value).ToList();
+                                }
                                 observation = JsonSerializer.Serialize(data);
                             }
                             else if (action == "GetTrends")
                             {
-                                var data = await _dashboardService.GetTrendsAsync(companyId, null);
+                                var data = await _dashboardService.GetTrendsAsync(companyId, departmentId);
                                 observation = JsonSerializer.Serialize(data);
                             }
                             else if (action == "GetDocumentInformation")
@@ -208,7 +212,7 @@ CRITICAL INSTRUCTIONS FOR YOUR FINAL ANSWER:
                                 else
                                 {
                                     var requestDto = new RetrieveRequestDto { Question = actionInput, TopK = 3 };
-                                    var result = await _retrieveChunksUseCase.ExecuteAsync(requestDto, companyId, null);
+                                    var result = await _retrieveChunksUseCase.ExecuteAsync(requestDto, companyId, departmentId);
                                     if (result.IsSuccess && result.Data != null)
                                     {
                                         observation = JsonSerializer.Serialize(result.Data.Chunks);
@@ -267,12 +271,12 @@ CRITICAL INSTRUCTIONS FOR YOUR FINAL ANSWER:
             };
         }
 
-        public async IAsyncEnumerable<string> SendMessageStreamAsync(int companyId, string userId, ChatRequestDto request)
+        public async IAsyncEnumerable<string> SendMessageStreamAsync(int companyId, string userId, int? departmentId, ChatRequestDto request)
         {
             // Note: True streaming for a ReAct loop is complex because we buffer tool thoughts vs final answers.
             // Since ItiChatCompletionService falls back to non-streaming anyway, we execute the ReAct loop
             // and yield the final answer.
-            var response = await SendMessageAsync(companyId, userId, request);
+            var response = await SendMessageAsync(companyId, userId, departmentId, request);
             yield return response.Message;
         }
     }

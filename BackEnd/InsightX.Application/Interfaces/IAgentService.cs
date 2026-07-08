@@ -7,8 +7,8 @@ namespace InsightX.Application.Interfaces
 {
     public interface IAgentService
     {
-        Task<ChatResponseDto> SendMessageAsync(int companyId, string userId, ChatRequestDto request);
-        IAsyncEnumerable<string> SendMessageStreamAsync(int companyId, string userId, ChatRequestDto request);
+        Task<ChatResponseDto> SendMessageAsync(int companyId, string userId, int? departmentId, ChatRequestDto request);
+        IAsyncEnumerable<string> SendMessageStreamAsync(int companyId, string userId, int? departmentId, ChatRequestDto request);
         Task<List<ChatResponseDto>> GetHistoryAsync(int companyId, Guid sessionId);
         Task<List<ChatSessionDto>> GetSessionsAsync(int companyId, string userId);
         Task DeleteSessionAsync(int companyId, string userId, Guid sessionId);

@@ -33,6 +33,13 @@ namespace InsightX.API.Controllers
             return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "";
         }
 
+        private int? GetDepartmentId()
+        {
+            var deptIdStr = User.FindFirst("DepartmentId")?.Value;
+            if (string.IsNullOrEmpty(deptIdStr)) return null;
+            return int.Parse(deptIdStr);
+        }
+
         [HttpPost("chat")]
         public async Task<IActionResult> SendMessage([FromBody] ChatRequestDto request)
         {
@@ -42,7 +49,7 @@ namespace InsightX.API.Controllers
             if (companyId == 0 || string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var response = await _agentService.SendMessageAsync(companyId, userId, request);
+            var response = await _agentService.SendMessageAsync(companyId, userId, GetDepartmentId(), request);
             return Ok(response);
         }
 
@@ -60,7 +67,7 @@ namespace InsightX.API.Controllers
 
             Response.ContentType = "text/event-stream";
 
-            await foreach (var chunk in _agentService.SendMessageStreamAsync(companyId, userId, request))
+            await foreach (var chunk in _agentService.SendMessageStreamAsync(companyId, userId, GetDepartmentId(), request))
             {
                 // Format the string for SSE
                 var data = $"data: {chunk.Replace("\n", "\\n")}\n\n";
