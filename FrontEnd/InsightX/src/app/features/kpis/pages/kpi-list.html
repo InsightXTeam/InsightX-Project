@@ -75,9 +75,8 @@
           </label>
           <select 
             [(ngModel)]="newKpiThresholdDirection" 
-            class="input-field"
+            class="input-field select-field"
             [disabled]="isLoading()"
-            style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E\'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;"
           >
             <option [value]="1">Minimum Target</option>
             <option [value]="0">Maximum Limit</option>
@@ -156,27 +155,28 @@
 
           @if (editingId() === kpi.id) {
             <div class="edit-mode-container">
-              <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;">
-                <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
-                  <span>KPI Name</span>
-                  <app-help-tooltip
-                    title="KPI Name"
-                    description="The name of the KPI you want to track."
-                    expectedType="Text (up to 50 characters)"
-                    example="Customer Satisfaction Score, Server Uptime">
-                  </app-help-tooltip>
-                </label>
-                <input 
-                  type="text" 
-                  [(ngModel)]="editKpiName" 
-                  class="edit-input-field" 
-                  placeholder="Enter metric name"
-                  [disabled]="isLoading()"
-                />
-              </div>
-              <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr 1.2fr; gap: 8px;">
-                <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+              <div class="edit-form-grid">
+                <div class="edit-form-group span-2">
+                  <label class="form-label">
+                    <span>KPI Name</span>
+                    <app-help-tooltip
+                      title="KPI Name"
+                      description="The name of the KPI you want to track."
+                      expectedType="Text (up to 50 characters)"
+                      example="Customer Satisfaction Score, Server Uptime">
+                    </app-help-tooltip>
+                  </label>
+                  <input 
+                    type="text" 
+                    [(ngModel)]="editKpiName" 
+                    class="edit-input-field" 
+                    placeholder="Enter metric name"
+                    [disabled]="isLoading()"
+                  />
+                </div>
+
+                <div class="edit-form-group">
+                  <label class="form-label">
                     <span>Target Type</span>
                     <app-help-tooltip
                       title="Target Type"
@@ -187,16 +187,16 @@
                   </label>
                   <select 
                     [(ngModel)]="editKpiThresholdDirection" 
-                    class="edit-input-field"
+                    class="edit-input-field select-field"
                     [disabled]="isLoading()"
-                    style="appearance: none; background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E\'); background-position: right 10px center; background-repeat: no-repeat; background-size: 20px;"
                   >
                     <option [value]="1">Minimum Target</option>
                     <option [value]="0">Maximum Limit</option>
                   </select>
                 </div>
-                <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+
+                <div class="edit-form-group">
+                  <label class="form-label">
                     <span>Threshold</span>
                     <app-help-tooltip
                       title="Threshold"
@@ -214,8 +214,9 @@
                     step="any"
                   />
                 </div>
-                <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+
+                <div class="edit-form-group">
+                  <label class="form-label">
                     <span>Unit</span>
                     <app-help-tooltip
                       title="Unit"
@@ -232,10 +233,9 @@
                     [disabled]="isLoading()"
                   />
                 </div>
-              </div>
-              <div class="edit-form-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
-                <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+
+                <div class="edit-form-group">
+                  <label class="form-label">
                     <span>Alert Diff %</span>
                     <app-help-tooltip
                       title="Alert Diff %"
@@ -253,8 +253,9 @@
                     step="any"
                   />
                 </div>
-                <div class="edit-form-group" style="display: flex; flex-direction: column; gap: 4px;">
-                  <label class="form-label" style="font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">
+
+                <div class="edit-form-group span-2">
+                  <label class="form-label">
                     <span>Trend Months</span>
                     <app-help-tooltip
                       title="Trend Months"
@@ -272,7 +273,8 @@
                   />
                 </div>
               </div>
-              <div class="edit-actions" style="margin-top: 12px;">
+
+              <div class="edit-actions">
                 <button class="edit-btn-save" (click)="updateKpi(kpi.id)" [disabled]="!editKpiName.trim() || editKpiThreshold === null || !editKpiUnit.trim() || editKpiAlertPercentageDiff === null || editKpiTrendMonthsCount === null || isLoading()">Save</button>
                 <button class="edit-btn-cancel" (click)="cancelEdit()" [disabled]="isLoading()">Cancel</button>
               </div>

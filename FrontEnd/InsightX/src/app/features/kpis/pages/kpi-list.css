@@ -91,7 +91,9 @@
 .form-group {
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
   gap: 6px;
+  min-width: 0;
 }
 
 .flex-1 { flex: 1; }
@@ -109,7 +111,7 @@
 }
 
 .input-field {
-  padding: 10px 14px;
+  padding: 8px 14px;
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -118,11 +120,23 @@
   outline: none;
   transition: all 0.25s ease;
   width: 100%;
+  box-sizing: border-box;
+  height: 40px;
 }
 
 .input-field:focus {
   border-color: var(--btn-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.select-field {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  padding-right: 36px;
 }
 
 .form-actions {
@@ -326,7 +340,7 @@
 .edit-mode-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
@@ -336,8 +350,20 @@
 
 .edit-form-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 12px;
+}
+
+.edit-form-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.edit-form-group.span-2 {
+  grid-column: span 2;
 }
 
 .edit-input-field {
@@ -350,6 +376,8 @@
   color: white;
   outline: none;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  height: 38px;
 }
 
 .edit-input-field:focus {
@@ -360,6 +388,7 @@
 .edit-actions {
   display: flex;
   gap: 8px;
+  margin-top: 4px;
 }
 
 .edit-btn-save {
