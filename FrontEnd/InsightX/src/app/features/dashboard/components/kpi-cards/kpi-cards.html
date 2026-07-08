@@ -1,16 +1,21 @@
 <div class="kpi-grid">
-  <div class="kpi-card" *ngFor="let kpi of kpis; let i = index" [style.animation-delay]="i * 0.05 + 's'">
+  <div class="kpi-card" *ngFor="let kpi of kpis; let i = index" [ngClass]="{
+    'card-good': kpi.status === 'Good',
+    'card-warning': kpi.status === 'Warning',
+    'card-critical': kpi.status === 'Critical'
+  }" [style.animation-delay]="i * 0.05 + 's'">
+    
     <div class="kpi-header">
-      <h3 class="kpi-title">{{ kpi.name }}</h3>
+      <h3 class="kpi-title" [title]="kpi.name">{{ kpi.name }}</h3>
       
-      <div class="kpi-icon" [ngClass]="{
+      <div class="kpi-icon-wrapper" [ngClass]="{
         'icon-good': kpi.status === 'Good',
         'icon-warning': kpi.status === 'Warning',
         'icon-critical': kpi.status === 'Critical'
       }">
-        <svg *ngIf="kpi.status === 'Good'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        <svg *ngIf="kpi.status === 'Warning'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        <svg *ngIf="kpi.status === 'Critical'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+        <svg *ngIf="kpi.status === 'Good'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        <svg *ngIf="kpi.status === 'Warning'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <svg *ngIf="kpi.status === 'Critical'" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
       </div>
     </div>
     
@@ -20,12 +25,19 @@
         <span class="kpi-unit" *ngIf="kpi.unit">{{ kpi.unit }}</span>
       </div>
       
-      <div class="kpi-status-text" [ngClass]="{
-        'text-good': kpi.status === 'Good',
-        'text-warning': kpi.status === 'Warning',
-        'text-critical': kpi.status === 'Critical'
-      }">
-        {{ kpi.status === 'Good' ? 'ON TRACK' : kpi.status === 'Warning' ? 'WARNING' : 'BELOW TARGET' }}
+      <div class="kpi-footer">
+        <div class="kpi-status-badge" [ngClass]="{
+          'badge-good': kpi.status === 'Good',
+          'badge-warning': kpi.status === 'Warning',
+          'badge-critical': kpi.status === 'Critical'
+        }">
+          <span class="status-dot"></span>
+          {{ getStatusLabel(kpi) }}
+        </div>
+
+        <div class="kpi-threshold" *ngIf="kpi.threshold !== undefined && kpi.threshold !== null">
+          <span class="threshold-label">Target:</span> {{ kpi.threshold | number:'1.0-2' }}{{ kpi.unit }}
+        </div>
       </div>
     </div>
   </div>

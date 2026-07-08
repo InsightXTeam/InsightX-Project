@@ -1,24 +1,31 @@
 <div class="dashboard-container">
+  <!-- Command Center Header -->
   <div class="dashboard-header">
-    <h2>Dashboard Overview</h2>
-    <div class="header-actions" *ngIf="!isLoading && !errorMessage">
-      <div class="bell-icon-wrapper" [class.dropdown-open]="isDropdownOpen" (click)="toggleDropdown($event)">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bell-icon">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-        <span class="notification-badge" *ngIf="alerts && alerts.length > 0">{{ alerts.length }}</span>
-        
-        <div class="alerts-dropdown" (click)="$event.stopPropagation()">
-          <app-recent-alerts [alerts]="alerts"></app-recent-alerts>
-        </div>
+    <div class="header-title-group">
+      <div class="title-with-badge">
+        <h2>Command Center</h2>
+        <span class="system-status-badge" [class.status-critical]="hasCriticalAlerts()">
+          <span class="pulse-dot"></span>
+          {{ hasCriticalAlerts() ? 'ATTENTION REQUIRED' : 'SYSTEMS OPERATIONAL' }}
+        </span>
       </div>
+      <p class="header-subtitle">Real-time enterprise vital signs and departmental analytics</p>
+    </div>
+
+    <div class="header-actions" *ngIf="!isLoading && !errorMessage">
+      <button class="refresh-btn" (click)="loadDashboardData()" type="button" title="Refresh Dashboard Data">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path>
+          <path d="M21 3v5h-5"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
     </div>
   </div>
 
   <div *ngIf="isLoading" class="loading-state">
     <div class="spinner"></div>
-    <span>Loading dashboard data...</span>
+    <span>Loading dashboard analytics...</span>
   </div>
 
   <div *ngIf="errorMessage" class="error-state">
@@ -31,13 +38,28 @@
   </div>
 
   <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
-    <app-kpi-cards [kpis]="kpis"></app-kpi-cards>
-
-    <div class="dashboard-grid">
-      <div class="main-column">
-        <app-trend-chart [trends]="trends"></app-trend-chart>
-        <app-department-table [departments]="departments"></app-department-table>
+    <!-- Tier 1: Vital Signs Row -->
+    <section class="dashboard-tier tier-vital-signs">
+      <div class="tier-header">
+        <h3>Vital Signs</h3>
+        <span class="tier-count">{{ kpis.length }} KPIs Monitored</span>
       </div>
-    </div>
+      <app-kpi-cards [kpis]="kpis"></app-kpi-cards>
+    </section>
+
+    <!-- Tier 2: Action & Analytics Split Grid -->
+    <section class="dashboard-tier tier-split-grid">
+      <div class="split-column left-col">
+        <app-recent-alerts [alerts]="alerts"></app-recent-alerts>
+      </div>
+      <div class="split-column right-col">
+        <app-trend-chart [trends]="trends"></app-trend-chart>
+      </div>
+    </section>
+
+    <!-- Tier 3: Departmental Performance Drilldown -->
+    <section class="dashboard-tier tier-departments">
+      <app-department-table [departments]="departments"></app-department-table>
+    </section>
   </div>
 </div>

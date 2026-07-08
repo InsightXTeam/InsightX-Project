@@ -7,8 +7,8 @@ export interface DashboardKpiDto {
   currentValue: number;
   threshold: number;
   unit: string;
-  status: string;
-  thresholdDirection: string;
+  status: "Good" | "Warning" | "Critical";
+  thresholdDirection: "Minimum Target" | "Maximum Limit";
 }
 
 export interface DashboardTrendDto {
@@ -23,19 +23,19 @@ export interface DashboardDepartmentPerformanceDto {
   goodKPIsCount: number;
   warningKPIsCount: number;
   criticalKPIsCount: number;
-  overallStatus: string;
+  overallStatus: "Good" | "Warning" | "Critical";
 }
 
 export interface AlertDto {
   id: number;
-  departmentId: number;
   kpiName: string;
-  message: string;
-  recommendation: string;
   currentValue: number;
   threshold: number;
-  alertType: string;
+  message: string;
+  recommendation: string;
+  seenByOwner: boolean;
   createdAt: string;
+  alertType: number;
 }
 
 @Injectable({

@@ -1,7 +1,7 @@
 .premium-card {
   background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -12,13 +12,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 20px 24px 16px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f3f4f6;
   margin: 0;
 }
@@ -27,52 +27,100 @@
   font-size: 13px;
   color: #9ca3af;
   margin: 4px 0 0 0;
-  display: none; /* Hide subtitle to match Figma */
 }
 
-.premium-select {
-  padding: 6px 30px 6px 12px;
-  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 10px center/10px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #d1d5db;
-  border-radius: 6px;
+/* Pill Tab Bar Switcher */
+.pill-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.pill-tab {
+  padding: 6px 14px;
+  border-radius: 20px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  color: #9ca3af;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  appearance: none;
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
-.premium-select:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+.pill-tab:hover {
+  background: #334155;
+  color: #e2e8f0;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.premium-select:focus {
-  border-color: #3b82f6;
-  outline: none;
+.pill-tab.active {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  border-color: #60a5fa;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
 }
 
 .card-body {
-  padding: 20px;
+  padding: 20px 24px;
   position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-container {
-  min-height: 300px;
+  min-height: 320px;
+  flex: 1;
 }
 
-.empty-state {
+/* Isometric High-Fidelity Empty State */
+.isometric-empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 0;
-  color: #6b7280;
+  padding: 50px 20px;
+  text-align: center;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
-.empty-state svg {
-  margin-bottom: 16px;
-  opacity: 0.5;
+.empty-icon-box {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(30, 41, 59, 0.5) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: #60a5fa;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.isometric-empty-state h4 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #e2e8f0;
+  margin: 0 0 8px 0;
+}
+
+.isometric-empty-state p {
+  font-size: 13px;
+  color: #9ca3af;
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.5;
 }
 
 ::ng-deep .apexcharts-tooltip {

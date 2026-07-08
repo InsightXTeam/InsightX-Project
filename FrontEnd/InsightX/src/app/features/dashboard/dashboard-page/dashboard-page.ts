@@ -28,19 +28,8 @@ export class DashboardPage implements OnInit {
   private totalEndpoints = 4;
   private cdr = inject(ChangeDetectorRef);
 
-  isDropdownOpen = false;
-
-  toggleDropdown(event: Event): void {
-    event.stopPropagation();
-    this.isDropdownOpen = !this.isDropdownOpen;
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.bell-icon-wrapper')) {
-      this.isDropdownOpen = false;
-    }
+  hasCriticalAlerts(): boolean {
+    return this.kpis.some(k => k.status === 'Critical') || this.alerts.some(a => !a.seenByOwner && a.alertType === 2);
   }
 
   ngOnInit(): void {

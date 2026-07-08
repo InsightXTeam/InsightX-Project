@@ -2,11 +2,12 @@
   <div class="card-header premium-header">
     <div class="header-content">
       <h3 class="card-title">Department Performance</h3>
+      <p class="card-subtitle">Organizational KPI health breakdown</p>
     </div>
     <div class="header-actions">
-      <button class="export-btn" (click)="exportToFile()">
+      <button class="export-btn" (click)="exportToFile()" type="button" title="Export Department Data to CSV">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        Export
+        <span>Export CSV</span>
       </button>
     </div>
   </div>
@@ -19,25 +20,67 @@
           <th class="text-center">GOOD KPIS</th>
           <th class="text-center">WARNING KPIS</th>
           <th class="text-center">CRITICAL KPIS</th>
-          <th class="text-right">STATUS</th>
+          <th class="text-right">OVERALL STATUS</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let dept of departments">
-          <td class="fw-semibold text-white">{{ dept.departmentName }}</td>
-          <td class="text-center" [ngClass]="{'text-good': dept.goodKPIsCount > 0}">{{ dept.goodKPIsCount }}</td>
-          <td class="text-center" [ngClass]="{'text-warning': dept.warningKPIsCount > 0}">{{ dept.warningKPIsCount }}</td>
-          <td class="text-center" [ngClass]="{'text-critical': dept.criticalKPIsCount > 0}">{{ dept.criticalKPIsCount }}</td>
+        <tr *ngFor="let dept of departments" [ngClass]="{
+          'row-critical': dept.overallStatus === 'Critical',
+          'row-warning': dept.overallStatus === 'Warning'
+        }">
+          <td class="dept-name-cell">
+            <div class="dept-name-wrapper">
+              <span class="dept-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </span>
+              <span class="fw-semibold text-white">{{ dept.departmentName }}</span>
+            </div>
+          </td>
+          
+          <td class="text-center">
+            <span class="count-pill" [ngClass]="{'count-good': dept.goodKPIsCount > 0}">
+              {{ dept.goodKPIsCount }}
+            </span>
+          </td>
+          
+          <td class="text-center">
+            <span class="count-pill" [ngClass]="{'count-warning': dept.warningKPIsCount > 0}">
+              {{ dept.warningKPIsCount }}
+            </span>
+          </td>
+          
+          <td class="text-center">
+            <span class="count-pill" [ngClass]="{'count-critical': dept.criticalKPIsCount > 0}">
+              {{ dept.criticalKPIsCount }}
+            </span>
+          </td>
+          
           <td class="text-right status-cell">
-            {{ dept.overallStatus | uppercase }}
+            <div class="status-badge" [ngClass]="{
+              'badge-good': dept.overallStatus === 'Good',
+              'badge-warning': dept.overallStatus === 'Warning',
+              'badge-critical': dept.overallStatus === 'Critical'
+            }">
+              <span class="status-dot"></span>
+              {{ dept.overallStatus | uppercase }}
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
     
     <ng-template #noDepts>
-      <div class="empty-state">
-        <p>No department data available.</p>
+      <div class="empty-state isometric-empty-state">
+        <div class="empty-icon-box">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h4>No Department Data Recorded</h4>
+        <p>There are no department performance metrics available to display yet.</p>
       </div>
     </ng-template>
   </div>

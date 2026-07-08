@@ -43,20 +43,37 @@ export class TrendChart implements OnChanges {
     this.updateChart();
   }
 
+  selectKpi(kpiName: string): void {
+    this.selectedKpiName = kpiName;
+    this.updateChart();
+  }
+
+  hasHistoryData(): boolean {
+    if (!this.trends || this.trends.length === 0) return false;
+    const target = this.trends.find(t => t.kpiName === this.selectedKpiName) || this.trends[0];
+    if (!target || !target.values || target.values.length === 0) return false;
+    return true;
+  }
+
   private initChart() {
     this.chartOptions = {
       series: [],
       chart: {
-        height: 350,
+        height: 340,
         type: 'line',
         zoom: { enabled: false },
-        toolbar: { show: false }
+        toolbar: { show: false },
+        background: 'transparent',
+        fontFamily: 'Inter, system-ui, sans-serif'
       },
       dataLabels: { enabled: false },
       stroke: { curve: 'smooth', width: 3 },
-      title: { text: 'KPI Trend (Last 6 Months)', align: 'left' },
-      xaxis: { categories: [] },
-      colors: ['#0d6efd']
+      title: { text: 'KPI Trend (Last 6 Months)', align: 'left', style: { color: '#d1d5db', fontSize: '14px', fontWeight: '600' } },
+      xaxis: { categories: [], labels: { style: { colors: '#9ca3af', fontSize: '12px' } } },
+      yaxis: { labels: { style: { colors: '#9ca3af', fontSize: '12px' } } },
+      grid: { borderColor: 'rgba(255, 255, 255, 0.06)', strokeDashArray: 4 },
+      tooltip: { theme: 'dark' },
+      colors: ['#3b82f6']
     };
   }
 

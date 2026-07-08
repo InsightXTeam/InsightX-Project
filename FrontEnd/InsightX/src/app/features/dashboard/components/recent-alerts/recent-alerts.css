@@ -1,7 +1,7 @@
 .premium-card {
   background: #111827;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -13,54 +13,86 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
+  padding: 20px 24px 16px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .card-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   color: #f3f4f6;
   margin: 0;
 }
 
 .view-all-link {
-  color: #9ca3af;
+  color: #3b82f6;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .view-all-link:hover {
-  color: #f3f4f6;
+  color: #60a5fa;
+  text-decoration: underline;
 }
 
 .card-body {
-  padding: 20px;
+  padding: 20px 24px;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-height: 440px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .alerts-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
+/* Alert Item Base */
 .alert-item {
   display: flex;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 14px;
+  padding: 16px;
   background: #1e293b;
-  border-radius: 6px;
+  border-radius: 8px;
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-.alert-item:hover {
+/* Seen Alerts Recede */
+.alert-item:not(.unseen-alert) {
+  opacity: 0.65;
+}
+
+.alert-item:not(.unseen-alert):hover {
+  opacity: 1;
   background: #334155;
+  transform: translateX(2px);
+}
+
+/* Unseen Alerts Visually Dominate */
+.unseen-alert {
+  border-left: 4px solid #ef4444 !important;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(30, 41, 59, 0.95) 100%) !important;
+  border-top-color: rgba(239, 68, 68, 0.3);
+  border-right-color: rgba(239, 68, 68, 0.3);
+  border-bottom-color: rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+  opacity: 1 !important;
+}
+
+.unseen-alert:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(30, 41, 59, 1) 100%) !important;
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.25);
+  transform: translateY(-2px);
 }
 
 .alert-warning::before {
@@ -86,37 +118,86 @@
 .alert-icon {
   display: flex;
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .text-warning { color: #f59e0b; }
 .text-critical { color: #ef4444; }
+.text-info { color: #38bdf8; }
 
 .alert-content {
   flex-grow: 1;
 }
 
 .alert-kpi {
-  margin: 0 0 6px 0;
-  font-size: 13px;
+  margin: 0;
+  font-size: 14px;
   font-weight: 600;
-  color: #f3f4f6;
+  color: #d1d5db;
+}
+
+.alert-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.unseen-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.8px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  animation: pulseNewBadge 2s infinite;
+}
+
+.font-bold {
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
 }
 
 .alert-message {
   margin: 0 0 12px 0;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
-  color: #9ca3af;
+  color: #e2e8f0;
+}
+
+.alert-recommendation {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.rec-label {
+  font-weight: 700;
+  color: #7dd3fc;
 }
 
 .alert-meta {
   font-size: 11px;
-  color: #6b7280;
-  font-family: 'JetBrains Mono', monospace;
+  color: #64748b;
+  font-family: 'JetBrains Mono', 'Roboto Mono', monospace;
 }
 
 .empty-state {
-  padding: 40px;
+  padding: 60px 20px;
   text-align: center;
   color: #6b7280;
+  font-size: 14px;
+}
+
+@keyframes pulseNewBadge {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 8px rgba(239, 68, 68, 0.5); }
+  50% { transform: scale(1.05); box-shadow: 0 0 14px rgba(239, 68, 68, 0.8); }
 }

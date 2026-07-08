@@ -10,4 +10,12 @@ import { DashboardKpiDto } from '../../dashboard.service';
 })
 export class KpiCards {
   @Input() kpis: DashboardKpiDto[] = [];
+
+  getStatusLabel(kpi: DashboardKpiDto): string {
+    if (kpi.status === 'Good') return 'ON TRACK';
+    if (kpi.thresholdDirection === 'Maximum Limit') {
+      return kpi.status === 'Warning' ? 'WARNING (HIGH)' : 'ABOVE LIMIT';
+    }
+    return kpi.status === 'Warning' ? 'WARNING (LOW)' : 'BELOW TARGET';
+  }
 }
