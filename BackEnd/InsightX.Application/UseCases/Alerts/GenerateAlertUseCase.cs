@@ -26,6 +26,7 @@ namespace InsightX.Application.UseCases.Alerts
             int? departmentId,
             string kpiName,
             decimal currentValue,
+            int? reportId = null,
             CancellationToken cancellationToken = default)
         {
             // 1- detecting if there any problems
@@ -44,6 +45,7 @@ namespace InsightX.Application.UseCases.Alerts
             {
                 CompanyId = companyId,
                 DepartmentId = departmentId,
+                ReportId = reportId,
                 KPIName = kpiName,
                 CurrentValue = result.CurrentValue,
                 Threshold = result.Threshold,

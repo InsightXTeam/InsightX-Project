@@ -15,16 +15,22 @@ namespace InsightX.API.Controllers
     {
         private readonly IGetAlertsUseCase _getAlerts;
         private readonly IMarkAlertSeenUseCase _markSeen;
+        private readonly IMarkAllAlertsSeenUseCase _markAllSeen;
         private readonly IGenerateAlertUseCase _generateAlert;
+        private readonly IDeleteAlertUseCase _deleteAlert;
 
         public AlertsController(
             IGetAlertsUseCase getAlerts,
             IMarkAlertSeenUseCase markSeen,
-            IGenerateAlertUseCase generateAlert)
+            IMarkAllAlertsSeenUseCase markAllSeen,
+            IGenerateAlertUseCase generateAlert,
+            IDeleteAlertUseCase deleteAlert)
         {
             _getAlerts = getAlerts;
             _markSeen = markSeen;
+            _markAllSeen = markAllSeen;
             _generateAlert = generateAlert;
+            _deleteAlert = deleteAlert;
         }
 
         [HttpGet]
@@ -54,6 +60,26 @@ namespace InsightX.API.Controllers
             return NoContent();
         }
 
+        [HttpPut("seen-all")]
+        public async Task<IActionResult> MarkAllSeen(CancellationToken cancellationToken)
+        {
+            var companyIdClaim = User.FindFirst("companyId")?.Value;
+            if (!int.TryParse(companyIdClaim, out var companyId))
+            {
+                return Forbid("Invalid or missing companyId claim.");
+            }
+
+            int? departmentId = null;
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            if (role == "Manager")
+            {
+                departmentId = User.GetDepartmentId();
+            }
+
+            await _markAllSeen.ExecuteAsync(companyId, departmentId, cancellationToken);
+            return NoContent();
+        }
+
         [HttpPost("run")]
         public async Task<IActionResult> RunDetection([FromBody] RunAlertRequest request, CancellationToken cancellationToken)
         {
@@ -68,9 +94,30 @@ namespace InsightX.API.Controllers
                 request.DepartmentId,
                 request.KpiName,
                 request.CurrentValue,
+                null,
                 cancellationToken);
 
             return Ok(new { message = "Anomaly detection triggered successfully." });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAlert(int id, CancellationToken cancellationToken)
+        {
+            var companyIdClaim = User.FindFirst("companyId")?.Value;
+            if (!int.TryParse(companyIdClaim, out var companyId))
+            {
+                return Forbid("Invalid or missing companyId claim.");
+            }
+
+            int? departmentId = null;
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            if (role == "Manager")
+            {
+                departmentId = User.GetDepartmentId();
+            }
+
+            await _deleteAlert.ExecuteAsync(id, companyId, departmentId, role, cancellationToken);
+            return NoContent();
         }
     }
 }

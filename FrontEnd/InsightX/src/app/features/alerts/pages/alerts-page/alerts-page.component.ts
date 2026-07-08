@@ -18,7 +18,7 @@ export class AlertsPageComponent implements OnInit {
   readonly loading   = signal(true);
   readonly error     = signal<string | null>(null);
   readonly allAlerts = signal<Alert[]>([]);
-  readonly activeTab = signal<FilterTab>('all');
+  readonly activeTab = signal<FilterTab>('unseen');
 
   readonly filtered = computed(() => {
     const tab    = this.activeTab();
@@ -68,6 +68,34 @@ export class AlertsPageComponent implements OnInit {
         alerts.map(a => a.id === alertId ? { ...a, seenByOwner: true } : a)
       );
       this.api.unseenCount.update(c => Math.max(0, c - 1));
+    });
+  }
+
+  markAllSeen() {
+    if (this.unseenCount() === 0) return;
+    this.api.markAllAsSeen().subscribe(() => {
+      this.allAlerts.update(alerts =>
+        alerts.map(a => ({ ...a, seenByOwner: true }))
+      );
+      this.api.unseenCount.set(0);
+    });
+  }
+
+  deleteAlert(alertId: number) {
+    this.api.deleteAlert(alertId).subscribe({
+      next: () => {
+        this.allAlerts.update(alerts => {
+          const target = alerts.find(a => a.id === alertId);
+          if (target && !target.seenByOwner) {
+            this.api.unseenCount.update(c => Math.max(0, c - 1));
+          }
+          return alerts.filter(a => a.id !== alertId);
+        });
+        this.api.fetchUnseenCount();
+      },
+      error: () => {
+        this.error.set('Failed to delete alert. Please try again.');
+      }
     });
   }
 }

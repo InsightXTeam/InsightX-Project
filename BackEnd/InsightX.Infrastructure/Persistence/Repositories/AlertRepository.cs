@@ -52,5 +52,41 @@ namespace InsightX.Infrastructure.Persistence.Repositories
                 await _context.SaveChangesAsync(cancellationToken);
             }
         }
+
+        public async Task MarkAllAsSeenAsync(int companyId, int? departmentId = null, CancellationToken cancellationToken = default)
+        {
+            var alerts = _context.Alerts.Where(a => a.CompanyId == companyId && !a.SeenByOwner);
+            if (departmentId.HasValue)
+            {
+                alerts = alerts.Where(a => a.DepartmentId == departmentId.Value);
+            }
+
+            var unseenAlerts = await alerts.ToListAsync(cancellationToken);
+            foreach (var alert in unseenAlerts)
+            {
+                alert.SeenByOwner = true;
+            }
+
+            if (unseenAlerts.Any())
+            {
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task DeleteAsync(Alert alert, CancellationToken cancellationToken = default)
+        {
+            _context.Alerts.Remove(alert);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        public async Task DeleteByReportIdAsync(int reportId, CancellationToken cancellationToken = default)
+        {
+            var alerts = await _context.Alerts.Where(a => a.ReportId == reportId).ToListAsync(cancellationToken);
+            if (alerts.Any())
+            {
+                _context.Alerts.RemoveRange(alerts);
+                await _context.SaveChangesAsync(cancellationToken);
+            }
+        }
     }
 }

@@ -41,6 +41,14 @@ export class AlertsApiService {
   }
 
   /**
+   * PUT /api/alerts/seen-all
+   * Marks all alerts as seen for the current user's company/department.
+   */
+  markAllAsSeen(): Observable<void> {
+    return this.http.put<void>(`${this.BASE}/seen-all`, {});
+  }
+
+  /**
    * POST /api/alerts/run
    * Manually triggers anomaly detection (used by Person 2 after report confirm).
    */
@@ -50,5 +58,13 @@ export class AlertsApiService {
     currentValue: number;
   }): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.BASE}/run`, payload);
+  }
+
+  /**
+   * DELETE /api/alerts/{id}
+   * Deletes a single alert.
+   */
+  deleteAlert(alertId: number): Observable<void> {
+    return this.http.delete<void>(`${this.BASE}/${alertId}`);
   }
 }

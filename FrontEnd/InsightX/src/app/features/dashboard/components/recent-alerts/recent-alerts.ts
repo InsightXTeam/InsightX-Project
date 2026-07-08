@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AlertDto } from '../../dashboard.service';
@@ -11,4 +11,11 @@ import { AlertDto } from '../../dashboard.service';
 })
 export class RecentAlerts {
   @Input() alerts: AlertDto[] = [];
+  @Output() deleteAlert = new EventEmitter<number>();
+
+  onDelete(event: Event, alertId: number): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.deleteAlert.emit(alertId);
+  }
 }

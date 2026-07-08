@@ -13,6 +13,7 @@ import { Alert } from '../../models/alert.model';
 export class AlertCardComponent {
   @Input({ required: true }) alert!: Alert;
   @Output() markSeen = new EventEmitter<number>();
+  @Output() deleteAlert = new EventEmitter<number>();
 
   get badge(): string {
     if (this.alert.seenByOwner) return 'SEEN';
@@ -48,5 +49,9 @@ export class AlertCardComponent {
 
   onMarkSeen(): void {
     this.markSeen.emit(this.alert.id);
+  }
+
+  onDeleteAlert(): void {
+    this.deleteAlert.emit(this.alert.id);
   }
 }

@@ -87,6 +87,62 @@
   box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
 }
 
+/* ---- Mark All As Seen Button ---- */
+.btn-mark-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.25) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-radius: 12px;
+  color: #60a5fa;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  svg {
+    color: #60a5fa;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25) 0%, rgba(37, 99, 235, 0.4) 100%);
+    border-color: rgba(96, 165, 250, 0.6);
+    color: #93c5fd;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -4px rgba(59, 130, 246, 0.4);
+
+    svg {
+      transform: scale(1.15);
+      color: #93c5fd;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: rgba(30, 41, 59, 0.3);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    box-shadow: none;
+
+    svg {
+      color: var(--text-secondary);
+      transform: none;
+    }
+  }
+}
+
 /* ---- Notification Bell ---- */
 .bell-wrapper {
   position: relative;
