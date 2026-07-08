@@ -127,6 +127,7 @@ export class ReportPreview implements OnInit {
     this.isSaving = true;
     this.service.delete(this.reportId).subscribe({
       next: () => {
+        this.alertsApi.fetchUnseenCount();
         this.isSaving = false;
         this.router.navigate(['/reports']);
       },

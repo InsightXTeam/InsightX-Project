@@ -22,17 +22,20 @@ namespace InsightX.Infrastructure.Services
         private readonly AppDbContext _context;
         private readonly IChatCompletionService _chatService;
         private readonly IRetrieveChunksUseCase _retrieveChunksUseCase;
+        private readonly IKpiService _kpiService;
 
         public AgentService(
             IDashboardService dashboardService, 
             AppDbContext context,
             IChatCompletionService chatService,
-            IRetrieveChunksUseCase retrieveChunksUseCase)
+            IRetrieveChunksUseCase retrieveChunksUseCase,
+            IKpiService kpiService)
         {
             _dashboardService = dashboardService;
             _context = context;
             _chatService = chatService;
             _retrieveChunksUseCase = retrieveChunksUseCase;
+            _kpiService = kpiService;
         }
 
         public async Task<List<ChatResponseDto>> GetHistoryAsync(int companyId, Guid sessionId)
@@ -104,6 +107,9 @@ You have access to the following tools to fetch live data:
   Description: Fetches performance breakdown by department.
 - Action: GetTrends
   Description: Fetches historical trend data for KPIs over time.
+- Action: GetKpiDescription
+  Description: Fetches definitions and descriptions of Key Performance Indicators (KPIs) to understand what each KPI represents, measures, or how it is calculated.
+  Input: Optional KPI name (or leave empty/(None) for all KPI descriptions).
 - Action: GetDocumentInformation
   Description: Searches the vector database for information from company documents.
   Input: The search query string.
@@ -202,6 +208,21 @@ CRITICAL INSTRUCTIONS FOR YOUR FINAL ANSWER:
                             {
                                 var data = await _dashboardService.GetTrendsAsync(companyId, departmentId);
                                 observation = JsonSerializer.Serialize(data);
+                            }
+                            else if (action == "GetKpiDescription" || action == "GetKpiDescriptions")
+                            {
+                                var kpiResult = await _kpiService.GetAllAsync(companyId);
+                                var kpiList = kpiResult.Data ?? new List<KpiResponseDto>();
+                                if (departmentId.HasValue)
+                                {
+                                    kpiList = kpiList.Where(k => k.DepartmentId == null || k.DepartmentId == departmentId.Value).ToList();
+                                }
+                                if (!string.IsNullOrWhiteSpace(actionInput) && actionInput != "(None)")
+                                {
+                                    var matches = kpiList.Where(k => k.Name.Contains(actionInput, StringComparison.OrdinalIgnoreCase)).ToList();
+                                    if (matches.Any()) kpiList = matches;
+                                }
+                                observation = JsonSerializer.Serialize(kpiList.Select(k => new { k.Name, k.Description, k.Unit, k.Threshold, k.ThresholdDirection }));
                             }
                             else if (action == "GetDocumentInformation")
                             {

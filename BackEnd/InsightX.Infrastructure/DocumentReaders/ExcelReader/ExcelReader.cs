@@ -22,18 +22,39 @@ namespace InsightX.Infrastructure.DocumentReaders
                 // ExcelReaderFactory auto-detects .xls vs .xlsx
 
                 var sb = new StringBuilder();
+                int sheetIndex = 0;
 
                 do
                 {
+                    sheetIndex++;
+                    var sheetName = reader.Name ?? $"Sheet{sheetIndex}";
+                    sb.AppendLine($"=== Sheet: {sheetName} ===");
+
+                    bool isFirstRow = true;
                     while (reader.Read())
                     {
+                        var cells = new List<string>();
                         for (int col = 0; col < reader.FieldCount; col++)
                         {
-                            sb.Append(reader.GetValue(col)?.ToString() ?? "");
-                            sb.Append(' ');
+                            cells.Add(reader.GetValue(col)?.ToString()?.Trim() ?? "");
                         }
-                        sb.AppendLine();
+
+                        var row = string.Join(" | ", cells);
+
+                        if (isFirstRow)
+                        {
+                            // Mark the first row as a header row for AI context
+                            sb.AppendLine($"[Header] {row}");
+                            sb.AppendLine(new string('-', Math.Min(row.Length, 80)));
+                            isFirstRow = false;
+                        }
+                        else
+                        {
+                            sb.AppendLine(row);
+                        }
                     }
+
+                    sb.AppendLine(); // Blank line between sheets
                 } while (reader.NextResult()); // Handles multiple sheets
 
                 return sb.ToString();

@@ -310,3 +310,27 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.month-year-row {
+  display: flex;
+  gap: 12px;
+}
+
+.month-year-row select:first-child {
+  flex: 1;
+}
+
+.month-year-row select:last-child {
+  flex: 2;
+}
+
+.required-marker {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.form-select option:disabled {
+  color: #64748b;
+  background-color: #1e293b;
+  font-style: italic;
+}

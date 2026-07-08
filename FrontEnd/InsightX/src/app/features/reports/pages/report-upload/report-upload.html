@@ -37,7 +37,7 @@
 
     @if (isOwner()) {
       <div class="form-group mb-4">
-        <label for="departmentSelect" class="form-label">Assign to Department (Owner Only)</label>
+        <label for="departmentSelect" class="form-label">Department <span class="required-marker">*</span></label>
         <select
           id="departmentSelect"
           class="form-control form-select"
@@ -45,12 +45,49 @@
           (change)="onDepartmentChange($event)"
           [disabled]="isUploading() || isProcessing()"
         >
-          <option [value]="''">None (Company-Wide / No Department Assigned)</option>
+          <option [value]="''">Select a department...</option>
           <option *ngFor="let dept of departments()" [value]="dept.id">{{ dept.name }}</option>
         </select>
-        <small class="form-hint">Choose which department this report applies to, or leave as None for company-wide metrics.</small>
+        <small class="form-hint">Choose which department this report belongs to. Each department can only have one report per month.</small>
       </div>
     }
+
+    <div class="form-group mb-4">
+      <label class="form-label">Report Year &amp; Month <span class="required-marker">*</span></label>
+      <div class="month-year-row">
+        <select
+          id="reportYear"
+          class="form-control form-select"
+          [value]="selectedYear() ?? ''"
+          (change)="onYearChange($event)"
+          [disabled]="!departmentReady() || isUploading() || isProcessing()"
+        >
+          <option [value]="''">{{ departmentReady() ? 'Select year...' : 'Select a department first...' }}</option>
+          @for (year of availableYears(); track year) {
+            <option [value]="year">{{ year }}</option>
+          }
+        </select>
+
+        <select
+          id="reportMonth"
+          class="form-control form-select"
+          [value]="selectedMonth() ?? ''"
+          (change)="onMonthChange($event)"
+          [disabled]="!canSelectMonth() || isUploading() || isProcessing()"
+        >
+          <option [value]="''">{{ monthPlaceholder() }}</option>
+          @for (month of monthOptions(); track month.value) {
+            <option
+              [value]="month.value"
+              [disabled]="month.disabled"
+            >
+              {{ month.label }}{{ month.disabled ? ' (Already uploaded)' : '' }}
+            </option>
+          }
+        </select>
+      </div>
+      <small class="form-hint">First choose the year, then select the month this report covers. Months that already have a report for the selected department are disabled.</small>
+    </div>
 
     <div
       class="upload-drop-zone"
@@ -155,7 +192,7 @@
     <div class="upload-actions">
       <button
         class="submit-btn"
-        [disabled]="!selectedFile() || isUploading() || isProcessing()"
+        [disabled]="!selectedFile() || !selectedMonth() || !selectedYear() || !departmentReady() || isUploading() || isProcessing()"
         (click)="upload()"
       >
         @if (isUploading() || isProcessing()) {

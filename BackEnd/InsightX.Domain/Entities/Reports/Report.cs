@@ -22,6 +22,10 @@ namespace InsightX.Domain.Entities.Reports
 
         public DateTime UploadedAt { get; set; }
 
+        public int ReportMonth { get; set; }
+
+        public int ReportYear { get; set; }
+
         public string Status { get; set; } = ReportStatus.Pending.ToString();
 
         public string ExtractedText { get; set; } = string.Empty;

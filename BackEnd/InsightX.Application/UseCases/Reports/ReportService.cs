@@ -1,4 +1,5 @@
 using InsightX.Application.Common;
+using InsightX.Application.DTOs;
 using InsightX.Application.DTOs.Reports;
 using InsightX.Application.Interfaces;
 using InsightX.Domain.Entities.Reports;
@@ -17,17 +18,36 @@ namespace InsightX.Application.UseCases.Reports
         private readonly IFileStorageService _storage;
         private readonly IReportConfirmedHandler _reportConfirmedHandler;
         private readonly IDeleteReportChunksUseCase _deleteReportChunksUseCase;
+        private readonly IKpiService _kpiService;
+        private readonly IAlertRepository _alertRepository;
 
-        public ReportService(IReportRepository repository, IFileStorageService storage, IReportConfirmedHandler reportConfirmedHandler, IDeleteReportChunksUseCase deleteReportChunksUseCase)
+        public ReportService(IReportRepository repository, IFileStorageService storage, IReportConfirmedHandler reportConfirmedHandler, IDeleteReportChunksUseCase deleteReportChunksUseCase, IKpiService kpiService, IAlertRepository alertRepository)
         {
             _repository = repository;
             _storage = storage;
             _reportConfirmedHandler = reportConfirmedHandler;
             _deleteReportChunksUseCase = deleteReportChunksUseCase;
+            _kpiService = kpiService;
+            _alertRepository = alertRepository;
         }
 
         public async Task<ServiceResult<ReportResponseDto>> UploadAsync(UploadReportDto dto, int companyId, int? departmentId, string uploadedBy, CancellationToken cancellationToken = default)
         {
+            // Validate department is required
+            if (!departmentId.HasValue)
+                return ServiceResult<ReportResponseDto>.Fail(400, "A department must be selected for the report.");
+
+            // Validate month/year
+            if (dto.ReportMonth < 1 || dto.ReportMonth > 12)
+                return ServiceResult<ReportResponseDto>.Fail(400, "Invalid report month. Must be between 1 and 12.");
+            if (dto.ReportYear < 2000)
+                return ServiceResult<ReportResponseDto>.Fail(400, "Invalid report year.");
+
+            // Check for duplicate: one report per month per department
+            var exists = await _repository.ExistsForMonthAsync(companyId, departmentId, dto.ReportMonth, dto.ReportYear, cancellationToken);
+            if (exists)
+                return ServiceResult<ReportResponseDto>.Fail(400, "A report has already been uploaded for this department in this month. Only one report per month per department is allowed.");
+
             var path = await _storage.SaveFileAsync(dto.File);
             var report = new Report
             {
@@ -35,6 +55,8 @@ namespace InsightX.Application.UseCases.Reports
                 FileName = dto.File.FileName,
                 FilePath = path,
                 UploadedAt = DateTime.UtcNow,
+                ReportMonth = dto.ReportMonth,
+                ReportYear = dto.ReportYear,
                 Status = ReportStatus.Pending.ToString(),
                 CompanyId = companyId,
                 DepartmentId = departmentId,
@@ -57,7 +79,9 @@ namespace InsightX.Application.UseCases.Reports
                 Status = report.Status,
                 UploadedAt = report.UploadedAt,
                 UploadedById = report.UploadedById,
-                UploadedByName = "Me" // Temporary until list reload
+                UploadedByName = "Me",
+                ReportMonth = report.ReportMonth,
+                ReportYear = report.ReportYear
             });
         }
 
@@ -73,7 +97,9 @@ namespace InsightX.Application.UseCases.Reports
                 Status = x.Status,
                 UploadedAt = x.UploadedAt,
                 UploadedById = x.UploadedById,
-                UploadedByName = x.UploadedBy?.Name ?? string.Empty
+                UploadedByName = x.UploadedBy?.Name ?? string.Empty,
+                ReportMonth = x.ReportMonth,
+                ReportYear = x.ReportYear
             }).ToList());
         }
 
@@ -89,13 +115,41 @@ namespace InsightX.Application.UseCases.Reports
             var report = await _repository.GetByIdForCompanyAsync(id, companyId, cancellationToken);
             if (report == null || report.ExtractedMetrics == null) return ServiceResult<List<ExtractedMetricDto>>.Fail(404, "Report not found");
             
-            var metrics = report.ExtractedMetrics.Select(m => new ExtractedMetricDto
+            var kpisResult = await _kpiService.GetAllAsync(companyId, cancellationToken);
+            var departmentKpis = kpisResult.Data?
+                .Where(k => k.DepartmentId == null || k.DepartmentId == report.DepartmentId)
+                .ToList() ?? new List<KpiResponseDto>();
+
+            var metrics = new List<ExtractedMetricDto>();
+            foreach (var kpi in departmentKpis)
             {
-                KPIName = m.KPIName,
-                Value = m.Value,
-                Month = m.Month,
-                Year = m.Year
-            }).ToList();
+                var matched = report.ExtractedMetrics
+                    .Where(m => !string.IsNullOrWhiteSpace(m.KPIName) && m.KPIName.Equals(kpi.Name, StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(m => m.Year)
+                    .ThenByDescending(m => m.Month)
+                    .FirstOrDefault();
+
+                if (matched != null && matched.Value.HasValue)
+                {
+                    metrics.Add(new ExtractedMetricDto
+                    {
+                        KPIName = kpi.Name,
+                        Value = matched.Value,
+                        Month = matched.Month,
+                        Year = matched.Year
+                    });
+                }
+                else
+                {
+                    metrics.Add(new ExtractedMetricDto
+                    {
+                        KPIName = kpi.Name,
+                        Value = 0,
+                        Month = report.UploadedAt.Month,
+                        Year = report.UploadedAt.Year
+                    });
+                }
+            }
             
             return ServiceResult<List<ExtractedMetricDto>>.Success(metrics);
         }
@@ -121,21 +175,27 @@ namespace InsightX.Application.UseCases.Reports
             {
                 foreach (var metricDto in dto.Metrics)
                 {
-                    var existingMetric = report.ExtractedMetrics.FirstOrDefault(m => m.KPIName == metricDto.KPIName);
-                    if (existingMetric != null)
+                    var existingMetrics = report.ExtractedMetrics.Where(m => !string.IsNullOrWhiteSpace(m.KPIName) && m.KPIName.Equals(metricDto.KPIName, StringComparison.OrdinalIgnoreCase)).ToList();
+                    if (existingMetrics.Any())
                     {
-                        existingMetric.Value = metricDto.Value;
+                        var primaryMetric = existingMetrics.First();
+                        primaryMetric.Value = metricDto.Value ?? 0;
                         if (metricDto.Month.HasValue && metricDto.Month.Value >= 1 && metricDto.Month.Value <= 12)
                         {
-                            existingMetric.Month = metricDto.Month.Value;
+                            primaryMetric.Month = metricDto.Month.Value;
                         }
                         if (metricDto.Year.HasValue && metricDto.Year.Value >= 2000)
                         {
-                            existingMetric.Year = metricDto.Year.Value;
+                            primaryMetric.Year = metricDto.Year.Value;
                         }
-                        existingMetric.ConfirmedByManager = true;
+                        primaryMetric.ConfirmedByManager = true;
+
+                        foreach (var duplicate in existingMetrics.Skip(1))
+                        {
+                            report.ExtractedMetrics.Remove(duplicate);
+                        }
                         
-                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0));
+                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0), report.Id);
                     }
                     else
                     {
@@ -144,14 +204,14 @@ namespace InsightX.Application.UseCases.Reports
                             ReportId = report.Id,
                             CompanyId = report.CompanyId,
                             KPIName = metricDto.KPIName,
-                            Value = metricDto.Value,
+                            Value = metricDto.Value ?? 0,
                             Month = (metricDto.Month.HasValue && metricDto.Month.Value >= 1 && metricDto.Month.Value <= 12) ? metricDto.Month.Value : report.UploadedAt.Month,
                             Year = (metricDto.Year.HasValue && metricDto.Year.Value >= 2000) ? metricDto.Year.Value : report.UploadedAt.Year,
                             ConfirmedByManager = true
                         };
                         report.ExtractedMetrics.Add(newMetric);
 
-                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0));
+                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0), report.Id);
                     }
                 }
             }
@@ -176,6 +236,8 @@ namespace InsightX.Application.UseCases.Reports
             if (report == null) return ServiceResult.Fail(404, "Report not found");
             
             if (role != "Owner" && report.UploadedById != userName) return ServiceResult.Fail(403, "You do not have permission to delete this report.");
+
+            await _alertRepository.DeleteByReportIdAsync(id, cancellationToken);
 
             // Delete from Vector DB first before the relational DB record is removed
             await _deleteReportChunksUseCase.ExecuteAsync(companyId, id, userName, role, cancellationToken);
@@ -218,6 +280,12 @@ namespace InsightX.Application.UseCases.Reports
             };
 
             return ServiceResult<ReportDownloadDto>.Success(dto);
+        }
+
+        public async Task<ServiceResult<List<int>>> GetUploadedMonthsAsync(int companyId, int? departmentId, int year, string role, string userId, CancellationToken cancellationToken = default)
+        {
+            var months = await _repository.GetUploadedMonthsAsync(companyId, departmentId, year, role, userId, cancellationToken);
+            return ServiceResult<List<int>>.Success(months);
         }
     }
 }

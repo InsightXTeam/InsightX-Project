@@ -56,6 +56,6 @@ export class SidenavbarComponent implements OnInit {
 
   onLogout(): void {
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/']);
   }
 }

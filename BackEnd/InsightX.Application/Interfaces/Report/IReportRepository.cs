@@ -17,5 +17,9 @@ namespace InsightX.Application.Interfaces
         Task UpdateAsync(Report report, CancellationToken cancellationToken = default);
 
         Task DeleteAsync(Report report, CancellationToken cancellationToken = default);
+
+        Task<List<int>> GetUploadedMonthsAsync(int companyId, int? departmentId, int year, string role, string userId, CancellationToken cancellationToken = default);
+
+        Task<bool> ExistsForMonthAsync(int companyId, int? departmentId, int reportMonth, int reportYear, CancellationToken cancellationToken = default);
     }
 }

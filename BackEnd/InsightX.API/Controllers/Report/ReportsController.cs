@@ -35,8 +35,11 @@ namespace InsightX.API.Controllers.Report
             }
 
             var companyId = User.GetCompanyId();
-            var departmentId = User.GetDepartmentId();
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
             var userName = User.GetUserId();
+
+            // Owner picks a department from the form; Manager uses their own department from the token
+            int? departmentId = role == "Owner" ? dto.DepartmentId : User.GetDepartmentId();
 
             var result = await _service.UploadAsync(dto, companyId, departmentId, userName, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
@@ -51,6 +54,20 @@ namespace InsightX.API.Controllers.Report
             var departmentId = User.GetDepartmentId();
 
             var result = await _service.GetReportsAsync(companyId, departmentId, role, userName, cancellationToken);
+            return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
+        }
+
+        [HttpGet("uploaded-months")]
+        public async Task<IActionResult> GetUploadedMonths([FromQuery] int year, [FromQuery] int? departmentId, CancellationToken cancellationToken)
+        {
+            var companyId = User.GetCompanyId();
+            var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            var userName = User.GetUserId();
+
+            // Owner sends departmentId from query; Manager uses their own from the token
+            int? deptId = role == "Owner" ? departmentId : User.GetDepartmentId();
+
+            var result = await _service.GetUploadedMonthsAsync(companyId, deptId, year, role, userName, cancellationToken);
             return result.IsSuccess ? Ok(result.Data) : StatusCode(result.StatusCode, result.Error);
         }
 

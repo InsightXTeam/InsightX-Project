@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ReportService } from '../../../../core/services/report.service';
 import { Report } from '../../../../core/models/report.model';
+import { AlertsApiService } from '../../../alerts/services/alerts-api.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/dialog/confirm-dialog';
 import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
 
@@ -17,6 +18,7 @@ import { ToastNotificationComponent } from '../../../../shared/components/toast-
 export class ReportList implements OnInit {
   private service = inject(ReportService);
   private router = inject(Router);
+  private alertsApi = inject(AlertsApiService);
 
   reports = signal<Report[]>([]);
   searchQuery = signal('');
@@ -112,6 +114,7 @@ export class ReportList implements OnInit {
         this.showDeleteDialog.set(false);
         this.deleteReportId.set(null);
         this.loadReports();
+        this.alertsApi.fetchUnseenCount();
         this.showToast('Report deleted successfully.', 'success');
       },
       error: () => {

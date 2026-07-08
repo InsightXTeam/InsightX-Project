@@ -14,12 +14,14 @@ export class ReportService {
   private apiUrl = `${environment.apiBaseUrl}/Reports`;
 
   // POST /api/Reports/upload
-  upload(file: File, reportName: string, departmentId?: number | null): Observable<any> {
+  upload(file: File, reportName: string, reportMonth: number, reportYear: number, departmentId?: number | null): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     if (reportName) {
       formData.append('reportName', reportName);
     }
+    formData.append('reportMonth', reportMonth.toString());
+    formData.append('reportYear', reportYear.toString());
     if (departmentId !== undefined && departmentId !== null) {
       formData.append('departmentId', departmentId.toString());
     }
@@ -76,5 +78,14 @@ export class ReportService {
   // GET /api/Reports/{id}/download
   download(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/${id}/download`, { responseType: 'blob' });
+  }
+
+  // GET /api/Reports/uploaded-months?year={year}&departmentId={departmentId}
+  getUploadedMonths(year: number, departmentId?: number | null): Observable<number[]> {
+    let params: any = { year: year.toString() };
+    if (departmentId !== undefined && departmentId !== null) {
+      params.departmentId = departmentId.toString();
+    }
+    return this.http.get<number[]>(`${this.apiUrl}/uploaded-months`, { params });
   }
 }

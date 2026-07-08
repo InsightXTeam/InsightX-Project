@@ -7,6 +7,12 @@ import { HttpEventType } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { ToastNotificationComponent } from '../../../../shared/components/toast-notification/toast-notification';
 
+interface MonthOption {
+  value: number;
+  label: string;
+  disabled: boolean;
+}
+
 @Component({
   selector: 'app-report-upload',
   standalone: true,
@@ -25,6 +31,54 @@ export class ReportUpload implements OnInit, OnDestroy {
   selectedDepartmentId = signal<number | null>(null);
   departments = signal<DepartmentResponse[]>([]);
   isOwner = computed(() => this.authService.currentUser()?.role === 'Owner');
+  isManager = computed(() => this.authService.currentUser()?.role === 'Manager');
+
+  // Month/Year selection - Year must be chosen first
+  selectedMonth = signal<number | null>(null);
+  selectedYear = signal<number | null>(null);
+  uploadedMonths = signal<number[]>([]);
+
+  // Department must be selected before year/month dropdowns are usable (for owners)
+  departmentReady = computed(() => {
+    if (this.isOwner()) {
+      return this.selectedDepartmentId() !== null;
+    }
+    // Managers always have a department from their token
+    return true;
+  });
+
+  canSelectMonth = computed(() => {
+    return this.departmentReady() && this.selectedYear() !== null;
+  });
+
+  monthPlaceholder = computed(() => {
+    if (!this.departmentReady()) {
+      return 'Select a department first...';
+    }
+    if (this.selectedYear() === null) {
+      return 'Select a year first...';
+    }
+    return 'Select month...';
+  });
+
+  private readonly monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  availableYears = computed(() => {
+    const current = new Date().getFullYear();
+    return [current - 1, current, current + 1];
+  });
+
+  monthOptions = computed<MonthOption[]>(() => {
+    const uploaded = this.uploadedMonths();
+    return this.monthNames.map((label, i) => ({
+      value: i + 1,
+      label,
+      disabled: uploaded.includes(i + 1)
+    }));
+  });
 
   isDragging = signal<boolean>(false);
   isUploading = signal<boolean>(false);
@@ -54,12 +108,63 @@ export class ReportUpload implements OnInit, OnDestroy {
     }
   }
 
+  loadUploadedMonths() {
+    const year = this.selectedYear();
+    if (year === null || !this.departmentReady()) {
+      this.uploadedMonths.set([]);
+      return;
+    }
+    const deptId = this.isOwner() ? this.selectedDepartmentId() : null;
+    this.service.getUploadedMonths(year, deptId).subscribe({
+      next: (months) => {
+        this.uploadedMonths.set(months);
+        // If the currently selected month is now disabled, clear it
+        if (this.selectedMonth() && months.includes(this.selectedMonth()!)) {
+          this.selectedMonth.set(null);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load uploaded months', err);
+      }
+    });
+  }
+
   onDepartmentChange(event: any) {
     const val = event.target.value;
     if (!val || val === '') {
       this.selectedDepartmentId.set(null);
+      this.uploadedMonths.set([]);
+      this.selectedMonth.set(null);
     } else {
       this.selectedDepartmentId.set(Number(val));
+      this.selectedMonth.set(null);
+      if (this.selectedYear() !== null) {
+        this.loadUploadedMonths();
+      }
+    }
+  }
+
+  onYearChange(event: any) {
+    const val = event.target.value;
+    if (!val || val === '') {
+      this.selectedYear.set(null);
+      this.selectedMonth.set(null);
+      this.uploadedMonths.set([]);
+    } else {
+      this.selectedYear.set(Number(val));
+      this.selectedMonth.set(null);
+      if (this.departmentReady()) {
+        this.loadUploadedMonths();
+      }
+    }
+  }
+
+  onMonthChange(event: any) {
+    const val = event.target.value;
+    if (!val || val === '') {
+      this.selectedMonth.set(null);
+    } else {
+      this.selectedMonth.set(Number(val));
     }
   }
 
@@ -90,18 +195,19 @@ export class ReportUpload implements OnInit, OnDestroy {
   removeFile() {
     this.selectedFile.set(undefined);
     this.reportName.set('');
-    this.selectedDepartmentId.set(null);
     this.uploadProgress.set(0);
   }
 
   upload() {
     const file = this.selectedFile();
-    if (!file) return;
+    const month = this.selectedMonth();
+    const year = this.selectedYear();
+    if (!file || !month || !year || !this.departmentReady()) return;
 
     this.isUploading.set(true);
     this.uploadProgress.set(0);
 
-    this.service.upload(file, this.reportName(), this.selectedDepartmentId()).subscribe({
+    this.service.upload(file, this.reportName(), month, year, this.selectedDepartmentId()).subscribe({
       next: (event: any) => {
         if (event.type === HttpEventType.UploadProgress) {
           if (event.total) {
@@ -144,11 +250,12 @@ export class ReportUpload implements OnInit, OnDestroy {
           }
         }
       },
-      error: () => {
+      error: (err) => {
         if (this.processingInterval) clearInterval(this.processingInterval);
         this.isUploading.set(false);
         this.isProcessing.set(false);
-        this.showToast('Upload failed. Please try again.', 'error');
+        const message = err?.error?.message || 'Upload failed. Please try again.';
+        this.showToast(message, 'error');
       },
     });
   }

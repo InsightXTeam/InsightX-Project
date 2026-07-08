@@ -21,5 +21,7 @@ namespace InsightX.Application.Interfaces
         Task<ServiceResult> DeleteAsync(int id, int companyId, string role, string userName, CancellationToken cancellationToken = default);
 
         Task<ServiceResult<ReportDownloadDto>> DownloadAsync(int id, int companyId, CancellationToken cancellationToken = default);
+
+        Task<ServiceResult<List<int>>> GetUploadedMonthsAsync(int companyId, int? departmentId, int year, string role, string userId, CancellationToken cancellationToken = default);
     }
 }

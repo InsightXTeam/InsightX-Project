@@ -1,5 +1,6 @@
-﻿using InsightX.Application.Interfaces;
+using InsightX.Application.Interfaces;
 using iTextSharp.text.pdf.parser;
+using System.Text;
 
 namespace InsightX.Infrastructure.DocumentReaders
 {
@@ -14,17 +15,25 @@ namespace InsightX.Infrastructure.DocumentReaders
         {
             return await Task.Run(() =>
             {
-                var text = string.Empty;
+                var sb = new StringBuilder();
 
                 using (var pdfReader = new iTextSharp.text.pdf.PdfReader(filePath))
                 {
                     for (int page = 1; page <= pdfReader.NumberOfPages; page++)
                     {
-                        text += PdfTextExtractor.GetTextFromPage(pdfReader, page);
+                        if (page > 1)
+                            sb.AppendLine();
+
+                        sb.AppendLine($"--- Page {page} of {pdfReader.NumberOfPages} ---");
+
+                        // Use SimpleTextExtractionStrategy for better layout preservation
+                        var strategy = new SimpleTextExtractionStrategy();
+                        var pageText = PdfTextExtractor.GetTextFromPage(pdfReader, page, strategy);
+                        sb.AppendLine(pageText);
                     }
                 }
 
-                return text;
+                return sb.ToString();
             });
         }
     }

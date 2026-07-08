@@ -12,9 +12,9 @@ namespace InsightX.Infrastructure.Handlers
             _generateAlert = generateAlert;
         }
 
-        public async Task HandleAsync(int companyId, int? departmentId, string kpiName, decimal value)
+        public async Task HandleAsync(int companyId, int? departmentId, string kpiName, decimal value, int? reportId = null)
         {
-            await _generateAlert.ExecuteAsync(companyId, departmentId, kpiName, value);
+            await _generateAlert.ExecuteAsync(companyId, departmentId, kpiName, value, reportId);
         }
     }
 }

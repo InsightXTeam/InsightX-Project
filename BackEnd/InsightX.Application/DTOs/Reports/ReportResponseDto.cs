@@ -20,5 +20,9 @@ namespace InsightX.Application.DTOs.Reports
         public string UploadedById { get; set; } = string.Empty;
 
         public string UploadedByName { get; set; } = string.Empty;
+
+        public int ReportMonth { get; set; }
+
+        public int ReportYear { get; set; }
     }
 }
