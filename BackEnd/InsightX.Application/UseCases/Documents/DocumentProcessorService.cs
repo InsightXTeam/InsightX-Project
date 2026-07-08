@@ -110,8 +110,8 @@ namespace InsightX.Application.UseCases.Documents
                     {
                         KPIName = x.KPIName,
                         Value = x.Value,
-                        Month = x.Month ?? report.UploadedAt.Month,
-                        Year = x.Year ?? report.UploadedAt.Year,
+                        Month = (x.Month.HasValue && x.Month.Value >= 1 && x.Month.Value <= 12) ? x.Month.Value : report.UploadedAt.Month,
+                        Year = (x.Year.HasValue && x.Year.Value >= 2000) ? x.Year.Value : report.UploadedAt.Year,
                         CompanyId = report.CompanyId,
                         ConfirmedByManager = false
                     }).ToList();

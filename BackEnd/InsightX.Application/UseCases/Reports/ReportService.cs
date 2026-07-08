@@ -125,10 +125,43 @@ namespace InsightX.Application.UseCases.Reports
                     if (existingMetric != null)
                     {
                         existingMetric.Value = metricDto.Value;
+                        if (metricDto.Month.HasValue && metricDto.Month.Value >= 1 && metricDto.Month.Value <= 12)
+                        {
+                            existingMetric.Month = metricDto.Month.Value;
+                        }
+                        if (metricDto.Year.HasValue && metricDto.Year.Value >= 2000)
+                        {
+                            existingMetric.Year = metricDto.Year.Value;
+                        }
                         existingMetric.ConfirmedByManager = true;
                         
                         await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0));
                     }
+                    else
+                    {
+                        var newMetric = new ExtractedMetric
+                        {
+                            ReportId = report.Id,
+                            CompanyId = report.CompanyId,
+                            KPIName = metricDto.KPIName,
+                            Value = metricDto.Value,
+                            Month = (metricDto.Month.HasValue && metricDto.Month.Value >= 1 && metricDto.Month.Value <= 12) ? metricDto.Month.Value : report.UploadedAt.Month,
+                            Year = (metricDto.Year.HasValue && metricDto.Year.Value >= 2000) ? metricDto.Year.Value : report.UploadedAt.Year,
+                            ConfirmedByManager = true
+                        };
+                        report.ExtractedMetrics.Add(newMetric);
+
+                        await _reportConfirmedHandler.HandleAsync(report.CompanyId, report.DepartmentId, metricDto.KPIName, (decimal)(metricDto.Value ?? 0));
+                    }
+                }
+            }
+
+            if (report.ExtractedMetrics != null)
+            {
+                foreach (var m in report.ExtractedMetrics)
+                {
+                    if (m.Month <= 0 || m.Month > 12) m.Month = report.UploadedAt.Month;
+                    if (m.Year <= 0) m.Year = report.UploadedAt.Year;
                 }
             }
 
